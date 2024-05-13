@@ -5,11 +5,11 @@ const Task = mongoose.model("Task", {
 });
 
 const User = mongoose.model("User", {
-    userId: Number,
-    userName: String,
-    organizations: [Number],
-    userKind: Number,
-    email: String,
+    userId: {type: Number, required: true, unique: true},
+    userName: {type: String, required: true},
+    organizations: {type: [Number], required: true},
+    userKind: {type: Number, required: true},
+    email: {type: String, required: true},
 });
 
 /**
