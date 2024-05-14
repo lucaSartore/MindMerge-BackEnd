@@ -23,13 +23,15 @@ const TaskSchema = new mongoose.Schema({
 
 const TaskModel = mongoose.model("Task", TaskSchema);
 
-const User = mongoose.model("User", {
+const UserSchema = new mongoose.Schema({
     userId: {type: Number, required: true, unique: true},
     userName: {type: String, required: true},
     organizations: {type: [Number], required: true},
     userKind: {type: Number, required: true},
     email: {type: String, required: true},
 });
+
+const userModel = mongoose.model("User", UserSchema);
 
 /**
  * @typedef dataBaseManager
