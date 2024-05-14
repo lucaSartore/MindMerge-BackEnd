@@ -4,6 +4,13 @@ const TaskReportScheduleSchema = new mongoose.Schema({
     // todo for Gioele
 });
 
+const TaskNoteSchema = new mongoose.Schema({
+    noteId: {type: Number, required: true},
+    taskId: {type: Number, required: true},
+    notes: {type: String, required: true},
+    date: {type: Date, default: Date.now, required: true}
+});
+
 const TaskSchema = new mongoose.Schema({
     taskId: {Number, required: true, unique: true},
     taskFatherId: Number,
@@ -11,7 +18,7 @@ const TaskSchema = new mongoose.Schema({
     taskName: {type: String, required: true},
     taskDescription: {type: String, required: true},
     taskStatus: {type: Number, required: true},
-    taskNotes: {type: [TaskNote], required: true, default: []},
+    taskNotes: {type: [TaskNoteSchema], required: true, default: []},
     taskAssignees: {type: [Number], required: true, default: []},
     taskManager: {type: Number, required: true},
     taskOrganizationId: {type: Number, required: true},
@@ -31,13 +38,18 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
-const userModel = mongoose.model("User", UserSchema);
+const UserModel = mongoose.model("User", UserSchema);
 
 /**
  * @typedef dataBaseManager
  * @type {Object}
+ * @property {mongoose} mongoose - The mongoose object
  */
-export default class DataBaseManager{
-    constructor(client){
+export class DataBaseManager{
+    constructor(){
+        this.mongoose = mongoose;
     }
 }
+
+
+export {TaskModel, UserModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, DataBaseManager};

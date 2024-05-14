@@ -1,6 +1,8 @@
 import DataBaseManager from './data_base_manager.js';
+import Errors from '../common_infrastructure/errors.js';
+import { UserModel } from './database_manager.js'; 
 
-export default class UserManager extends DataBaseManager{
+export class UserManager extends DataBaseManager{
 
     //////////////////////////// Creation ////////////////////////////
 
@@ -10,7 +12,12 @@ export default class UserManager extends DataBaseManager{
      * @param {User} user 
      * @returns {CustomResponse<number>}
      */
-    createUser(user){
+    async createUser(user){
+        if(!user.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid user");
+        }
+        let user = new UserModel(user);
+        await user.save();
     }
 
     /**
