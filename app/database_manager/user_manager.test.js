@@ -18,7 +18,7 @@ describe('TEST 1', () => {
 
   test('Test for a new *successful* user insertion', async () => {
     let um = new UserManager();
-    await um.createUser(
+    let result = await um.createUser(
         new User(
             1,
             "Gerry",
@@ -27,6 +27,10 @@ describe('TEST 1', () => {
             "user@mail.com"
         )
     );
+
+    if (result.statusCode != 200) { // result.codes.ok()
+      throw new Error ("ciao");
+    }
   });
 
   test('Test for finding an existing user', async () => {
