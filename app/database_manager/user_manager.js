@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { DataBaseManager, UserModel } from './database_manager.js';
 import User from "../common_infrastructure/user.js";
 import CustomResponse from "../common_infrastructure/response.js";
@@ -14,7 +15,7 @@ export class UserManager extends DataBaseManager{
      * @returns {CustomResponse<number>}
      */
     async createUser(user){
-        if(!user.validate()){
+        if(!user.validate()) {
             return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
         }
         let new_user = new UserModel(user);
@@ -25,7 +26,7 @@ export class UserManager extends DataBaseManager{
      * Create a new notification in the database, the id of the notification will be automatically generated 
      * return the id of the notification created
      * @param {number} userId 
-     * @param {Notification} notification 
+     * @param {Notification} notification
      * @returns {CustomResponse<number>}
      */
     createNotification(userId, notification){
@@ -97,7 +98,17 @@ export class UserManager extends DataBaseManager{
      * @param {number} userId
      * @returns {CustomResponse<User>}
      */
-    readUser(userId){
+    async readUser(userId) {
+        try {
+            const user = await UserModel.findOne({ userId: userId }).exec(); 
+            if (user) {
+                console.log("User found: ", user.userId);
+            } else {
+              console.log("No such user found");
+            }
+        } catch (error) {
+            console.error("Error while searching");
+        }
     }
 
     /**

@@ -68,7 +68,8 @@ UserSchema.pre("save", async function(next) {
             this.userId = 1;
         } else {
             const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
-            this.userId = maxId[0].userId + 1;
+            // this.userId = maxId[0].userId + 1;
+            this.userId = 42;
         }
         next();
         // console.log(`Id of the new user => ${this.userId}`);
