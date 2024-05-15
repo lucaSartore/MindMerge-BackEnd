@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { UserManager } from "./user_manager.js";
-import User  from "../common_infrastructure/user.js";
+import Organization from "../common_infrastructure/organization.js";
+import OrganizationManager from "./organization_manager.js";
 
 describe('TEST 1', () => {
 
@@ -16,15 +16,16 @@ describe('TEST 1', () => {
     console.log("Database connection closed");
   });
 
-  test('Test for a new *successful* user insertion', async () => {
-    let um = new UserManager();
-    await um.createUser(
-        new User(
+  test('New Organization', async () => {
+    let um = new OrganizationManager();
+    await um.createOrganization(
+        new Organization(
             1,
-            "Gerry",
+            "Test &co",
             [1],
-            0,
-            "user@mail.com"
+            true,
+            Date.parse('2025-01-01'),
+            1
         )
     );
   });

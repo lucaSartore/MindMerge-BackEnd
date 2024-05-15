@@ -11,6 +11,7 @@ const TaskReportScheduleSchema = new mongoose.Schema({
     reportPrompt: {type: String, required: true}
 });
 
+
 const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
 
 const TaskNoteSchema = new mongoose.Schema({
@@ -41,13 +42,56 @@ const TaskModel = mongoose.model("Task", TaskSchema);
 
 const UserSchema = new mongoose.Schema({
     userId: {type: Number, required: true, unique: true},
-    userName: {type: String, required: true},
+    userName: {type: String, required: true, unique: true},
     organizations: {type: [Number], required: true},
     userKind: {type: Number, required: true},
     email: {type: String, required: true},
 });
 
+const OrganizationSchema = new mongoose.Schema({
+  organizationId: {type: Number, required: true, unique: true},
+  organizationName: {type: String, required: true},
+  userIds: {type: [Number], required: true},
+  licenseValid: {type: Boolean, required: true},
+  licenseExpirationDate: {type: Date, required: true},
+  ownerId: {type: Number, required: true},
+});
+
 const UserModel = mongoose.model("User", UserSchema);
+
+const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
+
+// Middleware
+UserSchema.pre("save", async function(next) {
+    try {
+        if (await this.model("User").countDocuments().exec() === 0) {
+            this.userId = 1;
+        } else {
+            const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
+            this.userId = maxId[0].userId + 1;
+        }
+        next();
+        // console.log(`Id of the new user => ${this.userId}`);
+    } catch (error) {
+        next(error);
+    }
+});
+
+//Id assignement for organization
+OrganizationSchema.pre('save', async function(next) {
+  try {
+    if (await this.model('Organization').countDocuments().exec() === 0) {
+      this.organizationId = 1;
+    } else {
+      const maxId = await this.model('Organization').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
+      this.organizationId = maxId[0].organizationId + 1;
+    }
+    next();
+      console.log(`Id of the new Organization => ${this.organizationId}`);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * @typedef dataBaseManager
@@ -61,4 +105,4 @@ class DataBaseManager{
 }
 
 
-export {TaskModel, UserModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, DataBaseManager};
+export {TaskModel, UserModel, OrganizationModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, OrganizationSchema, DataBaseManager};
