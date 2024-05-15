@@ -1,14 +1,31 @@
 import { UserManager } from "./user_manager";
+import mongoose from "mongoose";
 import User  from "../common_infrastructure/user.js";
-let um = new UserManager();
 
+describe('TEST 1', () => {
 
-await um.createUser(
-    new User(
-        1,
-        "Gerry",
-        [1],
-        0,
-        "user@mail.com"
-    )
-);
+  let connection;
+
+  beforeAll( async () => {
+    connection = await  mongoose.connect(process.env.DB_URL);
+    console.log('Database connected!');
+  });
+
+  afterAll( () => {
+    mongoose.connection.close(true);
+    console.log("Database connection closed");
+  });
+
+  test('aaa', async () => {
+    let um = new UserManager();
+    await um.createUser(
+        new User(
+            1,
+            "Gerry",
+            [1],
+            0,
+            "user@mail.com"
+        )
+    );
+  });
+});
