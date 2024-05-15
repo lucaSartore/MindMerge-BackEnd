@@ -1,5 +1,5 @@
-import { UserManager } from "./user_manager";
 import mongoose from "mongoose";
+import { UserManager } from "./user_manager.js";
 import User  from "../common_infrastructure/user.js";
 
 describe('TEST 1', () => {
