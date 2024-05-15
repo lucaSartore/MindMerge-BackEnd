@@ -1,6 +1,7 @@
-import Errors from '../common_infrastructure/errors.js';
 import { DataBaseManager, UserModel } from './database_manager.js';
+import User from "../common_infrastructure/user.js";
 import CustomResponse from "../common_infrastructure/response.js";
+import Errors from '../common_infrastructure/errors.js';
 
 export class UserManager extends DataBaseManager{
 
