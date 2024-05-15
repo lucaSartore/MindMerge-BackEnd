@@ -47,6 +47,22 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
+// Middleware
+UserSchema.pre('save', async function(next) {
+  try {
+    if (await this.model('User').countDocuments().exec() === 0) {
+      this.userId = 1;
+    } else {
+      const maxId = await this.model('User').find().sort({ userId: -1 }).limit(1).select('userId').exec();
+      this.userId = maxId[0].userId + 1;
+    }
+    next();
+    console.log(`Id of the new user => ${this.userId}`);
+  } catch (error) {
+    next(error);
+  }
+});
+
 const UserModel = mongoose.model("User", UserSchema);
 
 /**
