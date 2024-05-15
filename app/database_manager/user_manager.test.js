@@ -52,6 +52,39 @@ describe('Test create user', () => {
     expect(user.userName).toBe("Gerry23");
 
   });
+  test('Test for bad request user creation', async () => {
+    await UserModel.deleteMany({}); 
+    let um = new UserManager();
+
+    let r = await um.createUser(new User( 1, null, [1], 0, "user@example.com"));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1,22, [1], 0, "user@example.com"));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", ["sds"], 0, "user@example.com"));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", null, 0, "user@example.com"));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", [1], NaN, "user@example.com"));
+    
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", [1], 10, "user@example.com"));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", [1], 0, ""));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", [1], 0, 111));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+    r = await um.createUser(new User( 1, "Gerry", [1], 0, undefined));
+    expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+
+  });
 
   test('Test for finding an existing user', async () => {
     let um = new UserManager();

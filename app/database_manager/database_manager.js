@@ -56,6 +56,22 @@ const OrganizationSchema = new mongoose.Schema({
   licenseExpirationDate: {type: Date, required: true},
   ownerId: {type: Number, required: true},
 });
+//Id assignment for organization
+OrganizationSchema.pre('save', async function(next) {
+  try {
+    if (await this.model('Organization').countDocuments().exec() === 0) {
+      this.organizationId = 1;
+    } else {
+      const maxId = await this.model('Organization').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
+      this.organizationId = maxId[0].organizationId + 1;
+    }
+    next();
+      console.log(`Id of the new Organization => ${this.organizationId}`);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 // Middleware
 UserSchema.pre("save", async function(next) {
@@ -78,22 +94,6 @@ UserSchema.pre("save", async function(next) {
 const UserModel = mongoose.model("User", UserSchema);
 
 const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
-
-//Id assignement for organization
-OrganizationSchema.pre('save', async function(next) {
-  try {
-    if (await this.model('Organization').countDocuments().exec() === 0) {
-      this.organizationId = 1;
-    } else {
-      const maxId = await this.model('Organization').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
-      this.organizationId = maxId[0].organizationId + 1;
-    }
-    next();
-      console.log(`Id of the new Organization => ${this.organizationId}`);
-  } catch (error) {
-    next(error);
-  }
-});
 
 /**
  * @typedef dataBaseManager
