@@ -1,4 +1,6 @@
 import {DataBaseManager, OrganizationModel}from './database_manager.js';
+import CustomResponse from '../common_infrastructure/response.js';
+import Errors from '../common_infrastructure/errors.js';
 
 export default class OrganizationManager extends DataBaseManager{
 

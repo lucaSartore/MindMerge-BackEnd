@@ -47,6 +47,19 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
+const OrganizationSchema = new mongoose.Schema({
+  organizationId: {type: Number, required: true, unique: true},
+  organizationName: {type: String, required: true},
+  userIds: {type: [Number], required: true},
+  licenseValid: {type: Boolean, required: true},
+  licenseExpirationDate: {type: Date, required: true},
+  ownerId: {type: Number, required: true},
+});
+
+const UserModel = mongoose.model("User", UserSchema);
+
+const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
+
 // Middleware
 UserSchema.pre('save', async function(next) {
   try {
@@ -63,18 +76,21 @@ UserSchema.pre('save', async function(next) {
   }
 });
 
-const UserModel = mongoose.model("User", UserSchema);
-
-const OrganizationSchema = new mongoose.Schema({
-    organizationId: {type: Number, required: true, unique: true},
-    organizationName: {type: String, required: true},
-    userIds: {type: [Number], required: true},
-    licenseValid: {type: Boolean, required: true},
-    licenseExpirationDate: {type: Date, required: true},
-    ownerId: {type: Number, required: true},
+//Id assignement for organization
+OrganizationSchema.pre('save', async function(next) {
+  try {
+    if (await this.model('User').countDocuments().exec() === 0) {
+      this.organizationId = 1;
+    } else {
+      const maxId = await this.model('User').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
+      this.organizationId = maxId[0].organizationId + 1;
+    }
+    next();
+      console.log(`Id of the new user => ${this.organizationId}`);
+  } catch (error) {
+    next(error);
+  }
 });
-
-const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
 /**
  * @typedef dataBaseManager
