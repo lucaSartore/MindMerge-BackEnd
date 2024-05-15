@@ -1,9 +1,16 @@
-import DataBaseManager from './database_manager.js';
+import {DataBaseManager} from './database_manager.js';
+import CustomResponse from "../common_infrastructure/response.js";
+import Task  from "../common_infrastructure/task.js";
+import TaskReportSchedule from "../common_infrastructure/task_report_schedule.js";
+import TaskNote from "../common_infrastructure/task_note.js"; 
+import TaskStatus from "../common_infrastructure/task_status.js";
+import ReportType from "../common_infrastructure/report_type.js";
+import reportFrequency from "../common_infrastructure/report_frequency.js";
 
 
 export default class TaskManager extends DataBaseManager{
 
-    //////////////////////////// ieation ////////////////////////////
+    //////////////////////////// insertion ////////////////////////////
 
     /**
      * Create a new task in the database, the id of the task will be automatically generated
@@ -12,7 +19,19 @@ export default class TaskManager extends DataBaseManager{
      * @param {Task} task 
      * @returns {CustomResponse<number>}
      */
-    createTask(organizationId, task){
+    async createTask(organizationId, task){
+        if(organizationId == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        task.taskOrganizationId = organizationId;
+        if(!task.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid task");
+        }
+        let new_task = new TaskModel(task);
+        await new_task.save();
     }
     
     /**
