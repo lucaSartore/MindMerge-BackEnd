@@ -16,8 +16,8 @@ describe('TEST TASK MANAGER', () => {
     console.log('Database connected!');
   });
 
-  afterAll(() => {
-    mongoose.connection.close(true);
+  afterAll(async () => {
+    await mongoose.connection.close();
     console.log("Database connection closed");
   });
 
