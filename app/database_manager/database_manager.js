@@ -11,6 +11,23 @@ const TaskReportScheduleSchema = new mongoose.Schema({
     reportPrompt: {type: String, required: true}
 });
 
+// Middleware
+TaskReportScheduleSchema.pre("save", async function(next) {
+    try {
+        if (await this.model("TaskReportSchedule").countDocuments().exec() === 0) {
+            this.userId = 1;
+        } else {
+            const maxId = await this.model("TaskReportSchedule").find().sort({ userId: -1 }).limit(1).select("taskId").exec();
+            this.userId = maxId[0].userId + 1;
+        }
+        next();
+        // console.log(`Id of the new user => ${this.userId}`);
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
 
 const TaskNoteSchema = new mongoose.Schema({
@@ -41,27 +58,28 @@ const TaskModel = mongoose.model("Task", TaskSchema);
 
 const UserSchema = new mongoose.Schema({
     userId: {type: Number, required: true, unique: true},
-    userName: {type: String, required: true},
+    userName: {type: String, required: true, unique: true},
     organizations: {type: [Number], required: true},
     userKind: {type: Number, required: true},
     email: {type: String, required: true},
 });
 
 // Middleware
-UserSchema.pre('save', async function(next) {
-  try {
-    if (await this.model('User').countDocuments().exec() === 0) {
-      this.userId = 1;
-    } else {
-      const maxId = await this.model('User').find().sort({ userId: -1 }).limit(1).select('userId').exec();
-      this.userId = maxId[0].userId + 1;
+UserSchema.pre("save", async function(next) {
+    try {
+        if (await this.model("User").countDocuments().exec() === 0) {
+            this.userId = 1;
+        } else {
+            const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
+            this.userId = maxId[0].userId + 1;
+        }
+        next();
+        // console.log(`Id of the new user => ${this.userId}`);
+    } catch (error) {
+        next(error);
     }
-    next();
-    // console.log(`Id of the new user => ${this.userId}`);
-  } catch (error) {
-    next(error);
-  }
 });
+
 
 const UserModel = mongoose.model("User", UserSchema);
 
