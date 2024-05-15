@@ -57,14 +57,11 @@ const OrganizationSchema = new mongoose.Schema({
   ownerId: {type: Number, required: true},
 });
 
-const UserModel = mongoose.model("User", UserSchema);
-
-const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
-
 // Middleware
 UserSchema.pre("save", async function(next) {
     try {
-        if (await this.model("User").countDocuments().exec() === 0) {
+        var countUser = await this.model("User").countDocuments().exec();
+        if ( countUser == 0) {
             this.userId = 1;
         } else {
             const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
@@ -74,9 +71,14 @@ UserSchema.pre("save", async function(next) {
         next();
         // console.log(`Id of the new user => ${this.userId}`);
     } catch (error) {
+        console.log("Error in pre save middleware: ", error);
         next(error);
     }
 });
+
+const UserModel = mongoose.model("User", UserSchema);
+
+const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
 //Id assignement for organization
 OrganizationSchema.pre('save', async function(next) {
