@@ -1,7 +1,9 @@
 const {DataBaseManager} = require('./database_manager.js');
-const CustomResponse = require("../common_infrastructure/response.js");
+const {CustomResponse} = require("../common_infrastructure/response.js");
 const Task  = require("../common_infrastructure/task.js");
+const {Errors} = require("../common_infrastructure/errors.js");
 const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
+const {TaskModel} = require("./database_manager.js");
 const TaskNote = require("../common_infrastructure/task_note.js"); 
 const TaskStatus = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
@@ -32,6 +34,7 @@ class TaskManager extends DataBaseManager{
         }
         let new_task = new TaskModel(task);
         await new_task.save();
+        return new CustomResponse(Errors.OK, "", new_task.taskId);
     }
     
     /**

@@ -3,8 +3,8 @@ const reportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 const TaskReportScheduleSchema = new mongoose.Schema({
-    taskId: {type: Number, required: true, unique: true},
-    reportScheduleId: {type: Number, required: true, unique: true},
+    taskId: {type: Number, required: true},
+    reportScheduleId: {type: Number, required: true},
     reportType: {type: Number, required: true, default: reportType.Manual},
     reportFrequency: {type: Number, required: true, default: reportFrequency.Weekly},
     nextReportDate: {type: Date, required: true},
@@ -35,9 +35,25 @@ const TaskSchema = new mongoose.Schema({
     taskReports: {type: [TaskReportScheduleSchema], required: true, default: []},
     notificationEnable: {type: Boolean, required: true, default: false},
     childTasks: {type: [Number], required: true, default: []},
-    recusivePermissionsValue: {type: Number, required: true}
+    recursivePermissionsValue: {type: Number, required: true}
 });
 
+// Middleware for auto incrementing the TaskId
+TaskSchema.pre("save", async function(next) {
+    try {
+        var count = await this.model("Task").countDocuments().exec();
+        if ( count == 0) {
+            this.taskId= 1;
+        } else {
+            const maxId = await this.model("Task").find().sort({taskId: -1 }).limit(1).select("taskId").exec();
+            this.taskId = maxId[0].taskId + 1;
+        }
+        next();
+    } catch (error) {
+        console.log("Error in pre save middleware: ", error);
+        next(error);
+    }
+});
 const TaskModel = mongoose.model("Task", TaskSchema);
 
 const UserSchema = new mongoose.Schema({
@@ -73,7 +89,7 @@ OrganizationSchema.pre('save', async function(next) {
 });
 
 
-// Middleware
+// Middleware for auto incrementing the userId
 UserSchema.pre("save", async function(next) {
     try {
         var countUser = await this.model("User").countDocuments().exec();
@@ -112,6 +128,7 @@ exports.TaskModel = TaskModel;
 exports.UserModel = UserModel;
 exports.OrganizationModel = OrganizationModel;
 exports.TaskReportScheduleSchema = TaskReportScheduleSchema;
+exports.TaskReportScheduleModel = TaskReportScheduleModel;
 exports.TaskNoteSchema = TaskNoteSchema;
 exports.TaskSchema = TaskSchema;
 exports.UserSchema = UserSchema;
