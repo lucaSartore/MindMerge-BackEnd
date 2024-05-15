@@ -57,10 +57,14 @@ UserSchema.pre('save', async function(next) {
       this.userId = maxId[0].userId + 1;
     }
     next();
-    console.log(`Id of the new user => ${this.userId}`);
+    // console.log(`Id of the new user => ${this.userId}`);
   } catch (error) {
     next(error);
   }
+});
+
+const UserModel = mongoose.model("User", UserSchema);
+
 const OrganizationSchema = new mongoose.Schema({
     organizationId: {type: Number, required: true, unique: true},
     organizationName: {type: String, required: true},
@@ -69,8 +73,6 @@ const OrganizationSchema = new mongoose.Schema({
     licenseExpirationDate: {type: Date, required: true},
     ownerId: {type: Number, required: true},
 });
-
-const UserModel = mongoose.model("User", UserSchema);
 
 const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
