@@ -14,14 +14,22 @@ class UserManager extends DataBaseManager{
      * @param {User} user 
      * @returns {CustomResponse<number>}
      */
-    async createUser(user){
-        if(!user.validate()) {
-            return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
+    async createUser(user) {
+        try {
+            if (!user.validate()) {
+                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
+            }
+            
+            const newUser = new UserModel(user);
+            await newUser.save();
+            
+            return new CustomResponse(Errors.OK, newUser.userId, "User created successfully");
+        } catch (error) {
+            console.error("Error while creating user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to create user");
         }
-        let new_user = new UserModel(user);
-        await new_user.save();
-        return new CustomResponse(Errors.OK,"", new_user.userId);
     }
+
 
     /**
      * Create a new notification in the database, the id of the notification will be automatically generated 

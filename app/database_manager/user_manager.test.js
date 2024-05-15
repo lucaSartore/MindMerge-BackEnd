@@ -19,10 +19,10 @@ describe('Test create user', () => {
     console.log("Database connection closed");
   });
 
+  // ???
   test('Test for a new *successful* user insertion', async () => {
     await UserModel.deleteMany({}); 
     let um = new UserManager();
-<<<<<<< HEAD
     let result = await um.createUser(
         new User(
             1,
@@ -36,7 +36,6 @@ describe('Test create user', () => {
     if (result.statusCode != 200) { // result.codes.ok()
       throw new Error ("ciao");
     }
-=======
 
     let user = new User( 1, "Gerry", [1], 0, "user@example.com");
 
@@ -99,7 +98,6 @@ describe('Test create user', () => {
     r = await um.createUser(new User( 1, "Gerry", [1], 0, undefined));
     expect(r.statusCode).toBe(Errors.BAD_REQUEST);
 
->>>>>>> 4ff0c093a781398f184bb7517a565bd654285ae8
   });
 
   test('Test for finding an existing user', async () => {

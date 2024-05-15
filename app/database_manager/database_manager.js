@@ -54,6 +54,7 @@ TaskSchema.pre("save", async function(next) {
         next(error);
     }
 });
+
 const TaskModel = mongoose.model("Task", TaskSchema);
 
 const UserSchema = new mongoose.Schema({
@@ -64,6 +65,26 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
+// Middleware for auto incrementing the userId
+UserSchema.pre("save", async function(next) {
+    try {
+        var countUser = await this.model("User").countDocuments().exec();
+        if (countUser == 0) {
+            this.userId = 1;
+        } else {
+            const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
+            this.userId = maxId[0].userId + 1;
+        }
+        next();
+        // console.log(`Id of the new user => ${this.userId}`);
+    } catch (error) {
+        console.log("Error in pre save middleware: ", error);
+        next(error);
+    }
+});
+
+const UserModel = mongoose.model("User", UserSchema);
+
 const OrganizationSchema = new mongoose.Schema({
   organizationId: {type: Number, required: true, unique: true},
   organizationName: {type: String, required: true},
@@ -72,6 +93,7 @@ const OrganizationSchema = new mongoose.Schema({
   licenseExpirationDate: {type: Date, required: true},
   ownerId: {type: Number, required: true},
 });
+
 //Id assignment for organization
 OrganizationSchema.pre('save', async function(next) {
   try {
@@ -87,27 +109,6 @@ OrganizationSchema.pre('save', async function(next) {
     next(error);
   }
 });
-
-
-// Middleware for auto incrementing the userId
-UserSchema.pre("save", async function(next) {
-    try {
-        var countUser = await this.model("User").countDocuments().exec();
-        if ( countUser == 0) {
-            this.userId = 1;
-        } else {
-            const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
-            this.userId = maxId[0].userId + 1;
-        }
-        next();
-        // console.log(`Id of the new user => ${this.userId}`);
-    } catch (error) {
-        console.log("Error in pre save middleware: ", error);
-        next(error);
-    }
-});
-
-const UserModel = mongoose.model("User", UserSchema);
 
 const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
