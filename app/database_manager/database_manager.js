@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import reportType from "../common_infrastructure/report_type.js";
 import reportFrequency from "../common_infrastructure/report_frequency.js";
 
-const TaskReportScheduleSchema = new mongoose.Schema({
+const TaskReportScheduleSchema = new mongoose.Schema ({
     taskId: {type: Number, required: true, unique: true},
     reportScheduleId: {type: Number, required: true, unique: true},
     reportType: {type: Number, required: true, default: reportType.Manual},
