@@ -47,7 +47,18 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
+const OrganizationSchema = new mongoose.Schema({
+    organizationId: {type: Number, required: true, unique: true},
+    organizationName: {type: String, required: true},
+    userIds: {type: [Number], required: true},
+    licenseValid: {type: Boolean, required: true},
+    licenseExpirationDate: {type: Date, required: true},
+    ownerId: {type: Number, required: true},
+});
+
 const UserModel = mongoose.model("User", UserSchema);
+
+const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
 /**
  * @typedef dataBaseManager
@@ -61,4 +72,4 @@ class DataBaseManager{
 }
 
 
-export {TaskModel, UserModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, DataBaseManager};
+export {TaskModel, UserModel, OrganizationModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, OrganizationSchema, DataBaseManager};

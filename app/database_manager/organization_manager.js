@@ -1,4 +1,4 @@
-import DataBaseManager from './data_base_manager.js';
+import {DataBaseManager, OrganizationModel}from './database_manager.js';
 
 export default class OrganizationManager extends DataBaseManager{
 
@@ -10,7 +10,12 @@ export default class OrganizationManager extends DataBaseManager{
      * @param {Organization} organization 
      * @returns {CustomResponse<number>}
      */
-    createOrganization(organization){
+    async createOrganization(organization){
+        if(!organization.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid organization")
+        }
+        let new_organization = new OrganizationModel(organization);
+        await new_organization.save();
     }
 
     //////////////////////////// Updating ////////////////////////////
