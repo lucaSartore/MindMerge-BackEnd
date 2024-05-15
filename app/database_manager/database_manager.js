@@ -1,8 +1,17 @@
 import mongoose from "mongoose";
+import reportType from "../common_infrastructure/report_type.js";
+import reportFrequency from "../common_infrastructure/report_frequency.js";
 
 const TaskReportScheduleSchema = new mongoose.Schema({
-    // todo for Gioele
+    taskId: {Number, required: true, unique: true},
+    reportScheduleId: {Number, required: true, unique: true},
+    reportType: {Number, required: true, default: reportType.Manual},
+    reportFrequency: {Number, required: true, default: reportFrequency.Weekly},
+    nextReportDate: {Date, required: true},
+    reportPrompt: {String, required: true}
 });
+
+const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
 
 const TaskNoteSchema = new mongoose.Schema({
     noteId: {type: Number, required: true},
