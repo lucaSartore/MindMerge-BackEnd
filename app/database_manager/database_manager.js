@@ -80,14 +80,14 @@ UserSchema.pre("save", async function(next) {
 //Id assignement for organization
 OrganizationSchema.pre('save', async function(next) {
   try {
-    if (await this.model('User').countDocuments().exec() === 0) {
+    if (await this.model('Organization').countDocuments().exec() === 0) {
       this.organizationId = 1;
     } else {
-      const maxId = await this.model('User').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
+      const maxId = await this.model('Organization').find().sort({ organizationId: -1 }).limit(1).select('organizationId').exec();
       this.organizationId = maxId[0].organizationId + 1;
     }
     next();
-      console.log(`Id of the new user => ${this.organizationId}`);
+      console.log(`Id of the new Organization => ${this.organizationId}`);
   } catch (error) {
     next(error);
   }
