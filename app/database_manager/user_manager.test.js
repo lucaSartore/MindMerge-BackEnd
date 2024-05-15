@@ -16,7 +16,7 @@ describe('TEST 1', () => {
     console.log("Database connection closed");
   });
 
-  test('aaa', async () => {
+  test('Test for a new *successful* user insertion', async () => {
     let um = new UserManager();
     await um.createUser(
         new User(
