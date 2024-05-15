@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const { DataBaseManager, UserModel } = require('./database_manager.js');
-const User = require("../common_infrastructure/user.js");
-const CustomResponse = require("../common_infrastructure/response.js");
-const Errors = require('../common_infrastructure/errors.js');
+const {User} = require("../common_infrastructure/user.js");
+const {CustomResponse} = require("../common_infrastructure/response.js");
+const {Errors} = require('../common_infrastructure/errors.js');
 
 class UserManager extends DataBaseManager{
 
@@ -20,6 +20,7 @@ class UserManager extends DataBaseManager{
         }
         let new_user = new UserModel(user);
         await new_user.save();
+        return new CustomResponse(Errors.OK,"", new_user.userId);
     }
 
     /**
