@@ -1,14 +1,14 @@
-import {DataBaseManager} from './database_manager.js';
-import CustomResponse from "../common_infrastructure/response.js";
-import Task  from "../common_infrastructure/task.js";
-import TaskReportSchedule from "../common_infrastructure/task_report_schedule.js";
-import TaskNote from "../common_infrastructure/task_note.js"; 
-import TaskStatus from "../common_infrastructure/task_status.js";
-import ReportType from "../common_infrastructure/report_type.js";
-import reportFrequency from "../common_infrastructure/report_frequency.js";
+const {DataBaseManager} = require('./database_manager.js');
+const CustomResponse = require("../common_infrastructure/response.js");
+const Task  = require("../common_infrastructure/task.js");
+const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
+const TaskNote = require("../common_infrastructure/task_note.js"); 
+const TaskStatus = require("../common_infrastructure/task_status.js");
+const ReportType = require("../common_infrastructure/report_type.js");
+const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 
-export default class TaskManager extends DataBaseManager{
+class TaskManager extends DataBaseManager{
 
     //////////////////////////// insertion ////////////////////////////
 
@@ -263,3 +263,5 @@ export default class TaskManager extends DataBaseManager{
     }
 
 }
+
+exports.TaskManager = TaskManager;

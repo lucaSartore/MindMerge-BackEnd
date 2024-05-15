@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import reportType from "../common_infrastructure/report_type.js";
-import reportFrequency from "../common_infrastructure/report_frequency.js";
+const mongoose = require('mongoose');
+const reportType = require("../common_infrastructure/report_type.js");
+const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 const TaskReportScheduleSchema = new mongoose.Schema({
     taskId: {type: Number, required: true, unique: true},
@@ -108,4 +108,13 @@ class DataBaseManager{
 }
 
 
-export {TaskModel, UserModel, OrganizationModel, TaskReportScheduleSchema, TaskNoteSchema, TaskSchema, UserSchema, OrganizationSchema, DataBaseManager};
+
+exports.TaskModel = TaskModel;
+exports.UserModel = UserModel;
+exports.OrganizationModel = OrganizationModel;
+exports.TaskReportScheduleSchema = TaskReportScheduleSchema;
+exports.TaskNoteSchema = TaskNoteSchema;
+exports.TaskSchema = TaskSchema;
+exports.UserSchema = UserSchema;
+exports.OrganizationSchema = OrganizationSchema;
+exports.DataBaseManager = DataBaseManager;

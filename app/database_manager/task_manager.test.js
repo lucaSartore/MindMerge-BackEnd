@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
-import TaskManager from "./task_manager.js";
-import Task from "../common_infrastructure/task.js";
-import TaskReportSchedule from "../common_infrastructure/task_report_schedule.js";
-import TaskNote from "../common_infrastructure/task_note.js";
-import TaskStatus from "../common_infrastructure/task_status.js";
-import ReportType from "../common_infrastructure/report_type.js";
-import reportFrequency from "../common_infrastructure/report_frequency.js";
+const mongoose = require("mongoose");
+const TaskManager = require("./task_manager.js");
+const Task = require("../common_infrastructure/task.js");
+const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
+const TaskNote = require("../common_infrastructure/task_note.js");
+const TaskStatus = require("../common_infrastructure/task_status.js");
+const ReportType = require("../common_infrastructure/report_type.js");
+const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 describe('TEST TASK MANAGER', () => {
 

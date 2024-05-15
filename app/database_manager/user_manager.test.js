@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
-import { UserManager } from "./user_manager.js";
-import User  from "../common_infrastructure/user.js";
-import Errors from "../common_infrastructure/errors.js";
-import { UserSchema } from "./database_manager.js";
+const mongoose = require("mongoose");
+const { UserManager } = require("./user_manager.js");
+const User  = require("../common_infrastructure/user.js");
+const Errors = require("../common_infrastructure/errors.js");
+const { UserSchema } = require("./database_manager.js");
+
 describe('Test create user', () => {
 
   let connection;

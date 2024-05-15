@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import Organization from "../common_infrastructure/organization.js";
-import OrganizationManager from "./organization_manager.js";
+const mongoose = require("mongoose");
+const Organization = require("../common_infrastructure/organization.js");
+const OrganizationManager = require("./organization_manager.js");
 
 describe('TEST 1', () => {
 
