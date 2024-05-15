@@ -3,12 +3,12 @@ import reportType from "../common_infrastructure/report_type.js";
 import reportFrequency from "../common_infrastructure/report_frequency.js";
 
 const TaskReportScheduleSchema = new mongoose.Schema({
-    taskId: {Number, required: true, unique: true},
-    reportScheduleId: {Number, required: true, unique: true},
-    reportType: {Number, required: true, default: reportType.Manual},
-    reportFrequency: {Number, required: true, default: reportFrequency.Weekly},
-    nextReportDate: {Date, required: true},
-    reportPrompt: {String, required: true}
+    taskId: {type: Number, required: true, unique: true},
+    reportScheduleId: {type: Number, required: true, unique: true},
+    reportType: {type: Number, required: true, default: reportType.Manual},
+    reportFrequency: {type: Number, required: true, default: reportFrequency.Weekly},
+    nextReportDate: {type: Date, required: true},
+    reportPrompt: {type: String, required: true}
 });
 
 const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
@@ -21,7 +21,7 @@ const TaskNoteSchema = new mongoose.Schema({
 });
 
 const TaskSchema = new mongoose.Schema({
-    taskId: {Number, required: true, unique: true},
+    taskId: {type: Number, required: true, unique: true},
     taskFatherId: Number,
     lastUpdated: {type: Date, default: Date.now, required: true},
     taskName: {type: String, required: true},
