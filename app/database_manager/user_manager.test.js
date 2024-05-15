@@ -31,6 +31,6 @@ describe('TEST 1', () => {
 
   test('Test for finding an existing user', async () => {
     let um = new UserManager();
-    await um.readUser(42);
+    await um.readUser(1);
   })
 });

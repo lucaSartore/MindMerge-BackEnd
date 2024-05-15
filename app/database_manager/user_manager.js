@@ -104,7 +104,7 @@ export class UserManager extends DataBaseManager{
             if (user) {
                 console.log("User found: ", user.userId);
             } else {
-              console.log("No such user found");
+                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
             }
         } catch (error) {
             console.error("Error while searching");
