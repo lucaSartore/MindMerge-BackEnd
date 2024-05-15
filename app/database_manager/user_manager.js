@@ -1,5 +1,6 @@
 import Errors from '../common_infrastructure/errors.js';
-import { DataBaseManager, UserModel } from './database_manager.js'; 
+import { DataBaseManager, UserModel } from './database_manager.js';
+import CustomResponse from "../common_infrastructure/response.js";
 
 export class UserManager extends DataBaseManager{
 
@@ -13,7 +14,7 @@ export class UserManager extends DataBaseManager{
      */
     async createUser(user){
         if(!user.validate()){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid user");
+            return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
         }
         let new_user = new UserModel(user);
         await new_user.save();
