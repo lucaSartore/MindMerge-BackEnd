@@ -1,6 +1,5 @@
-import DataBaseManager from './data_base_manager.js';
 import Errors from '../common_infrastructure/errors.js';
-import { UserModel } from './database_manager.js'; 
+import { DataBaseManager, UserModel } from './database_manager.js'; 
 
 export class UserManager extends DataBaseManager{
 
@@ -16,8 +15,8 @@ export class UserManager extends DataBaseManager{
         if(!user.validate()){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid user");
         }
-        let user = new UserModel(user);
-        await user.save();
+        let new_user = new UserModel(user);
+        await new_user.save();
     }
 
     /**

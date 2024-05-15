@@ -45,7 +45,7 @@ const UserModel = mongoose.model("User", UserSchema);
  * @type {Object}
  * @property {mongoose} mongoose - The mongoose object
  */
-export class DataBaseManager{
+class DataBaseManager{
     constructor(){
         this.mongoose = mongoose;
     }

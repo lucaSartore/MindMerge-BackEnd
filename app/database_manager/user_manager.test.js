@@ -1,5 +1,5 @@
 import { UserManager } from "./user_manager";
-import { User } from "../common_infrastructure/user";
+import User  from "../common_infrastructure/user.js";
 let um = new UserManager();
 
 
