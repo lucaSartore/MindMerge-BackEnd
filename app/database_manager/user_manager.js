@@ -107,18 +107,20 @@ class UserManager extends DataBaseManager{
      * @param {number} userId
      * @returns {CustomResponse<User>}
      */
-    async readUser(userId) {
-        try {
-            const user = await UserModel.findOne({ userId: userId }).exec(); 
-            if (user) {
-                console.log("User found: ", user.userId);
-            } else {
-                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
-            }
-        } catch (error) {
-            console.error("Error while searching");
+
+async readUser(userId) {
+    try {
+        const user = await UserModel.findOne({ userId: userId }).exec(); 
+        if (user) {
+            return new CustomResponse(Errors.OK, user, "User found");
+        } else {
+            return new CustomResponse(Errors.NOT_FOUND, null, "User not found");
         }
+    } catch (error) {
+        console.error("Error while searching for user:", error);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to fetch user");
     }
+}
 
     /**
      * Return a list of all the notifications that the user has 
