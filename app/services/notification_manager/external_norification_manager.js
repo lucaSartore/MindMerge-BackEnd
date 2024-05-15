@@ -1,4 +1,4 @@
-import ServicesBaseClass from "../services_base_class";
+const ServicesBaseClass = require("../services_base_class");
 
 export default class ExternalNotificationManager extends ServicesBaseClass{
     

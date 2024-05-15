@@ -1,8 +1,9 @@
-import {DataBaseManager, OrganizationModel}from './database_manager.js';
-import CustomResponse from '../common_infrastructure/response.js';
-import Errors from '../common_infrastructure/errors.js';
+const {DataBaseManager, OrganizationModel} = require('./database_manager.js');
 
-export default class OrganizationManager extends DataBaseManager{
+const CustomResponse = require('../common_infrastructure/response.js');
+const Errors = require('../common_infrastructure/errors.js');
+
+class OrganizationManager extends DataBaseManager{
 
     //////////////////////////// Creation ////////////////////////////
 
@@ -81,3 +82,5 @@ export default class OrganizationManager extends DataBaseManager{
     readOrganization(organizationId){
     }
 }
+
+exports.OrganizationManager = OrganizationManager;

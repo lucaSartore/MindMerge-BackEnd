@@ -1,5 +1,5 @@
-import app from "./app/app.js";
-import mongoose from "mongoose";
+const app = require("./app/app.js");
+const mongoose = require("mongoose");
 
 const port = process.env.PORT || 8080;
 

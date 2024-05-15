@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
-import { DataBaseManager, UserModel } from './database_manager.js';
-import User from "../common_infrastructure/user.js";
-import CustomResponse from "../common_infrastructure/response.js";
-import Errors from '../common_infrastructure/errors.js';
+const mongoose = require("mongoose");
+const { DataBaseManager, UserModel } = require('./database_manager.js');
+const {User} = require("../common_infrastructure/user.js");
+const {CustomResponse} = require("../common_infrastructure/response.js");
+const {Errors} = require('../common_infrastructure/errors.js');
 
-export class UserManager extends DataBaseManager{
+class UserManager extends DataBaseManager{
 
     //////////////////////////// Creation ////////////////////////////
 
@@ -20,6 +20,7 @@ export class UserManager extends DataBaseManager{
         }
         let new_user = new UserModel(user);
         await new_user.save();
+        return new CustomResponse(Errors.OK,"", new_user.userId);
     }
 
     /**
@@ -211,3 +212,5 @@ export class UserManager extends DataBaseManager{
     deleteGoogleUserInfo(userId){
     }
 }
+
+exports.UserManager = UserManager;

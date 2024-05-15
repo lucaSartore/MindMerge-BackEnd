@@ -1,4 +1,4 @@
-import ServicesBaseClass from './services_base_class.js';
+const ServicesBaseClass = require('./services_base_class.js');
 
 export default class AccountManager extends ServicesBaseClass{
 
