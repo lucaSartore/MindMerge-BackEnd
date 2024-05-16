@@ -14,14 +14,22 @@ class UserManager extends DataBaseManager{
      * @param {User} user 
      * @returns {CustomResponse<number>}
      */
-    async createUser(user){
-        if(!user.validate()) {
-            return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
+    async createUser(user) {
+        try {
+            if (!user.validate()) {
+                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
+            }
+            
+            const newUser = new UserModel(user);
+            await newUser.save();
+            
+            return new CustomResponse(Errors.OK, newUser.userId, "User created successfully");
+        } catch (error) {
+            console.error("Error while creating user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to create user");
         }
-        let new_user = new UserModel(user);
-        await new_user.save();
-        return new CustomResponse(Errors.OK,"", new_user.userId);
     }
+
 
     /**
      * Create a new notification in the database, the id of the notification will be automatically generated 
@@ -99,18 +107,20 @@ class UserManager extends DataBaseManager{
      * @param {number} userId
      * @returns {CustomResponse<User>}
      */
-    async readUser(userId) {
-        try {
-            const user = await UserModel.findOne({ userId: userId }).exec(); 
-            if (user) {
-                console.log("User found: ", user.userId);
-            } else {
-                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
-            }
-        } catch (error) {
-            console.error("Error while searching");
+
+async readUser(userId) {
+    try {
+        const user = await UserModel.findOne({ userId: userId }).exec(); 
+        if (user) {
+            return new CustomResponse(Errors.OK, user, "User found");
+        } else {
+            return new CustomResponse(Errors.NOT_FOUND, null, "User not found");
         }
+    } catch (error) {
+        console.error("Error while searching for user:", error);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to fetch user");
     }
+}
 
     /**
      * Return a list of all the notifications that the user has 
