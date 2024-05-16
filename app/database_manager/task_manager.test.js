@@ -25,7 +25,7 @@ describe('TEST TASK MANAGER', () => {
     console.log("Database connection closed");
   });
 
-  test('task creation', async () => {
+  test('task successful creation', async () => {
     await TaskModel.deleteMany({});
     let tm = new TaskManager();
 
@@ -75,6 +75,76 @@ describe('TEST TASK MANAGER', () => {
 
     task = await TaskModel.findOne({ taskId: 3 });
     expect(task.taskName).toBe("Task 123");
+
+  });
+
+
+
+  test('task creation bad request ', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+
+    let new_task = () => {
+      return new Task(
+        1,
+        null,
+        1,
+        Date.now(),
+        "Task 1",
+        "Task 1 description",
+        TaskStatus.Idea,
+        [],
+        [1],
+        1,
+        [],
+        false,
+        [],
+        0
+      );
+    };
+
+    let test_task = new_task();
+    test_task.taskAssignees = undefined;
+    let result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    test_task = new_task();
+    test_task.taskAssignees = "1";
+    result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+
+
+    test_task = new_task();
+    test_task.taskOrganizationId = undefined;
+    result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+
+    test_task = new_task();
+    test_task.taskOrganizationId = "1";
+    result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+
+    test_task = new_task();
+    test_task.taskStatus = undefined;
+    result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+
+    test_task = new_task();
+    test_task.taskAssignees = [1, "2"];
+    result = await tm.createTask(1, test_task);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+
+
+
+
+
+
 
   });
 });
