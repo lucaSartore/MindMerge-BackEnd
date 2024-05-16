@@ -129,7 +129,6 @@ class DataBaseManager{
 }
 
 
-
 exports.TaskModel = TaskModel;
 exports.UserModel = UserModel;
 exports.OrganizationModel = OrganizationModel;
