@@ -5,11 +5,11 @@ const {Task} = require("../common_infrastructure/task.js");
 const {Errors} = require("../common_infrastructure/errors.js");
 const {TaskNote} = require("../common_infrastructure/task_note.js");
 const {customResponse} = require("../common_infrastructure/response.js");
-const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
+const {TaskReportSchedule} = require("../common_infrastructure/task_report_schedule.js");
 const {TaskReportScheduleModel} = require("./database_manager.js");
 const {TaskStatus} = require("../common_infrastructure/task_status.js");
-const ReportType = require("../common_infrastructure/report_type.js");
-const reportFrequency = require("../common_infrastructure/report_frequency.js");
+const {ReportType} = require("../common_infrastructure/report_type.js");
+const {reportFrequency} = require("../common_infrastructure/report_frequency.js");
 
 describe('TEST TASK MANAGER', () => {
 
@@ -188,6 +188,77 @@ describe('TEST TASK MANAGER', () => {
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
 
     result = await tm.createTaskNotes(1,1,1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+  test('task report schedule successful creation', async () => {
+
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTask(1, new Task(2, null, 1, new Date(), "Task 2", "Task 2 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskReportSchedule(1,2,new TaskReportSchedule(2,1,ReportType.Automatic,reportFrequency.Weekly,new Date(),"How are you feeling this week?"));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,2,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling now?"));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+
+    expect(task.taskReports.length).toBe(2);
+    expect(task.taskReports[0].reportPrompt).toBe("How are you feeling today?");
+    expect(task.taskReports[0].reportScheduleId).toBe(1);
+    expect(task.taskReports[0].reportType).toBe(ReportType.Manual);
+    expect(task.taskReports[0].reportFrequency).toBe(reportFrequency.Daily);
+    expect(new Date() - task.taskReports[0].nextReportDate).toBeLessThan(5000);
+
+    expect(task.taskReports[1].reportPrompt).toBe("How are you feeling now?");
+
+    task = await TaskModel.findOne({ taskId: 2 });
+    expect(task.taskReports.length).toBe(1);
+    expect(task.taskReports[0].reportPrompt).toBe("How are you feeling this week?");
+  });
+
+  test('task report schedule bad request', async () => {
+    await TaskModel.deleteMany({});
+
+    tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskReportSchedule(1,2,new TaskReportSchedule(1,1,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.createTaskReportSchedule("",1,new TaskReportSchedule(1,1,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskReportSchedule(1,"",new TaskReportSchedule(1,1,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskReportSchedule(1,1,"error report");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,null,reportFrequency.Daily,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,ReportType.Manual,null,new Date(),"How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,ReportType.Manual,null,"2020","How are you feeling today?"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  
+    result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,ReportType.Manual,null,new Date(),11));
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
 });

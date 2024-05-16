@@ -79,7 +79,7 @@ class TaskManager extends DataBaseManager{
             newId = Math.max(task.taskNotes.map((note) => note.noteId))+1;
         }
 
-        let r = await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskNotes: new TaskNote(newId, taskId, notes, Date.now())}}, {new: true});
+        await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskNotes: new TaskNote(newId, taskId, notes, Date.now())}});
 
         return new CustomResponse(Errors.OK, "", newId);
     }
@@ -92,7 +92,32 @@ class TaskManager extends DataBaseManager{
      * @param {TaskReportSchedule} taskReportSchedule 
      * @returns {CustomResponse<number>}
      */
-    createTaskReportSchedule(organizationId, taskId, taskReportSchedule){
+    async createTaskReportSchedule(organizationId, taskId, taskReportSchedule){
+        if(organizationId == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(taskReportSchedule == undefined || taskReportSchedule.validate == undefined || !taskReportSchedule.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Report Schedule");
+        }
+        if(taskId == undefined || typeof taskId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        let task = await TaskModel.findOne({taskId: taskId});
+        if(task == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
+
+        let newId = 1;
+        if(task.taskReports.length > 0){
+            newId = Math.max(task.taskReports.map((report) => report.reportId))+1;
+        }
+
+        await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskReports: taskReportSchedule}});
+        
+        return new CustomResponse(Errors.OK, "", newId);
     }
     
 
