@@ -23,13 +23,12 @@ class UserManager extends DataBaseManager{
             const newUser = new UserModel(user);
             await newUser.save();
             
-            return new CustomResponse(Errors.OK, newUser.userId, "User created successfully");
+            return new CustomResponse(Errors.OK, "User created successfully", newUser);
         } catch (error) {
             console.error("Error while creating user:", error);
             return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to create user");
         }
     }
-
 
     /**
      * Create a new notification in the database, the id of the notification will be automatically generated 
@@ -40,6 +39,7 @@ class UserManager extends DataBaseManager{
      */
     createNotification(userId, notification){
     }
+
 
     //////////////////////////// Updating ////////////////////////////
 
@@ -112,7 +112,7 @@ class UserManager extends DataBaseManager{
         try {
             const user = await UserModel.findOne({ userId: userId }).exec(); 
             if (user) {
-                return new CustomResponse(Errors.OK, user, "User found");
+                return new CustomResponse(Errors.OK, "User found", user);
             } else {
                 return new CustomResponse(Errors.NOT_FOUND, null, "User not found");
             }

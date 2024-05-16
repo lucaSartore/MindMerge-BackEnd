@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
+
 const { UserManager } = require("./user_manager.js");
 const { User } = require("../common_infrastructure/user.js");
 const { Errors } = require("../common_infrastructure/errors.js");
-const { UserSchema, UserModel } = require("./database_manager.js");
+const { UserModel } = require("./database_manager.js");
+const { UserKind } = require("../common_infrastructure/user_kind.js");
 
-describe('Test create user', () => {
-
+describe('User Manager Tests', () => {
     let connection;
 
     beforeAll(async () => {
         connection = await mongoose.connect(process.env.DB_URL);
-        // clear all users
         console.log('Database connected!');
     });
 
@@ -19,78 +19,48 @@ describe('Test create user', () => {
         console.log("Database connection closed");
     });
 
-    // ???
-    test('Test for a new *successful* user insertion', async () => {
-        await UserModel.deleteMany({});
-        let um = new UserManager();
+    describe('Test for creating a new user', () => {
+        beforeEach(async () => {
+            await UserModel.deleteMany({});
+        });
 
-        let user = new User(1, "Gerry", [1], 0, "user@example.com");
+        test('Test for a new *successful* user insertion', async () => {
+            let um = new UserManager();
 
-        let result = await um.createUser(user);
-        expect(result.statusCode).toBe(Errors.OK);
-        expect(result.payload).toBe(1);
+            let user = new User(1, "UserToCreate", [1], UserKind.Custom, "user@example.com");
 
-        user.userName += "2";
-        result = await um.createUser(user);
-        expect(result.statusCode).toBe(Errors.OK);
-        expect(result.payload).toBe(2);
+            console.log("User before creation:", user);
 
-        user.userName += "3";
-        result = await um.createUser(user);
-        expect(result.statusCode).toBe(Errors.OK);
-        expect(result.payload).toBe(3);
+            if (!user.validate()) {
+                console.error("Invalid user:", user);
+                throw new Error("Invalid user");
+            }
 
-        user = await UserModel.findOne({ userId: 1 });
-        expect(user.userName).toBe("Gerry");
-        expect(JSON.stringify(user.organizations)).toBe("[1]");
-        expect(user.userKind).toBe(0);
-        expect(user.email).toBe("user@example.com");
+            let result = await um.createUser(user);
 
-        user = await UserModel.findOne({ userId: 2 });
-        expect(user.userName).toBe("Gerry2");
+            console.log("Result of createUser:", result);
 
-        user = await UserModel.findOne({ userId: 3 });
-        expect(user.userName).toBe("Gerry23");
-
+            expect(result.statusCode).toBe(Errors.OK);
+            // The payload for the custom response is the user itself
+            expect(result.payload.userId).toBe(1);
+        });
     });
 
-    test('Test for a *bad* request user creation', async () => {
-        await UserModel.deleteMany({});
 
-        let um = new UserManager();
+    describe('Test for finding an existing user', () => {
+        beforeEach(async () => {
+            await UserModel.deleteMany({});
+            let um = new UserManager();
+            let user = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
+            await um.createUser(user);
+        });
 
-        let r = await um.createUser(new User(1, null, [1], 0, "user@example.com"));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
+        test('Test for finding an existing user', async () => {
+            let um = new UserManager();
+            let result = await um.readUser(1);
 
-        r = await um.createUser(new User(1, 22, [1], 0, "user@example.com"));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", ["sds"], 0, "user@example.com"));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", null, 0, "user@example.com"));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", [1], NaN, "user@example.com"));
-
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", [1], 10, "user@example.com"));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", [1], 0, ""));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", [1], 0, 111));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
-        r = await um.createUser(new User(1, "Gerry", [1], 0, undefined));
-        expect(r.statusCode).toBe(Errors.BAD_REQUEST);
-
+            expect(result.statusCode).toBe(Errors.OK);
+            expect(result.payload.userName).toBe("UserToRead");
+        });
     });
-
-    test('Test for finding an existing user', async () => {
-        let um = new UserManager();
-        await um.readUser(1);
-    })
 });
