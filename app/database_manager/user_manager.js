@@ -17,7 +17,12 @@ class UserManager extends DataBaseManager{
     async createUser(user) {
         try {
             if (!user.validate()) {
-                return new CustomResponse(Errors.BAD_REQUEST, null, "Invalid user");
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid user", null);
+            }
+
+            const existingUser = await UserModel.findOne({ userName: user.userName });
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Username already exists", null);
             }
             
             const newUser = new UserModel(user);
@@ -26,7 +31,7 @@ class UserManager extends DataBaseManager{
             return new CustomResponse(Errors.OK, "User created successfully", newUser);
         } catch (error) {
             console.error("Error while creating user:", error);
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to create user");
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to create user", null);
         }
     }
 
@@ -114,11 +119,11 @@ class UserManager extends DataBaseManager{
             if (user) {
                 return new CustomResponse(Errors.OK, "User found", user);
             } else {
-                return new CustomResponse(Errors.NOT_FOUND, null, "User not found");
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
             }
         } catch (error) {
             console.error("Error while searching for user:", error);
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, null, "Failed to fetch user");
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to fetch user", null);
         }
     }
 

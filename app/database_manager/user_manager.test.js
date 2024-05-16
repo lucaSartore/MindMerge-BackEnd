@@ -24,7 +24,7 @@ describe('TEST USER MANAGER', () => {
             await UserModel.deleteMany({});
         });
 
-        test('Test for creating multiple users', async () => {
+        test('create *multiple* users', async () => {
             let um = new UserManager();
 
             // Array of user to add once emptied the DB
@@ -36,14 +36,12 @@ describe('TEST USER MANAGER', () => {
 
             for (let user of users) {
                 // console.log("User before creation:", user);
-
                 if (!user.validate()) {
                     // console.error("Invalid user:", user);
                     throw new Error("Invalid user");
                 }
 
                 let result = await um.createUser(user);
-
                 // console.log("Result of createUser:", result);
                 expect(result.statusCode).toBe(Errors.OK);
                 // The payload for the response is the user itself
@@ -61,7 +59,7 @@ describe('TEST USER MANAGER', () => {
             await um.createUser(user);
         });
 
-        test('Test for finding an existing user', async () => {
+        test('find an *existing* user', async () => {
             let um = new UserManager();
             let result = await um.readUser(1);
 

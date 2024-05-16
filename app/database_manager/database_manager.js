@@ -69,18 +69,18 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true},
 });
 
-// Middleware for auto incrementing the userId
+// Middleware for auto incrementing the userId AND for username checking
 UserSchema.pre("save", async function(next) {
     try {
+        // Automatic increment for userId
         var countUser = await this.model("User").countDocuments().exec();
-        if (countUser == 0) {
+        if (countUser === 0) {
             this.userId = 1;
         } else {
             const maxId = await this.model("User").find().sort({ userId: -1 }).limit(1).select("userId").exec();
             this.userId = maxId[0].userId + 1;
         }
         next();
-        // console.log(`Id of the new user => ${this.userId}`);
     } catch (error) {
         console.log("Error in pre save middleware: ", error);
         next(error);
