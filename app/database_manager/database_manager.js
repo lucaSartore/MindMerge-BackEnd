@@ -11,8 +11,8 @@ const TaskReportScheduleSchema = new mongoose.Schema({
     reportPrompt: {type: String, required: true}
 });
 
-
 const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
+
 
 const TaskNoteSchema = new mongoose.Schema({
     noteId: {type: Number, required: true},
@@ -20,6 +20,9 @@ const TaskNoteSchema = new mongoose.Schema({
     notes: {type: String, required: true},
     date: {type: Date, default: Date.now, required: true}
 });
+
+const TaskNoteModel = mongoose.model("TaskNote", TaskNoteSchema);
+
 
 const TaskSchema = new mongoose.Schema({
     taskId: {type: Number, required: true, unique: true},
@@ -57,6 +60,7 @@ TaskSchema.pre("save", async function(next) {
 
 const TaskModel = mongoose.model("Task", TaskSchema);
 
+
 const UserSchema = new mongoose.Schema({
     userId: {type: Number, required: true, unique: true},
     userName: {type: String, required: true, unique: true},
@@ -84,6 +88,7 @@ UserSchema.pre("save", async function(next) {
 });
 
 const UserModel = mongoose.model("User", UserSchema);
+
 
 const OrganizationSchema = new mongoose.Schema({
   organizationId: {type: Number, required: true, unique: true},
