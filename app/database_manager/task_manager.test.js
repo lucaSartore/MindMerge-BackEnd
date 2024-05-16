@@ -261,4 +261,60 @@ describe('TEST TASK MANAGER', () => {
     result = await tm.createTaskReportSchedule(1,1,new TaskReportSchedule(1,1,ReportType.Manual,null,new Date(),11));
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
+
+
+  test('task successful update', async () => {
+
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTask(1, new Task(2, null, 1, new Date(), "Task 2", "Task 2 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTask(1,1,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTask(1,2,new Task(2, null, 1, new Date(), "Task 2 updated", "Task 2 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task.taskName).toBe("Task 1 updated");
+    expect(task.taskDescription).toBe("Task 1 description updated");
+    expect(task.taskStatus).toBe(TaskStatus.InProgress);
+
+    task = await TaskModel.findOne({ taskId: 2 });
+    expect(task.taskName).toBe("Task 2 updated");
+    expect(task.taskDescription).toBe("Task 2 description updated");
+  });
+
+
+  test('task update bad request', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTask(1,2,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTask("",1,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.updateTask(1,"",new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.updateTask(1,1,"error task");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.updateTask(1,1,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], "0"));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.updateTask(1,1,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], []));
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
 });

@@ -130,7 +130,29 @@ class TaskManager extends DataBaseManager{
      * @param {Task} newTask 
      * @returns {Response}
      */
-    updateTask(organizationId, taskId, newTask){
+    async updateTask(organizationId, taskId, newTask){
+        if(newTask == undefined || newTask.validate == undefined || !newTask.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task");
+        }
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(taskId == undefined || typeof taskId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        let task = await TaskModel.findOne({taskId: taskId});
+        if(task == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
+        if(task.taskOrganizationId != organizationId){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Task does not belong to the organization");
+        }
+        if(task == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
+        task.taskOrganizationId  = organizationId;
+        await TaskModel.findOneAndUpdate({taskId: taskId}, newTask);
+        return new CustomResponse(Errors.OK, "", "");
     }
 
     /**
