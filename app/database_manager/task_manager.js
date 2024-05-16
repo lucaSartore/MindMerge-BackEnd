@@ -4,7 +4,7 @@ const Task  = require("../common_infrastructure/task.js");
 const {Errors} = require("../common_infrastructure/errors.js");
 const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
 const {TaskModel} = require("./database_manager.js");
-const TaskNote = require("../common_infrastructure/task_note.js"); 
+const {TaskNote} = require("../common_infrastructure/task_note.js"); 
 const TaskStatus = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
@@ -47,7 +47,41 @@ class TaskManager extends DataBaseManager{
      * @param {string} notes 
      * @returns {CustomResponse<number>}
      */
-    createTaskNotes(organizationId, taskId, notes){
+    async createTaskNotes(organizationId, taskId, notes){
+        if(organizationId == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(taskId == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        if(typeof taskId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        if(notes == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Notes");
+        }
+        if(typeof notes != "string"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Notes");
+        }
+
+        const task = await TaskModel.findOne({taskId: taskId});
+
+        if(task == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
+
+        let newId = 1;
+
+        if(task.taskNotes.length > 0){
+            newId = Math.max(task.taskNotes.map((note) => note.noteId))+1;
+        }
+
+        let r = await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskNotes: new TaskNote(newId, taskId, notes, Date.now())}}, {new: true});
+
+        return new CustomResponse(Errors.OK, "", newId);
     }
 
     /**
