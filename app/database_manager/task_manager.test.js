@@ -168,4 +168,26 @@ describe('TEST TASK MANAGER', () => {
     expect(new Date() - task.taskNotes[0].date).toBeLessThan(5000);
 
   });
+
+  test('task notes bad request', async () => {
+    
+    await TaskModel.deleteMany({});
+
+    tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,2,"error note");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.createTaskNotes("",1,"notes for task 1");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskNotes(1,"",undefined);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await tm.createTaskNotes(1,1,1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
 });
