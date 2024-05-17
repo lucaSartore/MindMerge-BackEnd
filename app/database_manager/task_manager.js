@@ -2,7 +2,7 @@ const { DataBaseManager } = require('./database_manager.js');
 const { CustomResponse } = require("../common_infrastructure/response.js");
 const { Task } = require("../common_infrastructure/task.js");
 const { Errors } = require("../common_infrastructure/errors.js");
-const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
+const {TaskReportSchedule} = require("../common_infrastructure/task_report_schedule.js");
 const { TaskModel } = require("./database_manager.js");
 const { TaskNote } = require("../common_infrastructure/task_note.js");
 const {TaskStatus} = require("../common_infrastructure/task_status.js");
@@ -515,7 +515,47 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<Task>}
      */
     async readTask(organizationId, taskId) {
+        let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
+        if (task == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
 
+        let taskAssignees = task.taskAssignees.map((assignee) => assignee);
+        let taskReports = task.taskReports.map((report) => {
+            return new TaskReportSchedule(
+                report.taskId,
+                report.reportScheduleId,
+                report.reportType,
+                report.reportFrequency,
+                report.nextReportDate,
+                report.reportPrompt
+            );
+        });
+        let childTasks = task.childTasks.map((child) => child);
+        let taskNotes = task.taskNotes.map((note) => new TaskNote(
+            note.noteId,
+            note.taskId,
+            note.notes,
+            note.date
+        ));
+
+        let finalTask = new Task(
+            task.taskId,
+            task.taskFatherId,
+            task.taskOrganizationId,
+            task.lastUpdated,
+            task.taskName,
+            task.taskDescription,
+            task.taskStatus,
+            taskNotes,
+            taskAssignees,
+            task.taskManager,
+            taskReports,
+            task.notificationEnable,
+            childTasks,
+            task.recursivePermissionsValue
+        );
+        return new CustomResponse(Errors.OK, "", finalTask);
     }
 
     /**

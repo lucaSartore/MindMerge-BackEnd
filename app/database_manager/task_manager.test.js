@@ -988,7 +988,57 @@ describe('TEST TASK MANAGER', () => {
 
     result = await tm.removeChildTask(1,2,2);
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
-  
 
+  });
+
+  test('test successful get task', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let task = new Task(
+      1,
+      33,
+      22,
+      new Date(),
+      "Parent Task",
+      "Task 1 description",
+      TaskStatus.Idea,
+      [
+        new TaskNote(11,22,"note 1", new Date()),
+      ]
+      ,
+      [1,2,3]
+      ,
+      44
+      ,
+      [
+        new TaskReportSchedule(111,222,ReportType.Manual,reportFrequency.Daily,new Date(),"How are you feeling now?")
+      ]
+      ,
+      false
+      ,
+      [2,3,4]
+      ,
+      1234);
+    let result = await tm.createTask(22, task);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.readTask(22,1);
+    expect(result.statusCode).toBe(Errors.OK);
+    expect(result.payload).toStrictEqual(task);
+  });
+
+
+  test('test not successful get task', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+    let result = await tm.createTask(22, new Task(1, null, 1, new Date(), "Parent Task", "Task 1 description",TaskStatus.Idea,[], [1], 1, [], false,[2,3,4], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.readTask(22,2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.readTask(33,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
   });
 });
