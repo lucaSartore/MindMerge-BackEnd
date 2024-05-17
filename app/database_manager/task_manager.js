@@ -313,6 +313,18 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskReport(organizationId, taskId, reportId, newReport) {
+        if (newReport == undefined || newReport.validate == undefined || !newReport.validate()) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Report Schedule");
+        }
+        if (typeof reportId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Report Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        result = await TaskModel.findOneAndUpdate({ taskId: taskId, "taskReports.reportId": reportId }, { $set: { "taskReports.$": newReport }}, {new: true} );
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
