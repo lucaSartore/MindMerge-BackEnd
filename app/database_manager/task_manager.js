@@ -1,16 +1,16 @@
-const {DataBaseManager} = require('./database_manager.js');
-const {CustomResponse} = require("../common_infrastructure/response.js");
-const Task  = require("../common_infrastructure/task.js");
-const {Errors} = require("../common_infrastructure/errors.js");
+const { DataBaseManager } = require('./database_manager.js');
+const { CustomResponse } = require("../common_infrastructure/response.js");
+const Task = require("../common_infrastructure/task.js");
+const { Errors } = require("../common_infrastructure/errors.js");
 const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
-const {TaskModel} = require("./database_manager.js");
-const {TaskNote} = require("../common_infrastructure/task_note.js"); 
+const { TaskModel } = require("./database_manager.js");
+const { TaskNote } = require("../common_infrastructure/task_note.js");
 const TaskStatus = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 
-class TaskManager extends DataBaseManager{
+class TaskManager extends DataBaseManager {
 
     //////////////////////////// insertion ////////////////////////////
 
@@ -21,22 +21,22 @@ class TaskManager extends DataBaseManager{
      * @param {Task} task 
      * @returns {CustomResponse<number>}
      */
-    async createTask(organizationId, task){
-        if(organizationId == undefined){
+    async createTask(organizationId, task) {
+        if (organizationId == undefined) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(typeof organizationId != "number"){
+        if (typeof organizationId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
         task.taskOrganizationId = organizationId;
-        if(!task.validate()){
+        if (!task.validate()) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid task");
         }
         let new_task = new TaskModel(task);
         await new_task.save();
         return new CustomResponse(Errors.OK, "", new_task.taskId);
     }
-    
+
     /**
      * Create new note to the task.
      * The note's date will be automatically set to the current time in the server
@@ -47,39 +47,39 @@ class TaskManager extends DataBaseManager{
      * @param {string} notes 
      * @returns {CustomResponse<number>}
      */
-    async createTaskNotes(organizationId, taskId, notes){
-        if(organizationId == undefined){
+    async createTaskNotes(organizationId, taskId, notes) {
+        if (organizationId == undefined) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(typeof organizationId != "number"){
+        if (typeof organizationId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(taskId == undefined){
+        if (taskId == undefined) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
         }
-        if(typeof taskId != "number"){
+        if (typeof taskId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
         }
-        if(notes == undefined){
+        if (notes == undefined) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Notes");
         }
-        if(typeof notes != "string"){
+        if (typeof notes != "string") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Notes");
         }
 
-        const task = await TaskModel.findOne({taskId: taskId});
+        const task = await TaskModel.findOne({ taskId: taskId });
 
-        if(task == null){
+        if (task == null) {
             return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
         }
 
         let newId = 1;
 
-        if(task.taskNotes.length > 0){
-            newId = Math.max(task.taskNotes.map((note) => note.noteId))+1;
+        if (task.taskNotes.length > 0) {
+            newId = Math.max(task.taskNotes.map((note) => note.noteId)) + 1;
         }
 
-        await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskNotes: new TaskNote(newId, taskId, notes, Date.now())}});
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { taskNotes: new TaskNote(newId, taskId, notes, Date.now()) } });
 
         return new CustomResponse(Errors.OK, "", newId);
     }
@@ -92,34 +92,34 @@ class TaskManager extends DataBaseManager{
      * @param {TaskReportSchedule} taskReportSchedule 
      * @returns {CustomResponse<number>}
      */
-    async createTaskReportSchedule(organizationId, taskId, taskReportSchedule){
-        if(organizationId == undefined){
+    async createTaskReportSchedule(organizationId, taskId, taskReportSchedule) {
+        if (organizationId == undefined) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(typeof organizationId != "number"){
+        if (typeof organizationId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(taskReportSchedule == undefined || taskReportSchedule.validate == undefined || !taskReportSchedule.validate()){
+        if (taskReportSchedule == undefined || taskReportSchedule.validate == undefined || !taskReportSchedule.validate()) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Report Schedule");
         }
-        if(taskId == undefined || typeof taskId != "number"){
+        if (taskId == undefined || typeof taskId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
         }
-        let task = await TaskModel.findOne({taskId: taskId});
-        if(task == null){
+        let task = await TaskModel.findOne({ taskId: taskId });
+        if (task == null) {
             return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
         }
 
         let newId = 1;
-        if(task.taskReports.length > 0){
-            newId = Math.max(task.taskReports.map((report) => report.reportId))+1;
+        if (task.taskReports.length > 0) {
+            newId = Math.max(task.taskReports.map((report) => report.reportId)) + 1;
         }
 
-        await TaskModel.findOneAndUpdate({taskId: taskId}, {$push: {taskReports: taskReportSchedule}});
-        
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { taskReports: taskReportSchedule } });
+
         return new CustomResponse(Errors.OK, "", newId);
     }
-    
+
 
     //////////////////////////// Updating ////////////////////////////
 
@@ -130,28 +130,17 @@ class TaskManager extends DataBaseManager{
      * @param {Task} newTask 
      * @returns {Response}
      */
-    async updateTask(organizationId, taskId, newTask){
-        if(newTask == undefined || newTask.validate == undefined || !newTask.validate()){
+    async updateTask(organizationId, taskId, newTask) {
+        if (newTask == undefined || newTask.validate == undefined || !newTask.validate()) {
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task");
         }
-        if(organizationId == undefined || typeof organizationId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
         }
-        if(taskId == undefined || typeof taskId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
-        }
-        let task = await TaskModel.findOne({taskId: taskId});
-        if(task == null){
-            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
-        }
-        if(task.taskOrganizationId != organizationId){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Task does not belong to the organization");
-        }
-        if(task == null){
-            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
-        }
-        task.taskOrganizationId  = organizationId;
-        await TaskModel.findOneAndUpdate({taskId: taskId}, newTask);
+        newTask.taskOrganizationId = organizationId;
+        newTask.taskId = taskId;
+        await TaskModel.findOneAndUpdate({ taskId: taskId}, newTask);
         return new CustomResponse(Errors.OK, "", "");
     }
 
@@ -161,24 +150,12 @@ class TaskManager extends DataBaseManager{
      * @param {number} taskId 
      * @returns {CustomResponse<void>}
      */
-    async updateTaskLastUpdated(organizationId, taskId){
-        if(organizationId == undefined){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+    async updateTaskLastUpdated(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
         }
-        if(typeof organizationId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
-        }
-        if(taskId == undefined){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
-        }
-        if(typeof taskId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
-        }
-        let task = await TaskModel.findOne({taskId: taskId, taskOrganizationId: organizationId});
-        if(task == null){
-            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
-        }
-        await TaskModel.findOneAndUpdate({taskId: taskId}, {lastUpdated: new Date()});
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { lastUpdated: new Date() });
         return new CustomResponse(Errors.OK, "", undefined);
     }
 
@@ -189,7 +166,19 @@ class TaskManager extends DataBaseManager{
      * @param {string} newName
      * @returns {CustomResponse<void>}
      */
-    updateTaskName(organizationId, taskId, newName){
+    async updateTaskName(organizationId, taskId, newName) {
+        if (typeof newName != "string") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Name");
+        }
+        if (newName == "") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Name");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskName: newName });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -199,7 +188,7 @@ class TaskManager extends DataBaseManager{
      * @param {string} newDescription
      * @returns {CustomResponse<void>}
      */
-    updateTaskDescription(organizationId, taskId, newDescription){
+    updateTaskDescription(organizationId, taskId, newDescription) {
     }
 
     /**
@@ -208,7 +197,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} taskId 
      * @param {number} newStatus 
      */
-    updateTaskStatus(organizationId, taskId, newStatus){
+    updateTaskStatus(organizationId, taskId, newStatus) {
     }
 
     /**
@@ -220,7 +209,7 @@ class TaskManager extends DataBaseManager{
      * @param {string} newNotes 
      * @returns {CustomResponse<void>}
      */
-    updateTaskNotes(organizationId, taskId, noteId, newNotes){
+    updateTaskNotes(organizationId, taskId, noteId, newNotes) {
     }
 
     /**
@@ -230,7 +219,7 @@ class TaskManager extends DataBaseManager{
      * @param {number[]} assignees 
      * @returns {CustomResponse<void>}
      */
-    updateTaskAssignees(organizationId, taskId, assignees){
+    updateTaskAssignees(organizationId, taskId, assignees) {
     }
 
     /**
@@ -240,7 +229,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} assignee 
      * @returns {CustomResponse<void>}
      */
-    addNewAssignee(organizationId, taskId, assignee){
+    addNewAssignee(organizationId, taskId, assignee) {
     }
 
     /**
@@ -250,7 +239,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} newManager
      * @returns {CustomResponse<void>}
      */
-    updateTaskManager(organizationId, taskId, newManager){
+    updateTaskManager(organizationId, taskId, newManager) {
     }
 
     /**
@@ -261,7 +250,7 @@ class TaskManager extends DataBaseManager{
      * @param {TaskReportSchedule} newReport 
      * @returns {CustomResponse<void>}
      */
-    updateTaskReport(organizationId, taskId, reportId, newReport){
+    updateTaskReport(organizationId, taskId, reportId, newReport) {
     }
 
     /**
@@ -270,16 +259,16 @@ class TaskManager extends DataBaseManager{
      * @param {number} taskId 
      * @returns {CustomResponse<void>}
      */
-    enableNotification(organizationId, taskId){
+    enableNotification(organizationId, taskId) {
     }
-    
+
     /**
      * Disable the notifications for the task with the given id 
      * @param {number} organizationId
      * @param {number} taskId 
      * @returns {CustomResponse<void>}
      */
-    disableNotification(organizationId, taskId){
+    disableNotification(organizationId, taskId) {
     }
 
     /**
@@ -289,7 +278,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} childTaskId
      * @returns {CustomResponse<void>}
      */
-    addChildTask(organizationId, taskId, childTaskId){
+    addChildTask(organizationId, taskId, childTaskId) {
     }
 
     /**
@@ -299,7 +288,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} newRecursivePermissionsValue
      * @returns {CustomResponse<void>}
     */
-    updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue){}
+    updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) { }
 
     //////////////////////////// Deleting ////////////////////////////
 
@@ -309,7 +298,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} taskId 
      * @returns {Response}
      */
-    deleteTask(organizationId, taskId){
+    deleteTask(organizationId, taskId) {
     }
 
     /**
@@ -319,7 +308,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} noteId
      * @returns {CustomResponse<void>}
      */
-    deleteTaskNotes(organizationId, taskId, noteId){
+    deleteTaskNotes(organizationId, taskId, noteId) {
     }
 
     /**
@@ -330,8 +319,8 @@ class TaskManager extends DataBaseManager{
      * @param {number} assigneeId
      * @returns {CustomResponse<void>}
      */
-    deleteTaskAssignee(organizationId, taskId, assigneeId){
-    } 
+    deleteTaskAssignee(organizationId, taskId, assigneeId) {
+    }
 
     /**
      * Delete the report with the given id from the task with the given id
@@ -340,7 +329,7 @@ class TaskManager extends DataBaseManager{
      * @param {number} reportId 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskReportSchedule(organizationId, taskId, reportId){
+    deleteTaskReportSchedule(organizationId, taskId, reportId) {
     }
 
     /**
@@ -350,20 +339,46 @@ class TaskManager extends DataBaseManager{
      * @param {number} childTaskId
      * @returns {CustomResponse<void>}
      */
-    removeChildTask(organizationId, taskId, childTaskId){
+    removeChildTask(organizationId, taskId, childTaskId) {
     }
 
     //////////////////////////// Reading ///////////////////////////
-    
+
     /**
      * Return one single task
      * @param {number} organizationId 
      * @param {number} takId 
      * @returns {CustomResponse<Task>}
      */
-    readTask(organizationId, taskId){
+    readTask(organizationId, taskId) {
+
     }
 
+    /**
+    * Return one single task
+    * @param {number} organizationId 
+    * @param {number} takId 
+    * @returns {CustomResponse<Void>}
+    */
+    async verifyThatTaskExist(organizationId, taskId) {
+        if (organizationId == undefined) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if (typeof organizationId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if (taskId == undefined) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        if (typeof taskId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+        }
+        let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
+        if (task == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+        }
+        return new CustomResponse(Errors.OK, "", undefined);
+    }
 }
 
 exports.TaskManager = TaskManager;

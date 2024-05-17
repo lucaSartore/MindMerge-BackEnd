@@ -361,4 +361,20 @@ describe('TEST TASK MANAGER', () => {
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
 
   });
+
+
+  test('test successful update task name' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskName(1,1,"Task 1 updated");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskName).toBe("Task 1 updated");
+  });
 });
