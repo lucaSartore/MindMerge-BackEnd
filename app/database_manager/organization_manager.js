@@ -98,9 +98,18 @@ class OrganizationManager extends DataBaseManager{
     /**
      * Delete the organization with the given id 
      * @param {number} organizationId 
-     * @returns {CustomResponse<void>}
+     * @returns {CustomResponse<number>}
      */
-    deleteOrganization(organizationId){
+    async deleteOrganization(organizationId){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        OrganizationModel.deleteOne({organizationId: organizationId});
+        return new CustomResponse(Errors.OK, "Organization deleted", organizationId);
     }
 
     /**
