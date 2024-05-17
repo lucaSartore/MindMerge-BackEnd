@@ -1,11 +1,11 @@
 const { DataBaseManager } = require('./database_manager.js');
 const { CustomResponse } = require("../common_infrastructure/response.js");
-const Task = require("../common_infrastructure/task.js");
+const { Task } = require("../common_infrastructure/task.js");
 const { Errors } = require("../common_infrastructure/errors.js");
 const TaskReportSchedule = require("../common_infrastructure/task_report_schedule.js");
 const { TaskModel } = require("./database_manager.js");
 const { TaskNote } = require("../common_infrastructure/task_note.js");
-const TaskStatus = require("../common_infrastructure/task_status.js");
+const {TaskStatus} = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
@@ -197,6 +197,7 @@ class TaskManager extends DataBaseManager {
             return result;
         }
         await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskDescription: newDescription });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -206,6 +207,18 @@ class TaskManager extends DataBaseManager {
      * @param {number} newStatus 
      */
     async updateTaskStatus(organizationId, taskId, newStatus) {
+        if (typeof newStatus != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Status");
+        }
+        if (!TaskStatus.validate(newStatus)) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Status");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskStatus: newStatus });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -218,6 +231,22 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskNotes(organizationId, taskId, noteId, newNotes) {
+        if (noteId == undefined || typeof noteId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Note Id");
+        }
+        if(newNotes == undefined || typeof newNotes != "string") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Notes");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+
+        let note = await TaskModel.findOneAndUpdate({ taskId: taskId, taskOrganizationId: organizationId,"taskNotes.noteId": noteId }, { $set: { "taskNotes.$.notes": newNotes, "taskNotes.$.date": Date.now()}}, {new: true} );
+        if (note == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Note not found");
+        }
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**

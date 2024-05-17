@@ -377,4 +377,147 @@ describe('TEST TASK MANAGER', () => {
     expect(task).not.toBeNull();
     expect(task.taskName).toBe("Task 1 updated");
   });
+  
+ 
+  test('test not found update task name' , async () => {
+
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+
+    await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+
+    let result = await tm.updateTaskName(1,2,"Task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskName(2,2,"Task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskName(2,1,"Task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskName(1,1,1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+
+  test('test successful update task description' , async () => {
+
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskDescription(1,1,"Task 1 description updated");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskDescription).toBe("Task 1 description updated");
+  });
+
+
+  test('test not found update task description' , async () => {
+
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+    
+    result = await tm.updateTaskDescription(1,2,"Task 1 description updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskDescription(2,2,"Task 1 description updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskDescription(2,1,"Task 1 description updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskDescription(1,1,1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+  test('test successful update task status' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+    result = await tm.updateTaskStatus(1,1,TaskStatus.InProgress);
+    expect(result.statusCode).toBe(Errors.OK);
+    let task
+    task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskStatus).toBe(TaskStatus.InProgress);
+  });
+  
+  test('test not successful update task status' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+    result = await tm.updateTaskStatus(2,1,TaskStatus.Paused);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskStatus(1,2,TaskStatus.Paused);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    
+    result = await tm.updateTaskStatus(1,1,-1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+ 
+  test('test successful update task notes' , async () => {
+  
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 2", "Task 1 description", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"second notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,2,"notes for task 2");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskNotes(1,1,1,"notes for task 1 updated");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let note = await TaskModel.findOne({ taskId: 1 });
+    note = note.taskNotes.find(n => n.noteId == 1);
+    
+    expect(note).not.toBeNull();
+    expect(note.notes).toBe("notes for task 1 updated");
+  });
+
+  test('test not successful update task notes' , async () => {
+
+    await TaskModel.deleteMany({});
+
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskNotes(1,1,2,"notes for task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    
+    result = await tm.updateTaskNotes(1,2,1,"notes for task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskNotes(2,1,1,"notes for task 1 updated");
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskNotes(1,1,1, 1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
 });
