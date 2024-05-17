@@ -491,6 +491,19 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async removeChildTask(organizationId, taskId, childTaskId) {
+        if (typeof childTaskId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Child Task Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        } 
+        let childTask = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, childTasks: childTaskId });
+        if (childTask == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Child Task not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { childTasks: childTaskId } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     //////////////////////////// Reading ///////////////////////////
