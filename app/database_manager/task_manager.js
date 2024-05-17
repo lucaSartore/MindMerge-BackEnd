@@ -257,6 +257,8 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskAssignees(organizationId, taskId, assignees) {
+        // i don't think this function needs to be implemented yet
+        throw new Error("Not implemented yet");
     }
 
     /**
@@ -267,6 +269,20 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async addNewAssignee(organizationId, taskId, assignee) {
+        if(typeof assignee != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Assignee");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let isPresent = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, taskAssignees: assignee });
+        if (isPresent != null) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Assignee already exists");
+        }
+
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { taskAssignees: assignee } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**

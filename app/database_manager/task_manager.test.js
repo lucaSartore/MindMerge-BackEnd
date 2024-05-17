@@ -491,9 +491,13 @@ describe('TEST TASK MANAGER', () => {
 
     let note = await TaskModel.findOne({ taskId: 1 });
     note = note.taskNotes.find(n => n.noteId == 1);
-    
     expect(note).not.toBeNull();
     expect(note.notes).toBe("notes for task 1 updated");
+
+    note = await TaskModel.findOne({ taskId: 1 });
+    note = note.taskNotes.find(n => n.noteId == 2);
+    expect(note).not.toBeNull();
+    expect(note.notes).toBe("second notes for task 1");
   });
 
   test('test not successful update task notes' , async () => {
@@ -518,6 +522,45 @@ describe('TEST TASK MANAGER', () => {
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
 
     result = await tm.updateTaskNotes(1,1,1, 1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+
+  test('test successful add new assaignee' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+    
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.addNewAssignee(1,1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.addNewAssignee(1,1,2);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.addNewAssignee(1,1,2);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskAssignees).toStrictEqual([1,2]);
+  });
+
+  test('test not successful add new assaignee' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.addNewAssignee(1,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    result = await tm.addNewAssignee(2,1,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    result = await tm.addNewAssignee(2,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    result = await tm.addNewAssignee(1,1,"");
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
 });
