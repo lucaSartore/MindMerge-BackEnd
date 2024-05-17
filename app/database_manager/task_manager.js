@@ -409,6 +409,12 @@ class TaskManager extends DataBaseManager {
      * @returns {Response}
      */
     async deleteTask(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.deleteOne({taskId: taskId});
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
