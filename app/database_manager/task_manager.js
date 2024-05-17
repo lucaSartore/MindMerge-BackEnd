@@ -188,7 +188,15 @@ class TaskManager extends DataBaseManager {
      * @param {string} newDescription
      * @returns {CustomResponse<void>}
      */
-    updateTaskDescription(organizationId, taskId, newDescription) {
+    async updateTaskDescription(organizationId, taskId, newDescription) {
+        if(typeof newDescription != "string") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Description");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskDescription: newDescription });
     }
 
     /**
@@ -197,7 +205,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} taskId 
      * @param {number} newStatus 
      */
-    updateTaskStatus(organizationId, taskId, newStatus) {
+    async updateTaskStatus(organizationId, taskId, newStatus) {
     }
 
     /**
@@ -209,7 +217,7 @@ class TaskManager extends DataBaseManager {
      * @param {string} newNotes 
      * @returns {CustomResponse<void>}
      */
-    updateTaskNotes(organizationId, taskId, noteId, newNotes) {
+    async updateTaskNotes(organizationId, taskId, noteId, newNotes) {
     }
 
     /**
@@ -219,7 +227,7 @@ class TaskManager extends DataBaseManager {
      * @param {number[]} assignees 
      * @returns {CustomResponse<void>}
      */
-    updateTaskAssignees(organizationId, taskId, assignees) {
+    async updateTaskAssignees(organizationId, taskId, assignees) {
     }
 
     /**
@@ -229,7 +237,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} assignee 
      * @returns {CustomResponse<void>}
      */
-    addNewAssignee(organizationId, taskId, assignee) {
+    async addNewAssignee(organizationId, taskId, assignee) {
     }
 
     /**
@@ -239,7 +247,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} newManager
      * @returns {CustomResponse<void>}
      */
-    updateTaskManager(organizationId, taskId, newManager) {
+    async updateTaskManager(organizationId, taskId, newManager) {
     }
 
     /**
@@ -250,7 +258,7 @@ class TaskManager extends DataBaseManager {
      * @param {TaskReportSchedule} newReport 
      * @returns {CustomResponse<void>}
      */
-    updateTaskReport(organizationId, taskId, reportId, newReport) {
+    async updateTaskReport(organizationId, taskId, reportId, newReport) {
     }
 
     /**
@@ -259,7 +267,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} taskId 
      * @returns {CustomResponse<void>}
      */
-    enableNotification(organizationId, taskId) {
+    async enableNotification(organizationId, taskId) {
     }
 
     /**
@@ -268,7 +276,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} taskId 
      * @returns {CustomResponse<void>}
      */
-    disableNotification(organizationId, taskId) {
+    async disableNotification(organizationId, taskId) {
     }
 
     /**
@@ -278,7 +286,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} childTaskId
      * @returns {CustomResponse<void>}
      */
-    addChildTask(organizationId, taskId, childTaskId) {
+    async addChildTask(organizationId, taskId, childTaskId) {
     }
 
     /**
@@ -288,7 +296,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} newRecursivePermissionsValue
      * @returns {CustomResponse<void>}
     */
-    updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) { }
+    async updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) { }
 
     //////////////////////////// Deleting ////////////////////////////
 
@@ -298,7 +306,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} taskId 
      * @returns {Response}
      */
-    deleteTask(organizationId, taskId) {
+    async deleteTask(organizationId, taskId) {
     }
 
     /**
@@ -308,7 +316,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} noteId
      * @returns {CustomResponse<void>}
      */
-    deleteTaskNotes(organizationId, taskId, noteId) {
+    async deleteTaskNotes(organizationId, taskId, noteId) {
     }
 
     /**
@@ -319,7 +327,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} assigneeId
      * @returns {CustomResponse<void>}
      */
-    deleteTaskAssignee(organizationId, taskId, assigneeId) {
+    async deleteTaskAssignee(organizationId, taskId, assigneeId) {
     }
 
     /**
@@ -329,7 +337,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} reportId 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskReportSchedule(organizationId, taskId, reportId) {
+    async deleteTaskReportSchedule(organizationId, taskId, reportId) {
     }
 
     /**
@@ -339,7 +347,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} childTaskId
      * @returns {CustomResponse<void>}
      */
-    removeChildTask(organizationId, taskId, childTaskId) {
+    async removeChildTask(organizationId, taskId, childTaskId) {
     }
 
     //////////////////////////// Reading ///////////////////////////
@@ -350,7 +358,7 @@ class TaskManager extends DataBaseManager {
      * @param {number} takId 
      * @returns {CustomResponse<Task>}
      */
-    readTask(organizationId, taskId) {
+    async readTask(organizationId, taskId) {
 
     }
 
