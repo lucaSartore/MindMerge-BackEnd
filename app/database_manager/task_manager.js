@@ -293,6 +293,15 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskManager(organizationId, taskId, newManager) {
+        if(typeof newManager != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Manager");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskManager: newManager });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
