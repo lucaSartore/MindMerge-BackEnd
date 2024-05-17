@@ -691,6 +691,58 @@ describe('TEST TASK MANAGER', () => {
 
     result = await tm.enableNotification(2,1);
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
-    
   });
+
+
+  test('test successful add child task' , async () => {
+      await TaskModel.deleteMany({});
+      let tm = new TaskManager();
+
+      let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+      expect(result.statusCode).toBe(Errors.OK);
+
+      result = await tm.createTask(1, new Task(2, null, 1, new Date(), "Task 2", "Task 2 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+      expect(result.statusCode).toBe(Errors.OK);
+
+
+      result = await tm.addChildTask(1,1,2);
+      expect(result.statusCode).toBe(Errors.OK);
+
+      result = await tm.addChildTask(1,1,3);
+      expect(result.statusCode).toBe(Errors.OK);
+
+      result = await tm.addChildTask(1,2,4);
+      expect(result.statusCode).toBe(Errors.OK);
+
+      let task = await TaskModel.findOne({ taskId: 1 });
+      expect(task).not.toBeNull();
+      expect(task.childTasks).toStrictEqual([2,3]);
+
+      task = await TaskModel.findOne({ taskId: 2 });
+      expect(task.childTasks).toStrictEqual([4]);
+
+      result = await tm.addChildTask(1,1,2);
+      expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+  test('test not successful add child task' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.addChildTask(1,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.addChildTask(2,1,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.addChildTask(2,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.addChildTask(1,1,"");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
 });

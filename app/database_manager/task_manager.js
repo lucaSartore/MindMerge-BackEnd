@@ -355,7 +355,6 @@ class TaskManager extends DataBaseManager {
         }
         await TaskModel.findOneAndUpdate({ taskId: taskId }, {notificationEnable: false});
         return new CustomResponse(Errors.OK, "", undefined);
-        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -366,6 +365,20 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async addChildTask(organizationId, taskId, childTaskId) {
+        if(typeof childTaskId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Child Task Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let isPresent = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, childTasks: childTaskId });
+        if (isPresent != null) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Child Task already exists");
+        }
+
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { childTasks: childTaskId} });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -375,7 +388,17 @@ class TaskManager extends DataBaseManager {
      * @param {number} newRecursivePermissionsValue
      * @returns {CustomResponse<void>}
     */
-    async updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) { }
+    async updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) {
+        if(typeof newRecursivePermissionsValue != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Recursive Permissions Value");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { recursivePermissionsValue: newRecursivePermissionsValue });
+        return new CustomResponse(Errors.OK, "", undefined);
+    }
 
     //////////////////////////// Deleting ////////////////////////////
 
