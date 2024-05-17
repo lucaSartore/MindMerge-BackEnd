@@ -563,4 +563,50 @@ describe('TEST TASK MANAGER', () => {
     result = await tm.addNewAssignee(1,1,"");
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
+
+  test('test successful update task manager' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTask(1, new Task(2, null, 1, new Date(), "Task 2", "Task 2 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskManager(1,1,2);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskManager).toBe(2);
+
+    task = await TaskModel.findOne({ taskId: 2 });  
+    expect(task.taskManager).toBe(1);
+
+  });
+
+
+  test('test not successful update task manager' , async () => {
+  
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskManager(1,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskManager(2,1,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskManager(2,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskManager(1,1,"");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  
+
+  });
 });
