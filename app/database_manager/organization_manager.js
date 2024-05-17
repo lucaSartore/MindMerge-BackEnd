@@ -57,6 +57,18 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<boolean>}
      */
     async updateLicense(organizationId, newLicense){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(newLicense == undefined || typeof newLicense != "boolean"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid License");
+        }
+        let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        organization.licenseValid = newLicense;
+        return new CustomResponse(Errors.OK, "License updated", organization.licenseValid);
     }
 
     /**
