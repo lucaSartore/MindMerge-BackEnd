@@ -745,4 +745,43 @@ describe('TEST TASK MANAGER', () => {
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
 
+  test('test successful update recursive permission value' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTask(1, new Task(2, null, 1, new Date(), "Task 2", "Task 2 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskRecursivePermissionsValue(1,1,33);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskRecursivePermissionsValue(1,2,44);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+  });
+
+
+  test('test not successful update recursive permission value' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.updateTaskRecursivePermissionsValue(1,2,33);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskRecursivePermissionsValue(2,1,33);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskRecursivePermissionsValue(2,2,33);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskRecursivePermissionsValue(1,1,"");
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
 });
