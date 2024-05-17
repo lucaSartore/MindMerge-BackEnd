@@ -176,7 +176,6 @@ class UserManager extends DataBaseManager{
      * @param {number} userId
      * @returns {CustomResponse<User>}
      */
-
     async readUser(userId) {
         try {
             const user = await UserModel.findOne({ userId: userId }).exec(); 
