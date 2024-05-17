@@ -257,6 +257,8 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskAssignees(organizationId, taskId, assignees) {
+        // i don't think this function needs to be implemented yet
+        throw new Error("Not implemented yet");
     }
 
     /**
@@ -267,6 +269,20 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async addNewAssignee(organizationId, taskId, assignee) {
+        if(typeof assignee != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Assignee");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let isPresent = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, taskAssignees: assignee });
+        if (isPresent != null) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Assignee already exists");
+        }
+
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { taskAssignees: assignee } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -277,6 +293,15 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskManager(organizationId, taskId, newManager) {
+        if(typeof newManager != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Manager");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { taskManager: newManager });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -288,6 +313,18 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async updateTaskReport(organizationId, taskId, reportId, newReport) {
+        if (newReport == undefined || newReport.validate == undefined || !newReport.validate()) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Report Schedule");
+        }
+        if (typeof reportId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Report Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        result = await TaskModel.findOneAndUpdate({ taskId: taskId, "taskReports.reportId": reportId }, { $set: { "taskReports.$": newReport }}, {new: true} );
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -297,6 +334,12 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async enableNotification(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, {notificationEnable: true });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -306,6 +349,12 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async disableNotification(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, {notificationEnable: false});
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -316,6 +365,20 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async addChildTask(organizationId, taskId, childTaskId) {
+        if(typeof childTaskId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Child Task Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let isPresent = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, childTasks: childTaskId });
+        if (isPresent != null) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Child Task already exists");
+        }
+
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { childTasks: childTaskId} });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -325,7 +388,17 @@ class TaskManager extends DataBaseManager {
      * @param {number} newRecursivePermissionsValue
      * @returns {CustomResponse<void>}
     */
-    async updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) { }
+    async updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue) {
+        if(typeof newRecursivePermissionsValue != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Recursive Permissions Value");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { recursivePermissionsValue: newRecursivePermissionsValue });
+        return new CustomResponse(Errors.OK, "", undefined);
+    }
 
     //////////////////////////// Deleting ////////////////////////////
 
@@ -336,6 +409,12 @@ class TaskManager extends DataBaseManager {
      * @returns {Response}
      */
     async deleteTask(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.deleteOne({taskId: taskId});
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -346,17 +425,39 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async deleteTaskNotes(organizationId, taskId, noteId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let note = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, "taskNotes.noteId": noteId });
+        if (note == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Note not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { taskNotes: { noteId: noteId } } })
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
      * Delete the assignee with the given id from the task with the given id
-     * Can return an error if you are trying to delete the last assignee of the task
      * @param {number} organizationId
      * @param {number} taskId 
      * @param {number} assigneeId
      * @returns {CustomResponse<void>}
      */
     async deleteTaskAssignee(organizationId, taskId, assigneeId) {
+        if(typeof assigneeId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Assignee Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let assignee = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, taskAssignees: assigneeId });
+        if (assignee == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Assignee not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { taskAssignees: assigneeId } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -367,6 +468,19 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async deleteTaskReportSchedule(organizationId, taskId, reportId) {
+        if(typeof reportId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Report Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let report = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, "taskReports.reportScheduleId": reportId });
+        if (report == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Report not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { taskReports: {reportScheduleId: reportId } } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -377,6 +491,19 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async removeChildTask(organizationId, taskId, childTaskId) {
+        if (typeof childTaskId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Child Task Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        } 
+        let childTask = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, childTasks: childTaskId });
+        if (childTask == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Child Task not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { childTasks: childTaskId } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     //////////////////////////// Reading ///////////////////////////
