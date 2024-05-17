@@ -824,6 +824,49 @@ describe('TEST TASK MANAGER', () => {
 
     result = await tm.deleteTask(2,2);
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
+  });
+
+  test('test successful delete task notes', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"second notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.deleteTaskNotes(1,1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskNotes.length).toBe(1);
+    expect(task.taskNotes[0].noteId).toBe(2);
+  });
+
+  test('test not successful delete task notes', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.createTaskNotes(1,1,"notes for task 1");
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.deleteTaskNotes(1,1,2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.deleteTaskNotes(2,1,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.deleteTaskNotes(1,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
 
   });
+
 });

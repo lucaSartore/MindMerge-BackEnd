@@ -425,6 +425,16 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async deleteTaskNotes(organizationId, taskId, noteId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let note = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, "taskNotes.noteId": noteId });
+        if (note == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Note not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { taskNotes: { noteId: noteId } } })
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
