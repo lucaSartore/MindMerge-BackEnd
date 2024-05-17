@@ -49,44 +49,108 @@ class UserManager extends DataBaseManager{
     //////////////////////////// Updating ////////////////////////////
 
     /**
-     * Update the name of the user with the given id to the new name that is passed
-     * @param {number} userId
-     * @param {string} newName
-     * @returns {CustomResponse<void>}
-     */
-    updateUserName(userId, newName){
+    * Update the name of the user with the given id to the new name that is passed
+    * @param {number} userId
+    * @param {string} newName
+    * @returns {CustomResponse<void>}
+    */
+    async updateUserName(userId, newName) {
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { userId: userId },
+                { userName: newName },
+                { new: true }
+            );
+
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "User name updated successfully", null);
+        } catch (error) {
+            console.error("Error while updating user name:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user name", null);
+        }
     }
 
     /**
-     * Add a user to an organization
-     * @param {number} organizationId
-     * @param {number} userId 
-     * @returns {CustomResponse<void>}
-     */
-    addUserToOrganization(organizationId, userId){
+    * Add a user to an organization
+    * @param {number} organizationId
+    * @param {number} userId 
+    * @returns {CustomResponse<void>}
+    */
+    async addUserToOrganization(organizationId, userId) {
+        try {
+            const organization = await OrganizationModel.findOne({ organizationId: organizationId });
+            if (!organization) {
+                return new CustomResponse(Errors.NOT_FOUND, "Organization not found", null);
+            }
+
+            const user = await UserModel.findOne({ userId: userId });
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            organization.userIds.push(userId);
+            await organization.save();
+
+            return new CustomResponse(Errors.OK, "User added to organization successfully", null);
+        } catch (error) {
+            console.error("Error while adding user to organization:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add user to organization", null);
+        }
     }
 
     /**
-     * Mark a notification as read 
-     * @param {number} userId 
-     * @param {number} notificationId 
-     * @returns {CustomResponse<void>}
-     */
-    markNotificationAsRead(userId, notificationId){
+    * Mark a notification as read 
+    * @param {number} userId 
+    * @param {number} notificationId 
+    * @returns {CustomResponse<void>}
+    */
+    async markNotificationAsRead(userId, notificationId) {
+        try {
+            const user = await UserModel.findOne({ userId: userId });
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            const notification = user.notifications.id(notificationId);
+            if (!notification) {
+                return new CustomResponse(Errors.NOT_FOUND, "Notification not found", null);
+            }
+
+            notification.read = true;
+            await user.save();
+
+            return new CustomResponse(Errors.OK, "Notification marked as read", null);
+        } catch (error) {
+            console.error("Error while marking notification as read:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to mark notification as read", null);
+        }
     }
 
 
     //////////////////////////// Deleting ////////////////////////////
 
     /**
-     * Delete the user with the given id 
-     * @param {number} userId 
-     * @returns {CustomResponse<void>}
-     */
-    deleteUser(userId){
+    * Delete the user with the given id 
+    * @param {number} userId 
+    * @returns {CustomResponse<void>}
+    */
+    async deleteUser(userId) {
+        try {
+            const user = await UserModel.findOneAndDelete({ userId: userId });
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "User deleted successfully", null);
+        } catch (error) {
+            console.error("Error while deleting user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to delete user", null);
+        }
     }
     
-
     /**
      * Remove a user from an organization
      * @param {number} organizationId
@@ -112,7 +176,6 @@ class UserManager extends DataBaseManager{
      * @param {number} userId
      * @returns {CustomResponse<User>}
      */
-
     async readUser(userId) {
         try {
             const user = await UserModel.findOne({ userId: userId }).exec(); 

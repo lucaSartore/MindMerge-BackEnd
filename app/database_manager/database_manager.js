@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const reportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
+
 const TaskReportScheduleSchema = new mongoose.Schema({
     taskId: {type: Number, required: true},
     reportScheduleId: {type: Number, required: true},
@@ -14,10 +15,21 @@ const TaskReportScheduleSchema = new mongoose.Schema({
 const TaskReportScheduleModel = mongoose.model("TaskReportSchedule", TaskReportScheduleSchema);
 
 
+const NotificationSchema = new mongoose.Schema({
+    notificationId: {type: Number, required: true};
+    userId: {type: Number, required: true};
+    notificationText: {type: String, required: true};
+    date: {type: Date, default: Date.now, required: true};
+    read: {type: Boolean, default: false, required: true}
+})
+
+const NotificationModel = mongoose.model("Notification", NotificationSchema);
+
+
 const TaskNoteSchema = new mongoose.Schema({
-    noteId: {type: Number, required: true},
-    taskId: {type: Number, required: true},
-    notes: {type: String, required: true},
+    noteId: {type: Number, required: true};
+    taskId: {type: Number, required: true};
+    notes: {type: String, required: true};
     date: {type: Date, default: Date.now, required: true}
 });
 
