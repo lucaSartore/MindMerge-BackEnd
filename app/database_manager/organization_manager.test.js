@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Organization = require("../common_infrastructure/organization.js");
-const OrganizationManager = require("./organization_manager.js");
+const {Organization} = require("../common_infrastructure/organization.js");
+const {OrganizationManager} = require("./organization_manager.js");
 
 describe('TEST 1', () => {
 
@@ -25,7 +25,7 @@ describe('TEST 1', () => {
             [1],
             true,
             Date.parse('2025-01-01'),
-            1
+            1,
         )
     );
   });
