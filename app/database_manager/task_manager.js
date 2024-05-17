@@ -334,6 +334,12 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async enableNotification(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, {notificationEnable: true });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**
@@ -343,6 +349,13 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<void>}
      */
     async disableNotification(organizationId, taskId) {
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, {notificationEnable: false});
+        return new CustomResponse(Errors.OK, "", undefined);
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**

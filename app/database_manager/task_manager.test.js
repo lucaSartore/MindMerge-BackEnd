@@ -648,4 +648,49 @@ describe('TEST TASK MANAGER', () => {
     result = await tm.updateTaskManager(1,1,"");
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
   });
+
+
+  test('test successful enable and disable notification' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.enableNotification(1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.notificationEnable).toBe(true);
+
+    result = await tm.disableNotification(1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+    
+    task = await TaskModel.findOne({ taskId: 1 });
+    expect(task.notificationEnable).toBe(false);
+
+    result = await tm.enableNotification(1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.notificationEnable).toBe(true);
+
+  });
+
+  test('test not successful enable and disable notification' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.enableNotification(1,2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.enableNotification(2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+    
+  });
 });
