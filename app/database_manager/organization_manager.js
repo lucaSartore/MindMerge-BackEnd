@@ -142,7 +142,15 @@ class OrganizationManager extends DataBaseManager{
      * @param {number} organizationId 
      * @returns {CustomResponse<Organization>}
      */
-    readOrganization(organizationId){
+    async readOrganization(organizationId){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        return new CustomResponse(Errors.OK, "Organization found", organization);
     }
 }
 
