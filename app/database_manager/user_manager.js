@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { DataBaseManager, UserModel } = require('./database_manager.js');
+const { DataBaseManager, UserModel, NotificationModel } = require('./database_manager.js');
 const {User} = require("../common_infrastructure/user.js");
 const {CustomResponse} = require("../common_infrastructure/response.js");
 const {Errors} = require('../common_infrastructure/errors.js');
@@ -170,7 +170,9 @@ class UserManager extends DataBaseManager{
     deleteNotification(userId, notificationId){
     }
 
+
     //////////////////////////// Reading ///////////////////////////
+
     /**
      * Return one single user
      * @param {number} userId
@@ -190,6 +192,24 @@ class UserManager extends DataBaseManager{
         }
     }
 
+    /**
+     * Return every user
+     * @returns {CustomResponse<User[]}
+     */
+    async readAllUsers() {
+        try {
+            const users = await UserModel.find();
+            if (users) {
+                return new CustomResponse(Errors.OK, "ciao", users);
+            } else {
+                return new CustomResponse(Errors.NOT_FOUND, "rip", null);
+            }
+        } catch (error) {
+            console.error("Error while searching for users:", error);
+            return new CustomResponse(Error.INTERNAL_SERVER_ERROR, "Failed to fetch users", null);
+        }
+    }
+
         /**
      * Return a list of all the notifications that the user has 
      * @param {number} userId 
@@ -197,6 +217,7 @@ class UserManager extends DataBaseManager{
      */
     readUserNotifications(userId){
     }
+
 
     ////////////////////////// Authentication ////////////////////////
 
@@ -292,3 +313,4 @@ class UserManager extends DataBaseManager{
 }
 
 exports.UserManager = UserManager;
+

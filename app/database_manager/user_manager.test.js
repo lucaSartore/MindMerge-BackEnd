@@ -54,17 +54,41 @@ describe('TEST USER MANAGER', () => {
     describe('=> Finding users:', () => {
         beforeEach(async () => {
             await UserModel.deleteMany({});
-            let um = new UserManager();
-            let user = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
-            await um.createUser(user);
         });
 
         test('find an *existing* user', async () => {
             let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
+            await um.createUser(userToCreate);
+
             let result = await um.readUser(1);
 
             expect(result.statusCode).toBe(Errors.OK);
             expect(result.payload.userName).toBe("UserToRead");
+        });
+
+        test('find *every* user', async () => {
+            let um = new UserManager();
+
+            // Array of user to add once emptied the DB
+            let users = [
+                new User(1, "User1", [1], UserKind.Custom, "user1@example.com"),
+                new User(2, "User2", [2], UserKind.Custom, "user2@example.com"),
+                new User(3, "User3", [3], UserKind.Custom, "user3@example.com")
+            ];
+
+            for (let user of users) {
+                // console.log("User before creation:", user);
+                if (!user.validate()) {
+                    // console.error("Invalid user:", user);
+                    throw new Error("Invalid user");
+                }
+                await um.createUser(user);
+            }
+
+            let result = await um.readAllUsers();
+
+            expect(result.payload.length).toBe(3);
         });
     });
 });

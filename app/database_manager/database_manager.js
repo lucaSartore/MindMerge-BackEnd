@@ -29,7 +29,7 @@ const NotificationSchema = new mongoose.Schema({
   userId: {type: Number, required: true},
   notificationText: {type: String, required: true},
   date: {type: Date, default: Date.now},
-  read: {type: Boolean, default: false, required: true}
+  read: {type: Boolean, default: false}
 });
 
 const NotificationModel = mongoose.model("Notification", NotificationSchema);
