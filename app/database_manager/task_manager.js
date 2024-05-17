@@ -439,13 +439,25 @@ class TaskManager extends DataBaseManager {
 
     /**
      * Delete the assignee with the given id from the task with the given id
-     * Can return an error if you are trying to delete the last assignee of the task
      * @param {number} organizationId
      * @param {number} taskId 
      * @param {number} assigneeId
      * @returns {CustomResponse<void>}
      */
     async deleteTaskAssignee(organizationId, taskId, assigneeId) {
+        if(typeof assigneeId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Assignee Id");
+        }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
+        let assignee = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId, taskAssignees: assigneeId });
+        if (assignee == null) {
+            return new CustomResponse(Errors.NOT_FOUND, false, "Assignee not found");
+        }
+        await TaskModel.findOneAndUpdate({ taskId: taskId }, { $pull: { taskAssignees: assigneeId } });
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
     /**

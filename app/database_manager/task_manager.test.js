@@ -869,4 +869,39 @@ describe('TEST TASK MANAGER', () => {
 
   });
 
+
+  test('test successful delete task assignee', async () => {
+
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress, [], [1,2,3], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+
+    result = await tm.deleteTaskAssignee(1,1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    expect(task.taskAssignees).toStrictEqual([2,3]);
+
+  });
+
+  test('test not successful delete task assignee', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.InProgress,[], [1,2,3], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.deleteTaskAssignee(1,2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.deleteTaskAssignee(2,1,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.deleteTaskAssignee(1,1,4);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+  });
 });
