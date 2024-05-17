@@ -78,6 +78,18 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<Date>}
      */
     async updateLicenseExpirationDate(organizationId, newDate){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(newDate == undefined || typeof newDate != "Date"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Date");
+        }
+        let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        organization.licenseExpirationDate = newDate;
+        return new CustomResponse(Errors.OK, "License expiration date updated", organization.licenseExpirationDate);
     }
 
     //////////////////////////// Deleting ////////////////////////////
