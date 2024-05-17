@@ -287,6 +287,7 @@ describe('TEST TASK MANAGER', () => {
     expect(task.taskStatus).toBe(TaskStatus.InProgress);
 
     task = await TaskModel.findOne({ taskId: 2 });
+
     expect(task.taskName).toBe("Task 2 updated");
     expect(task.taskDescription).toBe("Task 2 description updated");
   });
@@ -316,5 +317,48 @@ describe('TEST TASK MANAGER', () => {
 
     result = await tm.updateTask(1,1,new Task(1, null, 1, new Date(), "Task 1 updated", "Task 1 description updated", TaskStatus.InProgress, [], [1], 1, [], false, [], []));
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+  });
+
+  test('test successful update last task update', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    let firstDate = task.lastUpdated;
+
+    await new Promise(r => setTimeout(r, 50));
+
+    result = await tm.updateTaskLastUpdated(1,1);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    task = await TaskModel.findOne({ taskId: 1 });
+    expect(task).not.toBeNull();
+    let secondDate = task.lastUpdated;
+
+    expect(secondDate-firstDate).toBeGreaterThan(49);
+    expect(secondDate-firstDate).toBeLessThan(5000);
+
+  });
+
+
+  test('test not found update last task update', async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    await tm.createTask(1, new Task(1, null, 1, new Date(), "Task 1", "Task 1 description", TaskStatus.Idea, [], [1], 1, [], false, [], 0));
+
+    let result = await tm.updateTaskLastUpdated(1,2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskLastUpdated(2,2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+    result = await tm.updateTaskLastUpdated(2,1);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
   });
 });
