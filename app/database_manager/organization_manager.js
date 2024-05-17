@@ -111,9 +111,30 @@ class OrganizationManager extends DataBaseManager{
      * @param {number} userId 
      * @returns {CustomResponse<void>}
      */
-    removeUserFromOrganization(organizationId, userId){
+
+    async removeUserFromOrganization(organizationId, userId){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        let user = await UserModel.findOne({userId: userId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        if(user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User not found");
+        }
+        if(organization.ownerId == userId){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Cannot remove owner from organization");
+        }
+        organization.userIds = organization.userIds.filter(id => id != userId);
+        user.organizations = user.organizations.filter(id => id != organizationId);
+        return new CustomResponse(Errors.OK, "User removed from organization", userId);
     }
-    
+
     //////////////////////////// Reading ///////////////////////////
 
     /**
