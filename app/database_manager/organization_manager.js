@@ -1,7 +1,7 @@
 const {DataBaseManager, OrganizationModel, UserModel} = require('./database_manager.js');
 
-const CustomResponse = require('../common_infrastructure/response.js');
-const Errors = require('../common_infrastructure/errors.js');
+const {CustomResponse} = require('../common_infrastructure/response.js');
+const {Errors} = require('../common_infrastructure/errors.js');
 
 class OrganizationManager extends DataBaseManager{
 
@@ -15,6 +15,7 @@ class OrganizationManager extends DataBaseManager{
      */
     async createOrganization(organization){
         if(!organization.validate()){
+            console.log("Organization NOT created");
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid organization")
         }
         let new_organization = new OrganizationModel(organization);
