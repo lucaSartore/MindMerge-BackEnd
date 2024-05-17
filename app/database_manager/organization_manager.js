@@ -1,4 +1,4 @@
-const {DataBaseManager, OrganizationModel} = require('./database_manager.js');
+const {DataBaseManager, OrganizationModel, UserModel} = require('./database_manager.js');
 
 const CustomResponse = require('../common_infrastructure/response.js');
 const Errors = require('../common_infrastructure/errors.js');
@@ -28,27 +28,44 @@ class OrganizationManager extends DataBaseManager{
      * this function will also edit the profile of the user to add the organization to the user's profile
      * @param {number} organizationId
      * @param {string} newName
-     * @returns {CustomResponse<void>}
+     * @returns {CustomResponse<number>}
     */
-    addUserToOrganization(organizationId, userId){
+    async addUserToOrganization(organizationId, userId){
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        let user = await UserModel.findOne({userId: userId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+        if(user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User not found");
+        }
+        organization.userIds.push(userId);
+        user.organizations.push(organizationId);
+        return new CustomResponse(Errors.OK, "User added to organization", userId);
     }
 
     /**
      * Update the license of the organization with the given id to the new license that is passed
      * @param {number} organizationId
      * @param {boolean} newLicense
-     * @returns {CustomResponse<void>}
+     * @returns {CustomResponse<boolean>}
      */
-    updateLicense(organizationId, newLicense){
+    async updateLicense(organizationId, newLicense){
     }
 
     /**
      * Update the license expiration date of the organization with the given id to the new date that is passed
      * @param {number} organizationId
      * @param {Date} newDate
-     * @returns {CustomResponse<void>}
+     * @returns {CustomResponse<Date>}
      */
-    updateLicenseExpirationDate(organizationId, newDate){
+    async updateLicenseExpirationDate(organizationId, newDate){
     }
 
     //////////////////////////// Deleting ////////////////////////////
