@@ -130,24 +130,26 @@ describe('TEST USER MANAGER', () => {
 
         test('update user kind successfully', async () => {
             let um = new UserManager();
+            await um.createUser(new User(1, "User1", [1], UserKind.Custom, "user1@example.com"));
 
-            let result = await um.updateUserKind(1, UserKind.Admin);
+            let result = await um.updateUserKind(1, UserKind.Facebook);
 
             expect(result.statusCode).toBe(Errors.OK);
 
             let updatedUser = await um.readUser(1);
-            expect(updatedUser.payload.userKind).toBe(UserKind.Custom);
+            expect(updatedUser.payload.userKind).toBe(UserKind.Facebook);
         });
         
         test('update user email successfully', async () => {
             let um = new UserManager();
+            await um.createUser(new User(1, "User1", [1], UserKind.Custom, "old_email@example.com"));
 
-            let result = await um.updateUserEmail(1, "newemail@example.com");
+            let result = await um.updateUserEmail(1, "new_email@example.com");
 
             expect(result.statusCode).toBe(Errors.OK);
 
             let updatedUser = await um.readUser(1);
-            expect(updatedUser.payload.).toBe("newemail@example.com");
+            expect(updatedUser.payload.email).toBe("new_email@example.com");
         });
     });
 });
