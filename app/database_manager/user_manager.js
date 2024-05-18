@@ -23,8 +23,13 @@ class UserManager extends DataBaseManager{
             const existingUser = await UserModel.findOne({ userName: user.userName });
             if (existingUser) {
                 return new CustomResponse(Errors.BAD_REQUEST, "Username already exists", null);
-            }
+            }            
             
+            const existingUserMail = await UserModel.findOne({ email: user.email });
+            if (existingUserMail) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Username already exists", null);
+            }
+
             const newUser = new UserModel(user);
             await newUser.save();
             
@@ -55,7 +60,17 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async updateUserName(userId, newName) {
+        if (typeof newName != "string" || newName == "") {
+            return new CustomResponse(Errors.BAD_REQUEST, "New username invalid", null);
+        }
+
         try {
+            const existingUser = await UserModel.findOne({ userName: newName });
+
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "User with the provided username already exists", null);
+            }
+
             const user = await UserModel.findOneAndUpdate(
                 { userId: userId },
                 { userName: newName },
@@ -105,7 +120,17 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async updateUserEmail(userId, newEmail) {
+        if (typeof newName != "string" || newName == "") {
+            return new CustomResponse(Errors.BAD_REQUEST, "New username invalid", null);
+        }
+
         try {
+            const existingUser = await UserModel.findOne({ email: newEmail });
+
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "User with the provided email already exists", null);
+            }
+
             const user = await UserModel.findOneAndUpdate(
                 { userId: userId },
                 { email: newEmail },
@@ -129,24 +154,24 @@ class UserManager extends DataBaseManager{
     * @param {number} userid 
     * @returns {customresponse<void>}
     */
-    async addUserToOrganization(organizationId, userId) {
-        // note: this is user manager, so is not necessary to add the user to the organization... since that
-        // is the organization manager's job
-        try {
+    // async addUserToOrganization(organizationId, userId) {
+    //     // note: this is user manager, so is not necessary to add the user to the organization... since that
+    //     // is the organization manager's job
+    //     try {
 
-            const user = await UserModel.findOne({ userId: userId });
-            if (!user) {
-                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
-            }
+    //         const user = await UserModel.findOne({ userId: userId });
+    //         if (!user) {
+    //             return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+    //         }
 
-            await UserModel.findOneAndUpdate({ userId: userId }, { $push: { organizations: organizationId } });
+    //         await UserModel.findOneAndUpdate({ userId: userId }, { $push: { organizations: organizationId } });
 
-            return new CustomResponse(Errors.OK, "User added to organization successfully", null);
-        } catch (error) {
-            console.error("Error while adding user to organization:", error);
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add user to organization", null);
-        }
-    }
+    //         return new CustomResponse(Errors.OK, "User added to organization successfully", null);
+    //     } catch (error) {
+    //         console.error("Error while adding user to organization:", error);
+    //         return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add user to organization", null);
+    //     }
+    // }
 
     /**
     * Mark a notification as read 
@@ -231,6 +256,9 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<User>}
      */
     async readUser(userId) {
+        if (typeof userId != "number") {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null)
+        }
         try {
             const user = await UserModel.findOne({ userId: userId }).exec(); 
             if (user) {
