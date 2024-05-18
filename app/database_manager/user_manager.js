@@ -80,19 +80,16 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async addUserToOrganization(organizationId, userId) {
+        // note: this is user manager, so is not necessary to add the user to the organization... since that
+        // is the organization manager's job
         try {
-            const organization = await OrganizationModel.findOne({ organizationId: organizationId });
-            if (!organization) {
-                return new CustomResponse(Errors.NOT_FOUND, "Organization not found", null);
-            }
 
             const user = await UserModel.findOne({ userId: userId });
             if (!user) {
                 return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
             }
 
-            organization.userIds.push(userId);
-            await organization.save();
+            await UserModel.findOneAndUpdate({ userId: userId }, { $push: { organizations: organizationId } });
 
             return new CustomResponse(Errors.OK, "User added to organization successfully", null);
         } catch (error) {
