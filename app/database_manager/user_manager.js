@@ -66,7 +66,7 @@ class UserManager extends DataBaseManager{
                 return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
             }
 
-            return new CustomResponse(Errors.OK, "User name updated successfully", null);
+            return new CustomResponse(Errors.OK, "User name updated successfully", user);
         } catch (error) {
             console.error("Error while updating user name:", error);
             return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user name", null);
@@ -74,10 +74,60 @@ class UserManager extends DataBaseManager{
     }
 
     /**
-    * Add a user to an organization
-    * @param {number} organizationId
-    * @param {number} userId 
+    * Update the kind of the user with the given id to the new kind that is passed
+    * @param {number} userId
+    * @param {userKind} newUserKind
     * @returns {CustomResponse<void>}
+    */
+    async updateUserKind(userId, newUserKind) {
+    try {
+        const user = await UserModel.findOneAndUpdate(
+            { userId: userId },
+            { userKind: newUserKind },
+            { new: true }
+        );
+
+        if (!user) {
+            return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+        }
+
+        return new CustomResponse(Errors.OK, "User kind updated successfully", user);
+    } catch (error) {
+        console.error("Error while updating user kind:", error);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user kind", null);
+    }
+}
+
+    /**
+    * Update the mail of the user with the given id to the new mail that is passed
+    * @param {number} userId
+    * @param {userKind} newUserMail
+    * @returns {CustomResponse<void>}
+    */
+    async updateUserEmail(userId, newEmail) {
+        try {
+            const user = await UserModel.findOneAndUpdate(
+                { userId: userId },
+                { email: newEmail },
+                { new: true }
+            );
+
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "User email updated successfully", user);
+        } catch (error) {
+            console.error("Error while updating user email:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user email", null);
+        }
+    }
+
+    /**
+    * add a user to an organization
+    * @param {number} organizationid
+    * @param {number} userid 
+    * @returns {customresponse<void>}
     */
     async addUserToOrganization(organizationId, userId) {
         // note: this is user manager, so is not necessary to add the user to the organization... since that

@@ -91,4 +91,63 @@ describe('TEST USER MANAGER', () => {
             expect(result.payload.length).toBe(3);
         });
     });
+
+    /**
+     * In order to speed-up tests, I'll avoid to create 3 users each time (under beforeEach)
+     * Instead, I will do that way only with the first test to check whether the middleware
+     * Is not invoked during the change of the attributes
+     */
+    describe('=> Updating users:', () => {
+        beforeEach(async () => {
+            await UserModel.deleteMany({});
+        });
+
+        test('update username *successfully*', async () => {
+            let um = new UserManager();
+           // Array of user to add once emptied the DB
+            let users = [
+                new User(1, "User1", [1], UserKind.Custom, "user1@example.com"),
+                new User(2, "User2", [2], UserKind.Custom, "user2@example.com"),
+                new User(3, "User3", [3], UserKind.Custom, "user3@example.com")
+            ];
+
+            for (let user of users) {
+                // console.log("User before creation:", user);
+                if (!user.validate()) {
+                    // console.error("Invalid user:", user);
+                    throw new Error("Invalid user");
+                }
+                await um.createUser(user);
+            }
+
+            let result = await um.updateUserName(1, "UpdatedUserName");
+
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let updatedUser = await um.readUser(1);
+            expect(updatedUser.payload.userName).toBe("UpdatedUserName");
+        });
+
+        test('update user kind successfully', async () => {
+            let um = new UserManager();
+
+            let result = await um.updateUserKind(1, UserKind.Admin);
+
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let updatedUser = await um.readUser(1);
+            expect(updatedUser.payload.userKind).toBe(UserKind.Custom);
+        });
+        
+        test('update user email successfully', async () => {
+            let um = new UserManager();
+
+            let result = await um.updateUserEmail(1, "newemail@example.com");
+
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let updatedUser = await um.readUser(1);
+            expect(updatedUser.payload.).toBe("newemail@example.com");
+        });
+    });
 });
