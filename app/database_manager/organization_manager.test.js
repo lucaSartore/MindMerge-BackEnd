@@ -6,13 +6,10 @@ const {Errors} = require("../common_infrastructure/errors.js");
 
 describe('TEST ORGANIZATION MANAGER', () => {
 
-  let connection;
-  let om;
 
   beforeAll( async () => {
     connection = await  mongoose.connect(process.env.DB_URL);
     console.log('Database connected!');
-    om = new OrganizationManager();
   });
 
   afterAll(async () => {
@@ -22,11 +19,11 @@ describe('TEST ORGANIZATION MANAGER', () => {
 
   test('New Organization, success', async () => {
     await OrganizationModel.deleteMany({});
-    let um = new OrganizationManager();
+    let om = new OrganizationManager();
 
     let date = new Date();
 
-    const response = await um.createOrganization(
+    const response = await om.createOrganization(
         new Organization(
             2,
             "Test &co",
@@ -53,9 +50,9 @@ describe('TEST ORGANIZATION MANAGER', () => {
   });
 
   test('New Organization, invalid organization', async () => {
-    let um = new OrganizationManager();
+    let om = new OrganizationManager();
 
-    let response = await um.createOrganization(
+    let response = await om.createOrganization(
         new Organization(
             2,
             "Test &co",
@@ -68,7 +65,7 @@ describe('TEST ORGANIZATION MANAGER', () => {
 
     expect(response.statusCode).toBe(Errors.BAD_REQUEST);
     
-    response = await um.createOrganization(
+    response = await om.createOrganization(
         new Organization(
             2,
             "Test &co",
@@ -80,7 +77,7 @@ describe('TEST ORGANIZATION MANAGER', () => {
     );
     expect(response.statusCode).toBe(Errors.BAD_REQUEST);
 
-    response = await um.createOrganization(
+    response = await om.createOrganization(
         new Organization(
             2,
             "Test &co",
@@ -93,6 +90,140 @@ describe('TEST ORGANIZATION MANAGER', () => {
     expect(response.statusCode).toBe(Errors.BAD_REQUEST);
 
   })
+
+
+  test('Add User to Organization, success', async () => {
+
+    await OrganizationModel.deleteMany({});
+    let om = new OrganizationManager();
+
+    let result = await om.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            [1],
+            true,
+            new Date(),
+            1
+        )
+    ); 
+    expect(result.statusCode).toBe(Errors.OK);
+
+
+    result = await om.addUserToOrganization(1, 2);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let organization = await OrganizationModel.findOne({organizationId: 1});
+    expect(organization).not.toBeNull();
+    expect(organization.userIds).toStrictEqual([1, 2]);
+
+
+  });
+
+
+  test('unsuccessful add user to organization', async () => {
+
+    await OrganizationModel.deleteMany({});
+
+    let om = new OrganizationManager();
+
+    let result = await om.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            [1],
+            true,
+            new Date(),
+            1
+        )
+    );
+    
+    result = await om.addUserToOrganization(1, 2);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await om.addUserToOrganization(1, '2');
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await om.addUserToOrganization(1, 1);
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+  });
+
+
+  test('update license', async () => {
+    await OrganizationModel.deleteMany({});
+
+    let om = new OrganizationManager();
+
+    let result = await om.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            [1],
+            true,
+            new Date(),
+            1
+        )
+    );
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await om.updateLicense(1, false);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let organization = await OrganizationModel.findOne({organizationId: 1});
+    expect(organization).not.toBeNull();
+    expect(organization.licenseValid).toBe(false);
+
+    result = await om.updateLicense(1,true);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    organization = await OrganizationModel.findOne({organizationId: 1});
+    expect(organization).not.toBeNull();
+    expect(organization.licenseValid).toBe(true);
+
+
+    // non successful insert
+    result = await om.updateLicense(1, 'false');
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await om.updateLicense(2,true);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+  });
+
+  test('update license expiration date', async () => {
+
+    await OrganizationModel.deleteMany({});
+    let om = new OrganizationManager();
+
+    let result = await om.createOrganization(
+      new Organization(
+        2,
+        "Test &co",
+        [1],
+        true,
+        new Date(),
+        1
+      ));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let date = new Date();
+    result = await om.updateLicenseExpirationDate(1, date);
+    expect(result.statusCode).toBe(Errors.OK);
+
+    let organization = await OrganizationModel.findOne({organizationId: 1});
+    expect(organization).not.toBeNull();
+    expect(organization.licenseExpirationDate).toStrictEqual(date);
+
+    // non successful insert
+
+    result = await om.updateLicenseExpirationDate(1, 'date');
+    expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+    result = await om.updateLicenseExpirationDate(2, date);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+  });
   /*
   test('createOrganization with invalid organization', async () => {
 

@@ -32,44 +32,47 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<number>}
     */
     async addUserToOrganization(organizationId, userId){
-        if(organizationId == undefined || typeof organizationId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
         }
+
         if(userId == undefined || typeof userId != "number"){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
         }
+
         let organization = await OrganizationModel.findOne({organizationId: organizationId});
-        let user = await UserModel.findOne({userId: userId});
-        if(organization == null){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        if(organization.userIds.includes(userId)){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User already in organization");
         }
-        if(user == null){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "User not found");
-        }
-        organization.userIds.push(userId);
-        user.organizations.push(organizationId);
-        return new CustomResponse(Errors.OK, "User added to organization", userId);
-    }
+            
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {$push: {userIds: userId}});
+        return new CustomResponse(Errors.OK, "", null);
+    } 
+        
 
     /**
      * Update the license of the organization with the given id to the new license that is passed
      * @param {number} organizationId
      * @param {boolean} newLicense
-     * @returns {CustomResponse<boolean>}
+     * @returns {CustomResponse<void>}
      */
     async updateLicense(organizationId, newLicense){
-        if(organizationId == undefined || typeof organizationId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
         }
+
         if(newLicense == undefined || typeof newLicense != "boolean"){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid License");
         }
-        let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
-        if(organization == null){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
-        }
-        organization.licenseValid = newLicense;
-        return new CustomResponse(Errors.OK, "License updated", organization.licenseValid);
+
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {licenseValid: newLicense})
+
+        return new CustomResponse(Errors.OK, "License updated", undefined);
     }
 
     /**
@@ -79,18 +82,19 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<Date>}
      */
     async updateLicenseExpirationDate(organizationId, newDate){
-        if(organizationId == undefined || typeof organizationId != "number"){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
         }
-        if(newDate == undefined || typeof newDate != "Date"){
+
+        if( typeof newDate != 'object' || ! newDate instanceof Date){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Date");
         }
-        let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
-        if(organization == null){
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
-        }
-        organization.licenseExpirationDate = newDate;
-        return new CustomResponse(Errors.OK, "License expiration date updated", organization.licenseExpirationDate);
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {licenseExpirationDate: newDate});
+
+        return new CustomResponse(Errors.OK, "License expiration date updated", newDate);
     }
 
     //////////////////////////// Deleting ////////////////////////////
@@ -101,6 +105,12 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<number>}
      */
     async deleteOrganization(organizationId){
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
         if(organizationId == undefined || typeof organizationId != "number"){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
@@ -122,6 +132,12 @@ class OrganizationManager extends DataBaseManager{
      */
 
     async removeUserFromOrganization(organizationId, userId){
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
         if(organizationId == undefined || typeof organizationId != "number"){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
@@ -152,6 +168,12 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<Organization>}
      */
     async readOrganization(organizationId){
+        
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
         if(organizationId == undefined || typeof organizationId != "number"){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
@@ -160,6 +182,22 @@ class OrganizationManager extends DataBaseManager{
             return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
         }
         return new CustomResponse(Errors.OK, "Organization found", organization);
+    }
+
+    /**
+     * Return whether an organization is valid or not
+     * @param {number} organizationId
+     * @returns {CustomResponse<void>}
+     * */
+    async validateOrganization(organizationId){
+        if (organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Organization not found");
+        }
+        return new CustomResponse(Errors.OK,"", undefined);
     }
 }
 
