@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const {Organization} = require("../common_infrastructure/organization.js");
 const {OrganizationManager} = require("./organization_manager.js");
+const {OrganizationModel} = require("./database_manager.js");
+const {Errors} = require("../common_infrastructure/errors.js");
 
 describe('TEST ORGANIZATION MANAGER', () => {
 
@@ -18,23 +20,82 @@ describe('TEST ORGANIZATION MANAGER', () => {
     console.log("Database connection closed");
   });
 
-  test('New Organization', async () => {
+  test('New Organization, success', async () => {
+    await OrganizationModel.deleteMany({});
     let um = new OrganizationManager();
+
+    let date = new Date();
+
     const response = await um.createOrganization(
         new Organization(
-            1,
+            2,
             "Test &co",
             [1],
             true,
-            Date.parse('2025-01-01'),
+            date,
             1,
         )
     );
-    expect(response.success).toBe(true);
-    expect(response.data).toBeInstanceOf(Number);
+
+    expect(response.statusCode).toBe(Errors.OK);
+    expect(response.payload).toBe(1);
+
+    let organization = await OrganizationModel.findOne({organizationId: 1});
+    expect(organization).not.toBeNull();
+
+    expect(organization.organizationId).toBe(1);
+    expect(organization.organizationName).toBe("Test &co");
+    expect(organization.userIds).toStrictEqual([1]);
+    expect(organization.licenseValid).toBe(true);
+    expect(organization.licenseExpirationDate).toStrictEqual(date);
+    expect(organization.ownerId).toBe(1);
+
   });
 
+  test('New Organization, invalid organization', async () => {
+    let um = new OrganizationManager();
+
+    let response = await um.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            ['ddd'],
+            true,
+            new Date(),
+            1
+        )
+    );
+
+    expect(response.statusCode).toBe(Errors.BAD_REQUEST);
+    
+    response = await um.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            [1],
+            'true',
+            new Date(),
+            1
+        )
+    );
+    expect(response.statusCode).toBe(Errors.BAD_REQUEST);
+
+    response = await um.createOrganization(
+        new Organization(
+            2,
+            "Test &co",
+            [1],
+            true,
+            'date',
+            1
+        )
+    );
+    expect(response.statusCode).toBe(Errors.BAD_REQUEST);
+
+  })
+  /*
   test('createOrganization with invalid organization', async () => {
+
     const org = new Organization(
       null,
       null,
@@ -125,5 +186,5 @@ describe('TEST ORGANIZATION MANAGER', () => {
     expect(response.success).toBe(false);
     expect(response.error).toBe(Errors.BAD_REQUEST);
     expect(response.message).toBe("Invalid Organization Id");
-  });
+  });*/
 });

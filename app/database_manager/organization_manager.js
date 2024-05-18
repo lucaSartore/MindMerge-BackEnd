@@ -15,11 +15,11 @@ class OrganizationManager extends DataBaseManager{
      */
     async createOrganization(organization){
         if(!organization.validate()){
-            console.log("Organization NOT created");
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid organization")
         }
         let new_organization = new OrganizationModel(organization);
         await new_organization.save();
+        return new CustomResponse(Errors.OK, "Organization created", new_organization.organizationId);
     }
 
     //////////////////////////// Updating ////////////////////////////
