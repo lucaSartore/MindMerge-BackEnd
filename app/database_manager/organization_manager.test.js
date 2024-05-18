@@ -224,6 +224,29 @@ describe('TEST ORGANIZATION MANAGER', () => {
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
 
   });
+
+  test('read organization', async () => {
+    await OrganizationModel.deleteMany({});
+    let om = new OrganizationManager();
+
+    let organization = new Organization(
+      1,
+      "Test &co",
+      [1],
+      true,
+      new Date(),
+      1
+    );
+
+    let result = await om.createOrganization(organization);
+
+    let newOrganization = await om.readOrganization(1);
+    expect(newOrganization.statusCode).toBe(Errors.OK);
+
+    expect(newOrganization.payload.organizationId).toBe(organization.organizationId);
+
+  });
+
   /*
   test('createOrganization with invalid organization', async () => {
 

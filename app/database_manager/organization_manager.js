@@ -1,5 +1,5 @@
-const {DataBaseManager, OrganizationModel, UserModel} = require('./database_manager.js');
-
+const {DataBaseManager, OrganizationModel } = require('./database_manager.js');
+const { Organization } = require('../common_infrastructure/organization.js');
 const {CustomResponse} = require('../common_infrastructure/response.js');
 const {Errors} = require('../common_infrastructure/errors.js');
 
