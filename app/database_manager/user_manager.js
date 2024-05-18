@@ -47,7 +47,21 @@ class UserManager extends DataBaseManager{
      * @param {Notification} notification
      * @returns {CustomResponse<number>}
      */
-    createNotification(userId, notification){
+    async createNotification(userId, notification) {
+        try {
+            const newNotification = new NotificationModel({
+                userId: userId,
+                notificationText: notification.notificationText,
+                date: new Date(), // Current date
+                read: false
+            });
+
+            const savedNotification = await newNotification.save();
+
+            return new CustomResponse(Errors.OK, "Notification created successfully", notification);
+        } catch (error) {
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add notification", null);
+        }
     }
 
 
@@ -149,56 +163,13 @@ class UserManager extends DataBaseManager{
     }
 
     /**
-    * add a user to an organization
-    * @param {number} organizationid
-    * @param {number} userid 
-    * @returns {customresponse<void>}
-    */
-    // async addUserToOrganization(organizationId, userId) {
-    //     // note: this is user manager, so is not necessary to add the user to the organization... since that
-    //     // is the organization manager's job
-    //     try {
-
-    //         const user = await UserModel.findOne({ userId: userId });
-    //         if (!user) {
-    //             return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
-    //         }
-
-    //         await UserModel.findOneAndUpdate({ userId: userId }, { $push: { organizations: organizationId } });
-
-    //         return new CustomResponse(Errors.OK, "User added to organization successfully", null);
-    //     } catch (error) {
-    //         console.error("Error while adding user to organization:", error);
-    //         return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add user to organization", null);
-    //     }
-    // }
-
-    /**
     * Mark a notification as read 
     * @param {number} userId 
     * @param {number} notificationId 
     * @returns {CustomResponse<void>}
     */
     async markNotificationAsRead(userId, notificationId) {
-        try {
-            const user = await UserModel.findOne({ userId: userId });
-            if (!user) {
-                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
-            }
-
-            const notification = user.notifications.id(notificationId);
-            if (!notification) {
-                return new CustomResponse(Errors.NOT_FOUND, "Notification not found", null);
-            }
-
-            notification.read = true;
-            await user.save();
-
-            return new CustomResponse(Errors.OK, "Notification marked as read", null);
-        } catch (error) {
-            console.error("Error while marking notification as read:", error);
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to mark notification as read", null);
-        }
+        // TODO
     }
 
 
@@ -210,7 +181,6 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async deleteUser(userId) {
-        
         // not necessary for MVP
 
         // try {
@@ -280,9 +250,9 @@ class UserManager extends DataBaseManager{
         try {
             const users = await UserModel.find();
             if (users) {
-                return new CustomResponse(Errors.OK, "ciao", users);
+                return new CustomResponse(Errors.OK, "", users);
             } else {
-                return new CustomResponse(Errors.NOT_FOUND, "rip", null);
+                return new CustomResponse(Errors.NOT_FOUND, "Collection is empty", null);
             }
         } catch (error) {
             console.error("Error while searching for users:", error);
@@ -290,12 +260,27 @@ class UserManager extends DataBaseManager{
         }
     }
 
-        /**
+    /**
      * Return a list of all the notifications that the user has 
      * @param {number} userId 
      * @returns {CustomResponse<Notification[]>}
      */
-    readUserNotifications(userId){
+    async readUserNotifications(userId) {
+        if (typeof userId == "number" || userId == 0) {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
+        }
+
+        try {
+            const notifications = await NotificationModel.find({ userId: userId }).exec();
+            if (!notifications) {
+                return new CustomResponse(Errors.BAD_REQUEST, "user not found", null);
+            }
+          
+            return new CustomResponse(Errors.OK, "", notifications);
+        } catch (error) {
+            console.error("Error while searching for notifications:", error);
+            return new CustomResponse(Error.INTERNAL_SERVER_ERROR, "Failed to fetch notifications", null);
+        }
     }
 
 
