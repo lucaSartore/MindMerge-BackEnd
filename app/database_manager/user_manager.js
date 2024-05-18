@@ -120,7 +120,7 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async updateUserEmail(userId, newEmail) {
-        if (typeof newName != "string" || newName == "") {
+        if (typeof newEmail != "string" || newEmail == "") {
             return new CustomResponse(Errors.BAD_REQUEST, "New username invalid", null);
         }
 

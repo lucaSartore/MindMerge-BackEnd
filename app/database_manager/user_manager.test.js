@@ -225,6 +225,7 @@ describe('TEST USER MANAGER', () => {
             await um.createUser(new User(1, "User1", [1], UserKind.Custom, "old_email@example.com"));
 
             let result = await um.updateUserEmail(1, "new_email@example.com");
+            console.log(result.message);
 
             expect(result.statusCode).toBe(Errors.OK);
 
@@ -235,9 +236,9 @@ describe('TEST USER MANAGER', () => {
         test('update user email bad request', async () => {
             let um = new UserManager();
             await um.createUser(new User(1, "User1", [1], UserKind.Custom, "user1@example.com"));
-            await um.createUser(new User(1, "User2", [1], UserKind.Custom, "user2@example.com"));
+            await um.createUser(new User(2, "User2", [1], UserKind.Custom, "user2@example.com"));
 
-            let result = await um.updateUserEmail(1, "eser2@example.com");
+            let result = await um.updateUserEmail(1, "user2@example.com");
 
             expect(result.statusCode).toBe(Errors.BAD_REQUEST);
         });
