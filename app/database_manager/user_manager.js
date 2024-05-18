@@ -138,17 +138,20 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async deleteUser(userId) {
-        try {
-            const user = await UserModel.findOneAndDelete({ userId: userId });
-            if (!user) {
-                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
-            }
+        
+        // not necessary for MVP
 
-            return new CustomResponse(Errors.OK, "User deleted successfully", null);
-        } catch (error) {
-            console.error("Error while deleting user:", error);
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to delete user", null);
-        }
+        // try {
+        //     const user = await UserModel.findOneAndDelete({ userId: userId });
+        //     if (!user) {
+        //         return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+        //     }
+
+        //     return new CustomResponse(Errors.OK, "User deleted successfully", null);
+        // } catch (error) {
+        //     console.error("Error while deleting user:", error);
+        //     return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to delete user", null);
+        // }
     }
     
     /**
@@ -158,6 +161,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     removeUserFromOrganization(organizationId, userId){
+        // not necessary for MVP
     }
 
 
@@ -168,6 +172,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     deleteNotification(userId, notificationId){
+        // not necessary for MVP
     }
 
 
@@ -227,6 +232,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<number>}
     */
     createCustomUserInfo(userId, customUserInfo){
+        // not necessary for MVP
     }
 
     /**
@@ -235,6 +241,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<number>}
      */
     createFacebookUserInfo(userId, facebookUserInfo){
+        // not necessary for MVP
     }
 
     /**
@@ -250,6 +257,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<CustomUserInfo>}
      */
     readCustomUserInfo(userId){
+        // not necessary for MVP
     }
 
     /**
@@ -257,6 +265,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<FacebookUserInfo>}
      */
     readFacebookUserInfo(userId){
+        // not necessary for MVP
     }
 
     /**
@@ -272,6 +281,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     updateCustomUserInfo(userId, newCustomUserInfo){
+        // not necessary for MVP
     }
     
     /**
@@ -280,6 +290,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     updateFacebookUserInfo(userId, newFacebookUserInfo){
+        // not necessary for MVP
     }
 
     /**
@@ -295,6 +306,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     deleteCustomUserInfo(userId){
+        // not necessary for MVP
     }
 
     /**
@@ -302,6 +314,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     deleteFacebookUserInfo(userId){
+        // not necessary for MVP
     }
 
     /**
@@ -309,6 +322,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      */
     deleteGoogleUserInfo(userId){
+        // not necessary for MVP
     }
 }
 
