@@ -177,8 +177,7 @@ class OrganizationManager extends DataBaseManager{
         }
 
         let organization = await OrganizationModel.findOne({organizationId: organizationId});
-        organization = JSON.parse(JSON.stringify(organization));
-        organization = Object.assign(new Organization(), organization);
+        organization = new Organization(organization.organizationId, organization.organizationName, organization.userIds, organization.licenseValid, organization.licenseExpirationDate, organization.ownerId)
         
         return new CustomResponse(Errors.OK, "", organization);
     }

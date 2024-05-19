@@ -141,6 +141,9 @@ describe('TEST ORGANIZATION MANAGER', () => {
     result = await om.addUserToOrganization(1, 2);
     expect(result.statusCode).toBe(Errors.OK);
 
+    result = await om.addUserToOrganization(2, 2);
+    expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
     result = await om.addUserToOrganization(1, '2');
     expect(result.statusCode).toBe(Errors.BAD_REQUEST);
 
@@ -243,7 +246,6 @@ describe('TEST ORGANIZATION MANAGER', () => {
     let newOrganization = await om.readOrganization(1);
     expect(newOrganization.statusCode).toBe(Errors.OK);
 
-    expect(newOrganization.payload.organizationId).toBe(organization.organizationId);
-
+    expect(newOrganization.payload).toStrictEqual(organization);
   });
 });
