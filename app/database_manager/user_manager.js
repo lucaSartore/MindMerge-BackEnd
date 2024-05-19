@@ -3,6 +3,7 @@ const { DataBaseManager, UserModel, NotificationModel } = require('./database_ma
 const {User} = require("../common_infrastructure/user.js");
 const {CustomResponse} = require("../common_infrastructure/response.js");
 const {Errors} = require('../common_infrastructure/errors.js');
+const { Notification } = require("../common_infrastructure/notification.js");
 
 class UserManager extends DataBaseManager{
 
@@ -49,6 +50,24 @@ class UserManager extends DataBaseManager{
      */
     async createNotification(userId, notification) {
         try {
+
+            if (typeof userId != "number" || userId == 0) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
+            }
+
+            notification.userId = userId;
+
+            if (notification == undefined || notification.validate == undefined || !notification.validate()) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid notification", null);
+            }
+
+            const user = await UserModel.findOne({ userId: userId });
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            const newNotification = new NotificationModel(notification);
+            await newNotification.save();
 
             return new CustomResponse(Errors.OK, "Notification created successfully", notification);
         } catch (error) {
@@ -166,7 +185,22 @@ class UserManager extends DataBaseManager{
     * @returns {CustomResponse<void>}
     */
     async markNotificationAsRead(userId, notificationId) {
-        // TODO
+        try {
+            const notification = await NotificationModel.findOneAndUpdate(
+                { userId: userId, notificationId: notificationId },
+                { read: true },
+                { new: true }
+            );
+
+            if (!notification) {
+                return new CustomResponse(Errors.NOT_FOUND, "Notification not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "Notification marked as read", null);
+        } catch (error) {
+            console.error("Error while marking notification as read:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to mark notification as read", null);
+        }
     }
 
 
@@ -218,6 +252,15 @@ class UserManager extends DataBaseManager{
     //////////////////////////// Reading ///////////////////////////
 
     /**
+     * Convert a mongoose structure (userModel) to a user structure (User)
+     * @param {UserModel} userModel 
+     * @returns {User}
+     */
+    convertUserModelToUser(userModel) {
+        return new User(userModel.userId, userModel.userName, userModel.organizations,userModel.userKind, userModel.email);
+    }
+
+    /**
      * Return one single user
      * @param {number} userId
      * @returns {CustomResponse<User>}
@@ -229,7 +272,7 @@ class UserManager extends DataBaseManager{
         try {
             const user = await UserModel.findOne({ userId: userId }).exec(); 
             if (user) {
-                return new CustomResponse(Errors.OK, "User found", user);
+                return new CustomResponse(Errors.OK, "User found", this.convertUserModelToUser(user));
             } else {
                 return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
             }
@@ -245,12 +288,13 @@ class UserManager extends DataBaseManager{
      */
     async readAllUsers() {
         try {
-            const users = await UserModel.find();
-            if (users) {
-                return new CustomResponse(Errors.OK, "", users);
-            } else {
-                return new CustomResponse(Errors.NOT_FOUND, "Collection is empty", null);
+            let users = await UserModel.find();
+            if (users == null) {
+                return new CustomResponse(Errors.OK, "", []);
             }
+            users = users.map((user) => this.convertUserModelToUser(user));
+            return new CustomResponse(Errors.OK, "", users);
+            
         } catch (error) {
             console.error("Error while searching for users:", error);
             return new CustomResponse(Error.INTERNAL_SERVER_ERROR, "Failed to fetch users", null);
@@ -263,15 +307,24 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<Notification[]>}
      */
     async readUserNotifications(userId) {
-        if (typeof userId == "number" || userId == 0) {
+        if (typeof userId != "number") {
             return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
         }
 
         try {
-            const notifications = await NotificationModel.find({ userId: userId }).exec();
+            
+            let user = await UserModel.findOne({ userId: userId }).exec();
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "user not found", null);
+            }
+
+            let notifications = await NotificationModel.find({ userId: userId }).exec();
             if (!notifications) {
                 return new CustomResponse(Errors.BAD_REQUEST, "user not found", null);
             }
+
+            notifications = notifications.map((notification) => { return new Notification(notification.notificationId, notification.userId, notification.notificationText, notification.date, notification.read) });
+
           
             return new CustomResponse(Errors.OK, "", notifications);
         } catch (error) {

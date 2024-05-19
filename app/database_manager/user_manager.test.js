@@ -3,8 +3,9 @@ const mongoose = require("mongoose");
 const { UserManager } = require("./user_manager.js");
 const { User } = require("../common_infrastructure/user.js");
 const { Errors } = require("../common_infrastructure/errors.js");
-const { UserModel } = require("./database_manager.js");
+const { UserModel, NotificationModel } = require("./database_manager.js");
 const { UserKind } = require("../common_infrastructure/user_kind.js");
+const {Notification} = require("../common_infrastructure/notification.js");
 
 describe('TEST USER MANAGER', () => {
     let connection;
@@ -79,6 +80,8 @@ describe('TEST USER MANAGER', () => {
             let um = new UserManager();
             let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
             await um.createUser(userToCreate);
+            userToCreate = new User(1, "UserToRead2", [1], UserKind.Custom, "user2@example.com");
+            await um.createUser(userToCreate);
 
             let result = await um.readUser(1);
 
@@ -92,7 +95,6 @@ describe('TEST USER MANAGER', () => {
             await um.createUser(userToCreate);
 
             let result = await um.readUser(42);
-
             expect(result.statusCode).toBe(Errors.NOT_FOUND);
         });        
         
@@ -108,6 +110,9 @@ describe('TEST USER MANAGER', () => {
 
         test('find *every* user', async () => {
             let um = new UserManager();
+
+            let result = await um.readAllUsers();
+            expect(result.payload).toStrictEqual([])
 
             // Array of user to add once emptied the DB
             let users = [
@@ -125,9 +130,80 @@ describe('TEST USER MANAGER', () => {
                 await um.createUser(user);
             }
 
-            let result = await um.readAllUsers();
+            result = await um.readAllUsers();
+            expect(result.payload).toStrictEqual(users)
+        });
+    });
 
-            expect(result.payload.length).toBe(3);
+
+    describe('', () => {
+        beforeEach(async () => {
+            await UserModel.deleteMany({});
+            await NotificationModel.deleteMany({});
+        });
+
+        test('test successful create and read notification', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "email@examplw.com");
+            let result = await um.createUser(userToCreate);
+
+            let notification = await um.readUserNotifications(1);
+            expect(notification.payload).toStrictEqual([]);
+
+            let n1 = new Notification(1, 1, "Notification1", new Date(), false)
+            result = await um.createNotification(1,n1); 
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let n2 = new Notification(2, 1, "Notification2", new Date(), false) 
+            result = await um.createNotification(1,n2);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            notification = await um.readUserNotifications(1);
+            expect(notification.payload).toStrictEqual([n1,n2]);
+
+        });
+
+        test('test bad request create notification', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "example@email.com");
+            let result = await um.createUser(userToCreate);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let notification = new Notification(1, 1, 11, new Date(), false)
+            result = await um.createNotification(1, notification);
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+            notification= new Notification(2, 1, "Notification2", new Date(), true)
+            result = await um.createNotification(2, notification);
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+            notification = new Notification(1, 1, "Notification2", new Date(), 1)
+            result = await um.createNotification(1,notification);
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
+            notification = new Notification(1, 1, "Notification2", 11, false)
+            result = await um.createNotification(1,notification);
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+        });
+
+
+        test('test bad request read notification', async () => {
+
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "example@email.com");
+            let result = await um.createUser(userToCreate);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            let notification = new Notification(1, 1, 'notification', new Date(), false)
+            result = await um.createNotification(1, notification);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            result = await um.readUserNotifications(2);
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+            result = await um.readUserNotifications("aaa");
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+
         });
     });
 

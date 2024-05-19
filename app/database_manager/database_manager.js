@@ -32,6 +32,22 @@ const NotificationSchema = new mongoose.Schema({
   read: {type: Boolean, default: false}
 });
 
+NotificationSchema.pre("save", async function(next) {
+    try {
+        var count = await this.model("Notification").countDocuments().exec();
+        if ( count == 0) {
+            this.notificationId = 1;
+        } else {
+            const maxId = await this.model("Notification").find().sort({notificationId: -1 }).limit(1).select("notificationId").exec();
+            this.notificationId = maxId[0].notificationId+ 1;
+        }
+        next();
+    } catch (error) {
+        console.log("Error in pre save middleware: ", error);
+        next(error);
+    }
+});
+
 const NotificationModel = mongoose.model("Notification", NotificationSchema);
 
 
