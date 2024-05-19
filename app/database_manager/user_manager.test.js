@@ -30,8 +30,8 @@ describe('TEST USER MANAGER', () => {
             // Array of user to add once emptied the DB
             let users = [
                 new User(1, "User1", [1], UserKind.Custom, "user1@example.com"),
-                new User(2, "User2", [2], UserKind.Custom, "user2@example.com"),
-                new User(3, "User3", [3], UserKind.Custom, "user3@example.com")
+                new User(2, "User2", [2], UserKind.Google, "user2@example.com"),
+                new User(3, "User3", [3], UserKind.Facebook, "user3@example.com")
             ];
 
             for (let user of users) {
@@ -45,6 +45,9 @@ describe('TEST USER MANAGER', () => {
 
                 expect(result.statusCode).toBe(Errors.OK);
                 expect(result.payload.userId).toBe(user.userId);
+                expect(result.payload.userName).toBe(user.userName);
+                expect(result.payload.userKind).toBe(user.userKind);
+                expect(result.payload.email).toBe(user.email);
             }
         });
 
@@ -212,12 +215,13 @@ describe('TEST USER MANAGER', () => {
             let um = new UserManager();
             await um.createUser(new User(1, "User1", [1], UserKind.Custom, "user1@example.com"));
 
-            let result = await um.updateUserKind(1, UserKind.Facebook);
+            let result = await um.updateUserKind(1, null);
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
 
-            expect(result.statusCode).toBe(Errors.OK);
 
-            let updatedUser = await um.readUser(1);
-            expect(updatedUser.payload.userKind).toBe(UserKind.Facebook);
+            result = await um.updateUserKind(12, UserKind.Facebook);
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
         });
         
         test('update user email successfully', async () => {
@@ -239,7 +243,12 @@ describe('TEST USER MANAGER', () => {
             await um.createUser(new User(2, "User2", [1], UserKind.Custom, "user2@example.com"));
 
             let result = await um.updateUserEmail(1, "user2@example.com");
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
 
+            result = await um.updateUserEmail(3, "user1_updated@example.com");
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+            result = await um.updateUserEmail(3, 23);
             expect(result.statusCode).toBe(Errors.BAD_REQUEST);
         });
     });

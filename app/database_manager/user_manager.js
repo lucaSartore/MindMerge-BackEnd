@@ -49,14 +49,6 @@ class UserManager extends DataBaseManager{
      */
     async createNotification(userId, notification) {
         try {
-            const newNotification = new NotificationModel({
-                userId: userId,
-                notificationText: notification.notificationText,
-                date: new Date(), // Current date
-                read: false
-            });
-
-            const savedNotification = await newNotification.save();
 
             return new CustomResponse(Errors.OK, "Notification created successfully", notification);
         } catch (error) {
@@ -110,6 +102,11 @@ class UserManager extends DataBaseManager{
     */
     async updateUserKind(userId, newUserKind) {
     try {
+        
+        if(typeof newUserKind != "number" || newUserKind <= 0 || newUserKind > 3) {
+            return new CustomResponse(Errors.BAD_REQUEST, "New user kind invalid", null);
+        }
+
         const user = await UserModel.findOneAndUpdate(
             { userId: userId },
             { userKind: newUserKind },
