@@ -1,12 +1,11 @@
-import app from "./app/app.js";
-
-import mongoose from "mongoose";
+const app = require("./app/app.js");
+const mongoose = require("mongoose");
 
 const port = process.env.PORT || 8080;
 
 async function connectDb() {
   try {
-    mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(process.env.DB_URL);
     console.log("Connected successfully to MongoDB server");
   } catch (e) {
     console.error("failed to connect to MongoDB because of error: " + e);

@@ -1,6 +1,6 @@
-import TaskManager from '../database_manager/task_manager.js';
-import OrganizationManager from '../database_manager/organization_manager.js';
-import UserManager from '../database_manager/user_manager.js';
+const TaskManager = require('../database_manager/task_manager.js');
+const OrganizationManager = require('../database_manager/organization_manager.js');
+const UserManager = require('../database_manager/user_manager.js');
 
 
 /**

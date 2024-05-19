@@ -1,4 +1,4 @@
-import ServicesBaseClass from './services_base_class.js';
+const ServicesBaseClass = require('./services_base_class.js');
 
 export default class AccountManager extends ServicesBaseClass{
 
@@ -50,7 +50,7 @@ export default class AccountManager extends ServicesBaseClass{
      * @param {?string} userPassword 
      * @returns {CustomResponse<LogInResponse>}
      */
-    customSignIn(userName, userPassword){
+    customSignUp(userName, userPassword){
     }
     
     /**
@@ -58,7 +58,7 @@ export default class AccountManager extends ServicesBaseClass{
      * @param {string} oauthCode 
      * @returns {CustomResponse<bool>}
      */
-    googleSignIn(oauthCode){
+    googleSignUp(oauthCode){
     }
     
     /**
@@ -66,7 +66,7 @@ export default class AccountManager extends ServicesBaseClass{
      * @param {string} oauthCode 
      * @returns {CustomResponse<bool>}
      */
-    facebookSignIn(oauthCode){
+    facebookSignUp(oauthCode){
     }
     /**
      * register a user with a custom account
@@ -76,7 +76,7 @@ export default class AccountManager extends ServicesBaseClass{
      * @param {?string} oauthToken 
      * @returns {CustomResponse<bool>}
      */
-    signIn(userName, userPassword, oauthToken){
+    signUp(userName, userPassword, oauthToken){
     }
 
     /**
