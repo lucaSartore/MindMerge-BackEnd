@@ -283,6 +283,28 @@ class UserManager extends DataBaseManager{
     }
 
     /**
+     * Return one single user
+     * @param {strung} userName
+     * @returns {CustomResponse<User>}
+     */
+    async readUserByName(userName) {
+        if (typeof userName != "string") {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null)
+        }
+        try {
+            const user = await UserModel.findOne({userName: userName}).exec(); 
+            if (user) {
+                return new CustomResponse(Errors.OK, "User found", this.convertUserModelToUser(user));
+            } else {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+        } catch (error) {
+            console.error("Error while searching for user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to fetch user", null);
+        }
+    }
+
+    /**
      * Return every user
      * @returns {CustomResponse<User[]}
      */

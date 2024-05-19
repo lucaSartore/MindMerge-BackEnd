@@ -108,6 +108,39 @@ describe('TEST USER MANAGER', () => {
             expect(result.statusCode).toBe(Errors.BAD_REQUEST);
         });
 
+        test('find user by name successful', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
+            await um.createUser(userToCreate);
+            userToCreate = new User(1, "UserToRead2", [1], UserKind.Custom, "user2@example.com");
+            await um.createUser(userToCreate);
+
+            let result = await um.readUserByName("UserToRead");
+
+            expect(result.statusCode).toBe(Errors.OK);
+            expect(result.payload.userName).toBe("UserToRead");
+            expect(result.payload.email).toBe("user@example.com");
+        });
+
+        test('find user by name not found', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
+            await um.createUser(userToCreate);
+
+            let result = await um.readUserByName("NotExistingUser");
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+        });        
+        
+        test('find user bad request', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "user@example.com");
+            await um.createUser(userToCreate);
+
+            let result = await um.readUserByName(11);
+
+            expect(result.statusCode).toBe(Errors.BAD_REQUEST);
+        });
+
         test('find *every* user', async () => {
             let um = new UserManager();
 
@@ -205,6 +238,33 @@ describe('TEST USER MANAGER', () => {
             expect(result.statusCode).toBe(Errors.BAD_REQUEST);
 
         });
+
+
+        test('test successful and not successful mark notification as read', async () => {
+            let um = new UserManager();
+            let userToCreate = new User(1, "UserToRead", [1], UserKind.Custom, "example@email.com");
+            let result = await um.createUser(userToCreate);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            result = await um.markNotificationAsRead(1, 1);
+            expect(result.statusCode).toBe(Errors.NOT_FOUND);
+
+            let notification = new Notification(1, 1, 'notification', new Date(), false)
+            result = await um.createNotification(1, notification);
+
+            let notifications = await um.readUserNotifications(1);
+            expect(notifications.payload[0].read).toBe(false);
+
+
+            result = await um.markNotificationAsRead(1, 1);
+            expect(result.statusCode).toBe(Errors.OK);
+
+            notifications = await um.readUserNotifications(1);
+            expect(notifications.payload[0].read).toBe(true);
+        });
+
+
+
     });
 
     /**
