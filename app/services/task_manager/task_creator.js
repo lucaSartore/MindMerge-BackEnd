@@ -10,6 +10,7 @@ export default class TaskCreator extends ServicesBaseClass{
      * @param {Task} task
      * @param {number} userId
      * @param {string} userToken
+     * @return {CustomResponse<number>}
      */
     createTask(organizationId, task, userId, userToken){
     }
