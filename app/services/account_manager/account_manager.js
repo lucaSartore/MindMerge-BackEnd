@@ -1,6 +1,13 @@
-const ServicesBaseClass = require('./services_base_class.js');
+const {ServicesBaseClass} = require('../services_base_class.js');
+const {OauthLogInInfo} = require('../../common_infrastructure/oauth_login_info.js');
+const {getGoogleOauthUrl} = require('./google_oauth.js');
+const {CustomResponse} = require('../../common_infrastructure/response.js');
+const {Errors} = require('../../common_infrastructure/errors.js');
 
-export default class AccountManager extends ServicesBaseClass{
+const express = require('express');
+const router = express.Router();
+
+class AccountManager extends ServicesBaseClass{
 
     /**
      * find a user id starting from a name
@@ -14,6 +21,11 @@ export default class AccountManager extends ServicesBaseClass{
      * @returns {CustomResponse<OauthLogInInfo>}
      */
     getGoogleOauthLogInInfo(){
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            new OauthLogInInfo(getGoogleOauthUrl())
+        )
     }
 
     /**
@@ -105,3 +117,15 @@ export default class AccountManager extends ServicesBaseClass{
     deleteAccount(userId, userToken){
     }
 }
+
+
+const accountManager = new AccountManager();
+
+router.get('/google/oauth_info', (req, res) => {
+    response = accountManager.getGoogleOauthLogInInfo();
+    res.status(response.statusCode)
+    res.json(response)
+});
+
+exports.accountManagerRouter = router;
+exports.accountManager = accountManager;

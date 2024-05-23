@@ -1,6 +1,6 @@
-const TaskManager = require('../database_manager/task_manager.js');
-const OrganizationManager = require('../database_manager/organization_manager.js');
-const UserManager = require('../database_manager/user_manager.js');
+const {TaskManager} = require('../database_manager/task_manager.js');
+const {OrganizationManager} = require('../database_manager/organization_manager.js');
+const {UserManager} = require('../database_manager/user_manager.js');
 
 
 /**
@@ -11,7 +11,7 @@ const UserManager = require('../database_manager/user_manager.js');
  * @property {UserManager} userManager - The user manager class to edit the database
  * 
  */
-export default class ServicesBaseClass{
+class ServicesBaseClass{
     constructor() {
         this.taskManager = new TaskManager(); 
         this.organizationManager = new OrganizationManager();
@@ -51,3 +51,5 @@ export default class ServicesBaseClass{
     }
 
 }
+
+exports.ServicesBaseClass = ServicesBaseClass;
