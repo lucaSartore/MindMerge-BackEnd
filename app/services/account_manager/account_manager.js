@@ -127,5 +127,11 @@ router.get('/google/oauth_info', (req, res) => {
     res.json(response)
 });
 
+router.get('/google/callback', (req, res) => {
+    response = accountManager.googleLogIn(req.query.code);
+    res.status(response.statusCode)
+    res.json(response)
+});
+
 exports.accountManagerRouter = router;
 exports.accountManager = accountManager;
