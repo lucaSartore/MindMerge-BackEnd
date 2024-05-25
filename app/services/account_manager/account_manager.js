@@ -8,7 +8,8 @@ const {LogInResponse} = require('../../common_infrastructure/log_in_response.js'
 
 const express = require('express');
 const { User } = require('../../common_infrastructure/user.js');
-const router = express.Router();
+const accountRouter = express.Router();
+const userRouter = express.Router();
 
 class AccountManager extends ServicesBaseClass{
 
@@ -17,7 +18,40 @@ class AccountManager extends ServicesBaseClass{
      * @param {string} name 
      * @returns {CustomResponse<number>}
      */
-    findUserByName(name){
+    async getUserByName(name){
+        let result = await this.userManager.readUserByName(name);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            result.payload.userId
+        )
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse<User>}
+     */
+    async getUserById(userId){
+        return this.userManager.readUser(userId);
+    }
+
+    /**
+     * @param {number} userId
+     * @returns {CustomResponse<string>}
+     */
+    async getUserName(userId){
+        let result = await this.userManager.readUser(userId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            result.payload.userName
+        )
     }
 
     /**
@@ -190,14 +224,14 @@ class AccountManager extends ServicesBaseClass{
 
 const accountManager = new AccountManager();
 
-router.get('/google/oauth_info', (req, res) => {
+accountRouter.get('/google/oauth_info', (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
 });
 
 // this need to be a get because of google's redirect
-router.get('/google/callback', async (req, res) => {
+accountRouter.get('/google/callback', async (req, res) => {
     let response =  await accountManager.googleSignUp(req.query.code);
     if(response.statusCode == Errors.OK){
         res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI+'?response=' + JSON.stringify(response));
@@ -207,6 +241,28 @@ router.get('/google/callback', async (req, res) => {
     res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI+'?response=' + JSON.stringify(response));
 });
 
+// return the user id starting from a name
+userRouter.get('/id', async (req, res) => {
+    let response = await accountManager.getUserByName(req.query.name);
+    res.status(response.statusCode)
+    res.json(response)
+});
 
-exports.accountManagerRouter = router;
-exports.accountManager = accountManager;
+// return all the user informations starting from an id
+userRouter.get('/:userId', async (req, res) => {
+    let user = req.params.userId*1;
+    let response = await accountManager.getUserById(user);
+    res.status(response.statusCode)
+    res.json(response)
+});
+
+// return the user name starting from an id
+userRouter.get('/:userId/name', async (req, res) => {
+    let user = req.params.userId*1;
+    let response = await accountManager.getUserName(user);
+    res.status(response.statusCode)
+    res.json(response)
+});
+
+exports.accountRouter = accountRouter;
+exports.userRouter = userRouter;
