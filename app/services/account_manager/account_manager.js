@@ -50,6 +50,11 @@ class AccountManager extends ServicesBaseClass{
      * @returns {CustomResponse<LogInResponse>}
      */
     googleLogIn(oauthCode){
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            new LogInResponse(1, "token")
+        )
     }
     
     /**
@@ -186,16 +191,22 @@ class AccountManager extends ServicesBaseClass{
 const accountManager = new AccountManager();
 
 router.get('/google/oauth_info', (req, res) => {
-    response = accountManager.getGoogleOauthLogInInfo();
+    let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
 });
 
+// this need to be a get because of google's redirect
 router.get('/google/callback', async (req, res) => {
-    response = await accountManager.googleSignUp(req.query.code);
-    res.status(response.statusCode)
-    res.json(response)
+    let response =  await accountManager.googleSignUp(req.query.code);
+    if(response.statusCode == Errors.OK){
+        res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI+'?response=' + JSON.stringify(response));
+        return;
+    }
+    response = await accountManager.googleLogIn(req.query.code);
+    res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI+'?response=' + JSON.stringify(response));
 });
+
 
 exports.accountManagerRouter = router;
 exports.accountManager = accountManager;
