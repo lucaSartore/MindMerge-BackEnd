@@ -15,7 +15,11 @@ class OrganizationEditor extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     async addUserToOrganization(organizationId, userToAddId, userId, userToken){
-        return await this.organizationManager.addUserToOrganization(organizationId, userToAddId);
+        let r = await this.organizationManager.addUserToOrganization(organizationId, userToAddId);
+        if(r.statusCode != Errors.OK){
+            return r;
+        }
+        return await this.userManager.addUserToOrganization(organizationId, userToAddId);
     }
     
     /** 
@@ -26,7 +30,11 @@ class OrganizationEditor extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     async removeUserFromOrganization(organizationId, userToDeleteId ,userId, userToken){
-        return await this.organizationManager.removeUserFromOrganization(organizationId, userToDeleteId);
+        let r = await this.organizationManager.removeUserFromOrganization(organizationId, userToDeleteId);
+        if(r.statusCode != Errors.OK){
+            return r;
+        }
+        return await this.userManager.removeUserFromOrganization(organizationId, userToDeleteId);
     }
     
 
