@@ -1,10 +1,13 @@
 const {ServicesBaseClass} = require('../services_base_class.js');
 const {OauthLogInInfo} = require('../../common_infrastructure/oauth_login_info.js');
-const {getGoogleOauthUrl} = require('./google_oauth.js');
+const {getGoogleOauthUrl,getNameAndEmail} = require('./google_oauth.js');
 const {CustomResponse} = require('../../common_infrastructure/response.js');
 const {Errors} = require('../../common_infrastructure/errors.js');
+const {UserKind} = require('../../common_infrastructure/user_kind.js');
+const {LogInResponse} = require('../../common_infrastructure/log_in_response.js');
 
 const express = require('express');
+const { User } = require('../../common_infrastructure/user.js');
 const router = express.Router();
 
 class AccountManager extends ServicesBaseClass{
@@ -68,9 +71,43 @@ class AccountManager extends ServicesBaseClass{
     /**
      * return true if the user was created successfully, false if the user already exists
      * @param {string} oauthCode 
-     * @returns {CustomResponse<bool>}
+     * @returns {CustomResponse<LogInResponse>}
      */
-    googleSignUp(oauthCode){
+    async googleSignUp(oauthCode){
+        let v;
+        try{
+            v = await getNameAndEmail(oauthCode);
+        }catch(e){
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null)
+        } 
+
+        // todo: verify in case of name existing but new email... add prefix to name
+        let response = await this.userManager.createUser(
+            new User(
+                0,
+                v.name,
+                [],
+                UserKind.Google,
+                v.email
+            )
+        )
+
+        if(response.statusCode != Errors.OK){
+            console.log(response)
+            return response;
+        }
+
+        let userToken = await this.generateUserToken(response.payload);
+
+        if(userToken.statusCode != Errors.OK){
+            return userToken;
+        }
+
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            new LogInResponse(response.payload.userId, userToken.payload)
+        );
     }
     
     /**
@@ -116,6 +153,33 @@ class AccountManager extends ServicesBaseClass{
      */
     deleteAccount(userId, userToken){
     }
+
+
+    /**
+     * generate a jwt token for a user
+     * @param {number} userId 
+     * @returns {CustomResponse<string>}
+     */
+    async generateUserToken(userId){
+        // TODO: implement for Gioele
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            "token"
+        )
+    }
+  
+
+    /**
+     * return true if the user token is valid 
+     * @param {number} userId 
+     * @param {string} userToken 
+     * @returns {CustomResponse<bool>}
+     */
+    async verifyUserToken(userId, userToken){
+        // TODO: implement for Gioele
+        return true;
+    }
 }
 
 
@@ -127,8 +191,8 @@ router.get('/google/oauth_info', (req, res) => {
     res.json(response)
 });
 
-router.get('/google/callback', (req, res) => {
-    response = accountManager.googleLogIn(req.query.code);
+router.get('/google/callback', async (req, res) => {
+    response = await accountManager.googleSignUp(req.query.code);
     res.status(response.statusCode)
     res.json(response)
 });
