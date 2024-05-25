@@ -1,4 +1,4 @@
-const {CustomResponse} = require("../../common_infrastructure/custom_response.js")
+const {CustomResponse} = require("../../common_infrastructure/response.js")
 const {Errors} = require("../../common_infrastructure/errors.js")
 const {ServicesBaseClass} = require("../services_base_class");
 const express = require('express');
@@ -34,8 +34,8 @@ class OrganizationEditor extends ServicesBaseClass{
      * @param {number} organizationId
      * @returns {CustomResponse<Organization>}
      **/
-    getOrganization(organizationId){
-        return this.organizationManager.readOrganization(organizationId);
+    async getOrganization(organizationId){
+        return await this.organizationManager.readOrganization(organizationId);
     }
 
     /**
@@ -62,23 +62,31 @@ const organizationEditor = new OrganizationEditor();
 organizationEditorRouter.post('/:organization_id/user/:user_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     const userToAddId = req.params.user_id * 1;
-    return await organizationEditor.addUserToOrganization(organizationId, userToAddId, undefined, undefined);
+    let response = await organizationEditor.addUserToOrganization(organizationId, userToAddId, undefined, undefined);
+    res.status(response.statusCode)
+    res.json(response);
 });
 
 organizationEditorRouter.delete('/:organization_id/user/:user_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     const userToDeleteId = req.params.user_id * 1;
-    return await organizationEditor.removeUserFromOrganization(organizationId, userToDeleteId, undefined, undefined);
+    let response =  await organizationEditor.removeUserFromOrganization(organizationId, userToDeleteId, undefined, undefined);
+    res.status(response.statusCode)
+    res.json(response);
 });
 
 organizationEditorRouter.get('/:organization_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
-    return await organizationEditor.getOrganization(organizationId);
+    let response =  await organizationEditor.getOrganization(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
 });
 
 organizationEditorRouter.get('/:organization_id/name', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
-    return await organizationEditor.getOrganizationName(organizationId);
+    let response =  await organizationEditor.getOrganizationName(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
 });
 
 module.exports = {organizationEditorRouter, OrganizationEditor};

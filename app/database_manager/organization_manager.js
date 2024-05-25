@@ -134,32 +134,28 @@ class OrganizationManager extends DataBaseManager{
      */
     async removeUserFromOrganization(organizationId, userId){
 
-        // not necessary for MVP
-        
-        // if(result.statusCode != Errors.OK){
-        //     return result;
-        // }
+        if(organizationId == undefined || typeof organizationId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
 
-        // if(organizationId == undefined || typeof organizationId != "number"){
-        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
-        // }
-        // if(userId == undefined || typeof userId != "number"){
-        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
-        // }
-        // let organization = await OrganizationModel.findOne({organizationId: organizationId});
-        // let user = await UserModel.findOne({userId: userId});
-        // if(organization == null){
-        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
-        // }
-        // if(user == null){
-        //     return new CustomResponse(Errors.BAD_REQUEST, false, "User not found");
-        // }
-        // if(organization.ownerId == userId){
-        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Cannot remove owner from organization");
-        // }
-        // organization.userIds = organization.userIds.filter(id => id != userId);
-        // user.organizations = user.organizations.filter(id => id != organizationId);
-        // return new CustomResponse(Errors.OK, "User removed from organization", userId);
+        if(organization.ownerId == userId){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Cannot remove owner from organization");
+        }
+
+        if(organization.userIds.find((x) => x == userId) == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User not in organization");
+        }
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, { $pull: { userIds: userId} });
+        
+        return new CustomResponse(Errors.OK, "User removed from organization", userId);
     }
 
     //////////////////////////// Reading ///////////////////////////
