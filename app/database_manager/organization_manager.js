@@ -38,7 +38,7 @@ class OrganizationManager extends DataBaseManager{
             return result;
         }
 
-        if(userId == undefined || typeof userId != "number" || userId == NaN){
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
         }
 
@@ -113,7 +113,7 @@ class OrganizationManager extends DataBaseManager{
         //     return result;
         // }
 
-        // if(organizationId == undefined || typeof organizationId != "number" || organizationId == NaN){
+        // if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
         //     return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         // }
         // let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
@@ -134,10 +134,10 @@ class OrganizationManager extends DataBaseManager{
      */
     async removeUserFromOrganization(organizationId, userId){
 
-        if(organizationId == undefined || typeof organizationId != "number" || organizationId == NaN){
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
-        if(userId == undefined || typeof userId != "number" || userId == NaN){
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
         }
         let organization = await OrganizationModel.findOne({organizationId: organizationId});
@@ -167,7 +167,7 @@ class OrganizationManager extends DataBaseManager{
      */
     async readOrganization(organizationId){
         
-        if(typeof organizationId != "number" || organizationId == NaN){
+        if(typeof organizationId != "number" || isNaN(organizationId) ){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
 
@@ -188,7 +188,7 @@ class OrganizationManager extends DataBaseManager{
      * @returns {CustomResponse<void>}
      * */
     async validateOrganization(organizationId){
-        if (organizationId == undefined || typeof organizationId != "number" || organizationId == NaN){
+        if (organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
             return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
         }
         let organization = await OrganizationModel.findOne({organizationId: organizationId});
