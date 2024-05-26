@@ -88,6 +88,14 @@ class OrganizationEditor extends ServicesBaseClass{
         )
     }
 
+    /**
+     * @param {Organization} organization // a json of a vaild organization
+     * @returns {CustomResponse<void>}
+     */
+    async createOrganization(){
+        return await this.organizationManager.createOrganization(organization);
+    }
+
 
 }
 
@@ -120,6 +128,12 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id', async (req, r
 organizationEditorRouter.get('/:organization_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response =  await organizationEditor.getOrganization(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.post('/', async (req, res) => {
+    let response = await organizationEditor.createOrganization(req.body);
     res.status(response.statusCode)
     res.json(response);
 });
