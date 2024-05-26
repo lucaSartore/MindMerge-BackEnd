@@ -21,4 +21,16 @@ app.use('/api/v1/account', accountRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/organization', organizationEditorRouter);
 
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack); // Log the error for debugging
+  res.status(500).json({
+    code: 500,
+    message: 'Internal Server Error',
+    payload: null,
+  });
+});
+
+
 module.exports = app;
