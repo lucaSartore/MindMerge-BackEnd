@@ -1,6 +1,6 @@
 const {CustomResponse} = require("../../common_infrastructure/response.js")
 const {Errors} = require("../../common_infrastructure/errors.js")
-const {ServicesBaseClass} = require("../services_base_class");
+const {ServicesBaseClass} = require("../services_base_class.js");
 const express = require('express');
 
 const organizationEditorRouter = express.Router();
@@ -63,9 +63,43 @@ class OrganizationEditor extends ServicesBaseClass{
     }
 
 
+    /**
+     * @param {number} organizationId
+     * @returns {CustomResponse<{id: number, name: string}>}
+    */
+    async getOrganizationUsers(organizationId){
+        let organization = await this.organizationManager.readOrganization(organizationId);
+        if(organization.statusCode != Errors.OK){
+            return organization;
+        }
+        let users = organization.payload.userIds.map(
+            async(userId) => {
+                
+                return {
+                    id: userId,
+                    name: (await this.userManager.readUser(userId)).payload.userName
+                }
+            }
+        )
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            await Promise.all(users)
+        )
+    }
+
+
 }
 
 const organizationEditor = new OrganizationEditor();
+
+
+organizationEditorRouter.get('/:organization_id/users', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    let response =  await organizationEditor.getOrganizationUsers(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
+});
 
 organizationEditorRouter.post('/:organization_id/user/:user_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
