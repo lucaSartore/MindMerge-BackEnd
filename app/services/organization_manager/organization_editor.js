@@ -2,6 +2,7 @@ const {CustomResponse} = require("../../common_infrastructure/response.js")
 const {Errors} = require("../../common_infrastructure/errors.js")
 const {ServicesBaseClass} = require("../services_base_class.js");
 const express = require('express');
+const { Organization } = require("../../common_infrastructure/organization.js");
 
 const organizationEditorRouter = express.Router();
 
@@ -92,8 +93,22 @@ class OrganizationEditor extends ServicesBaseClass{
      * @param {Organization} organization // a json of a vaild organization
      * @returns {CustomResponse<void>}
      */
-    async createOrganization(){
-        return await this.organizationManager.createOrganization(organization);
+    async createOrganization(organization){
+        organization = Object.assign(new Organization(), organization);
+        let user_ids = organization.userIds;
+        organization.userIds = [];
+        organization.licenseExpirationDate = new Date(organization.licenseExpirationDate);
+        let result = await this.organizationManager.createOrganization(organization);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+        for(let userId of user_ids){
+            let r = await this.addUserToOrganization(result.payload, userId);
+            if(r.statusCode != Errors.OK){
+                return r;
+            }
+        }
+        return result;
     }
 
 
