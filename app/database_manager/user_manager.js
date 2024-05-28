@@ -51,7 +51,7 @@ class UserManager extends DataBaseManager{
     async createNotification(userId, notification) {
         try {
 
-            if (typeof userId != "number" || userId == 0) {
+            if (typeof userId != "number" || isNaN(userId) || userId == 0) {
                 return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
             }
 
@@ -122,7 +122,7 @@ class UserManager extends DataBaseManager{
     async updateUserKind(userId, newUserKind) {
     try {
         
-        if(typeof newUserKind != "number" || newUserKind <= 0 || newUserKind > 3) {
+        if(typeof newUserKind != "number" || isNaN(newUserKind) || newUserKind <= 0 || newUserKind > 3) {
             return new CustomResponse(Errors.BAD_REQUEST, "New user kind invalid", null);
         }
 
@@ -203,6 +203,33 @@ class UserManager extends DataBaseManager{
         }
     }
 
+    /**
+     * @param {number} organizationId 
+     * @param {number} userToAddId 
+     * @returns {CustomResponse<void>}
+     */
+    async addUserToOrganization(organizationId, userToAddId){
+        
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userToAddId == undefined || typeof userToAddId != "number" || isNaN(userToAddId) || isNaN(userToAddId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let user = await UserModel.findOne({userId: userToAddId});
+        if( user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "user not found");
+        }
+
+        if(user.organizations.find((x) => x == organizationId) != undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization already in user");
+        }
+
+        await UserModel.findOneAndUpdate({userId: userToAddId}, { $push: { organizations: organizationId} });
+        
+        return new CustomResponse(Errors.OK, "", userToAddId);
+
+    }
 
     //////////////////////////// Deleting ////////////////////////////
 
@@ -233,8 +260,26 @@ class UserManager extends DataBaseManager{
      * @param {number} userId 
      * @returns {CustomResponse<void>}
      */
-    removeUserFromOrganization(organizationId, userId){
-        // not necessary for MVP
+    async removeUserFromOrganization(organizationId, userId){
+        
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let user = await UserModel.findOne({userId: userId});
+        if( user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "user not found");
+        }
+
+        if(user.organizations.find((x) => x == organizationId) == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found in user");
+        }
+
+        await UserModel.findOneAndUpdate({userId: userId}, { $pull: { organizations: organizationId} });
+        
+        return new CustomResponse(Errors.OK, "", userId);
     }
 
 
@@ -266,7 +311,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<User>}
      */
     async readUser(userId) {
-        if (typeof userId != "number") {
+        if (typeof userId != "number" || isNaN(userId) ) {
             return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null)
         }
         try {
@@ -329,7 +374,7 @@ class UserManager extends DataBaseManager{
      * @returns {CustomResponse<Notification[]>}
      */
     async readUserNotifications(userId) {
-        if (typeof userId != "number") {
+        if (typeof userId != "number" || isNaN(userId) ) {
             return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
         }
 
