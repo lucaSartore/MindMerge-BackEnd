@@ -201,6 +201,9 @@ class AccountManager extends ServicesBaseClass{
      */
     async generateUserToken(userId){
         // TODO: implement for Gioele
+        // firma il token con il super secret, metti una scadenza di 1g
+        // metti l'id dell' utente nel token
+        // GIOELE TODO
         return new CustomResponse(
             Errors.OK,
             "Success",
@@ -217,6 +220,9 @@ class AccountManager extends ServicesBaseClass{
      */
     async verifyUserToken(userId, userToken){
         // TODO: implement for Gioele
+        // verifica la firma del token (con la libereia jwt)
+        // verifica che l-user id dentro il token e uhuale a userId
+        // GIOELE TODO
         return true;
     }
 }

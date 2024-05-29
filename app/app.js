@@ -17,6 +17,9 @@ app.get('/hello', (req, res) => {
 app.use('/api/v1/account', accountRouter);
 
 // insert here the middleware to verify the user token
+// qui metti un middleware che verifica il token dell'utente\
+// se va tutto bene manda avanti... altrimenti ritorna unauthorized
+// GIOELE TODO
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/organization', organizationEditorRouter);
