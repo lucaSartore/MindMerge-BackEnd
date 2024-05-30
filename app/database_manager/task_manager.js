@@ -522,10 +522,10 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<Task>}
      */
     async readTask(organizationId, taskId) {
-        // let result = await this.verifyThatTaskExist(organizationId, taskId);
-        // if (result.statusCode != Errors.OK) {
-        //     return result;
-        // }
+        let result = await this.verifyThatTaskExist(organizationId, taskId);
+        if (result.statusCode != Errors.OK) {
+            return result;
+        }
         let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
         if (task == null) {
             return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
