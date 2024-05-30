@@ -8,7 +8,6 @@ const { TaskNote } = require("../common_infrastructure/task_note.js");
 const {TaskStatus} = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
-const {TaskManager} = require("../database_manager/task_manager.js");
 
 
 /**
@@ -523,6 +522,10 @@ class TaskManager extends DataBaseManager {
      * @returns {CustomResponse<Task>}
      */
     async readTask(organizationId, taskId) {
+        // let result = await this.verifyThatTaskExist(organizationId, taskId);
+        // if (result.statusCode != Errors.OK) {
+        //     return result;
+        // }
         let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
         if (task == null) {
             return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
@@ -595,7 +598,7 @@ class TaskManager extends DataBaseManager {
     /**
      * return the list of all root task (tasks that are not sub tasks) inside an organization
      * @param {number} organizationId 
-     * @returns {number{}}
+     * @returns {CustomResponse<number[]>}
      */
     async readRootTasks(organizationId){
         

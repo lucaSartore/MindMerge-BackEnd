@@ -1,6 +1,8 @@
-const ServicesBaseClass = require('../services_base_class');
-const {TaskTree} = require('../../common_infrastructure/task_tree');
-const {Task} = require('../../common_infrastructure/task');
+const {ServicesBaseClass} = require('../services_base_class.js');
+const {TaskTree} = require('../../common_infrastructure/task_tree.js');
+const {Task} = require('../../common_infrastructure/task.js');
+const {Errors} = require('../../common_infrastructure/errors.js');
+const {CustomResponse} = require('../../common_infrastructure/response.js');
 
 class TaskGetter extends ServicesBaseClass{
     
@@ -11,21 +13,31 @@ class TaskGetter extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<TaskTree[]>}
      */
-    getTasksForUser(organizationId, userId, userToken){
-        let result = this.taskManager.readRootTasks(organizationId);
+    async getTasksForUser(organizationId, userId, userToken){
+        let result = await this.taskManager.readRootTasks(organizationId);
         if(result.statusCode !== Errors.OK){
             return result;
         }
+        let tasks = result.payload.map((x) => this.getSingleTaskTree(organizationId, x));
+        tasks = await Promise.all(tasks);
 
+        for(let task of tasks){
+            if(task.statusCode !== Errors.OK){
+                return task;
+            }
+        }
 
+        tasks = tasks.map((x) => x.payload);
+
+        return new CustomResponse(Errors.OK, "", tasks);
     }
 
     /**
      * return a task tree starting from one task id
      * @param {number} taskId
      */
-    getSingleTaskTree(taskId){
-        let task = this.taskManager.readTask(taskId);
+    async getSingleTaskTree(organizationId, taskId){
+        let task = await this.taskManager.readTask(organizationId, taskId);
         if(task.statusCode !== Errors.OK){
             return task;
         }
@@ -36,16 +48,22 @@ class TaskGetter extends ServicesBaseClass{
         let taskTree = new TaskTree(task.taskId);
 
         for(let childTaskId of task.childTasks){
-            let childTask = this.getSingleTaskTree(childTaskId);
+            let childTask = this.getSingleTaskTree(organizationId, childTaskId);
+            taskTree.childTasks.push(childTask);
+        }
+
+        taskTree.childTasks = await Promise.all(taskTree.childTasks);
+
+        for(let childTask of taskTree.childTasks){
             if(childTask.statusCode !== Errors.OK){
                 return childTask;
             }
-            taskTree.childTasks.push(childTask.payload);
         }
+
+        taskTree.childTasks = taskTree.childTasks.map((x) => x.payload);
 
         return new CustomResponse(Errors.OK, "", taskTree);
     }
-
 
     /**
      * returns the task with the given id
