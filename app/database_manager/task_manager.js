@@ -583,6 +583,28 @@ class TaskManager extends DataBaseManager {
         }
         return new CustomResponse(Errors.OK, "", undefined);
     }
+
+    /**
+     * return the list of all root task (tasks that are not sub tasks) inside an organization
+     * @param {number} organizationId 
+     * @returns {number{}}
+     */
+    async readRootTasks(organizationId){
+        
+        if (typeof organizationId != "number" || isNaN(organizationId) ) {
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+
+        let tasks = await TaskModel.find({taskFatherId: null, taskOrganizationId: organizationId})
+
+        let to_return = [];
+
+        for (let i = 0; i < tasks.length; i++) {
+            to_return.push(tasks[i].taskId);
+        }
+
+        return new CustomResponse(Errors.OK, "",to_return);
+    }
 }
 
 exports.TaskManager = TaskManager;
