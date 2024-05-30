@@ -8,8 +8,16 @@ const { TaskNote } = require("../common_infrastructure/task_note.js");
 const {TaskStatus} = require("../common_infrastructure/task_status.js");
 const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
+const {TaskManager} = require("../database_manager/task_manager.js");
 
 
+/**
+ * @typedef ServicesBaseClass
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class TaskManager extends DataBaseManager {
 
     //////////////////////////// insertion ////////////////////////////
