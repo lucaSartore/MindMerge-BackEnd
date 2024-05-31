@@ -40,18 +40,21 @@ class ExternalNotificationManager extends ServicesBaseClass {
             subject: "MindMerge Notification",
             text: notificationText
         };
-
-        return new Promise((resolve, reject) => {
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log(error);
-                    r = new CustomResponse(Errors.BAD_REQUEST, "Email not sent");
-                } else {
-                    r = new CustomResponse(Errors.OK, "Email sent to address " + userEmail);
-                }
-                resolve(r);
+        try {
+            r = await new Promise((resolve, reject) => {
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                        reject(new CustomResponse(Errors.BAD_REQUEST, "Email not sent"));
+                    } else {
+                        resolve(new CustomResponse(Errors.OK, "Email sent to address " + userEmail));
+                    }
+                });
             });
-        });
+            return r
+        } catch (e) {
+            return e;
+        }
     }
 }
 
