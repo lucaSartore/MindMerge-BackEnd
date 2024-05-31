@@ -83,13 +83,13 @@ describe('TEST TASK GETTER', () => {
     let r = await tg.getSingleTaskTree(1,1);
     expect(r.statusCode).toBe(Errors.OK);
 
-    let expected = new TaskTree(1);
-    let tmp = new TaskTree(3);
-    tmp.childTasks.push(new TaskTree(4));
-    tmp.childTasks.push(new TaskTree(5));
-    tmp.childTasks.push(new TaskTree(6));
+    let expected = new TaskTree(1,"a");
+    let tmp = new TaskTree(3, "a");
+    tmp.childTasks.push(new TaskTree(4, "a"));
+    tmp.childTasks.push(new TaskTree(5, "a"));
+    tmp.childTasks.push(new TaskTree(6, "a"));
 
-    expected.childTasks.push(new TaskTree(2));
+    expected.childTasks.push(new TaskTree(2, "a"));
     expected.childTasks.push(tmp);
     
     expect(r.payload).toStrictEqual(expected);
@@ -98,7 +98,7 @@ describe('TEST TASK GETTER', () => {
     r = await tg.getSingleTaskTree(1,7);
     expect(r.statusCode).toBe(Errors.OK);
 
-    let expected2 = new TaskTree(7);
+    let expected2 = new TaskTree(7, "a");
     
     expect(r.payload).toStrictEqual(expected2);
 

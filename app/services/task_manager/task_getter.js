@@ -46,7 +46,7 @@ class TaskGetter extends ServicesBaseClass{
          * @type {Task}
          */
         task = task.payload;
-        let taskTree = new TaskTree(task.taskId);
+        let taskTree = new TaskTree(task.taskId, task.taskName);
 
         for(let childTaskId of task.childTasks){
             let childTask = this.getSingleTaskTree(organizationId, childTaskId);
