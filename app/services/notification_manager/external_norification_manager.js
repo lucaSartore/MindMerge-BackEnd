@@ -5,8 +5,9 @@ const express = require('express');
 
 var nodemailer = require('nodemailer'); //importing nodemailer
 
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST_SECRET,
+    port: 587,
     auth: {
         user: process.env.EMAIL_ADDRESS_SECRET,
         pass: process.env.EMAIL_PASSWORD_SECRET
@@ -38,18 +39,17 @@ class ExternalNotificationManager extends ServicesBaseClass {
         var mailOptions = {
             from: process.env.EMAIL_ADDRESS_SECRET,
             to: userEmail,
-            subject: notificationText,
+            subject: "MindMerge Notification",
             text: notificationText
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
+                return new CustomResponse(Errors.BAD_REQUEST, "Email not sent");
             }
         });
-        return r;
+        return new CustomResponse(Errors.OK, "Email sent to address " + userEmail);
     }
 }
 
