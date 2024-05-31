@@ -3,6 +3,7 @@ const {TaskTree} = require('../../common_infrastructure/task_tree.js');
 const {Task} = require('../../common_infrastructure/task.js');
 const {Errors} = require('../../common_infrastructure/errors.js');
 const {CustomResponse} = require('../../common_infrastructure/response.js');
+const express = require('express');
 
 class TaskGetter extends ServicesBaseClass{
     
@@ -77,4 +78,8 @@ class TaskGetter extends ServicesBaseClass{
     }
 }
 
+const taskGetter = new TaskGetter();
+
+
 exports.TaskGetter = TaskGetter;
+exports.taskGetter = taskGetter;
