@@ -5,6 +5,8 @@ const express = require('express');
 
 var nodemailer = require('nodemailer'); //importing nodemailer
 
+const testingRouter = express.Router();
+
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST_SECRET,
     port: 587,
@@ -13,8 +15,6 @@ const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASSWORD_SECRET
     }
 });
-
-const testingRouter = express.Router();
 
 class ExternalNotificationManager extends ServicesBaseClass {
 
@@ -29,13 +29,11 @@ class ExternalNotificationManager extends ServicesBaseClass {
      */
     async sendNotification(notificationId, userId, notificationText, date, read) {
         let r = await this.userManager.readUser(userId);
-        console.log(r);
         if (r.statusCode != Errors.OK) {
             return r;
         }
         //send notification to user email
         let userEmail = r.payload.email;
-        console.log(userEmail, notificationText);
         var mailOptions = {
             from: process.env.EMAIL_ADDRESS_SECRET,
             to: userEmail,
@@ -43,27 +41,33 @@ class ExternalNotificationManager extends ServicesBaseClass {
             text: notificationText
         };
 
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-                return new CustomResponse(Errors.BAD_REQUEST, "Email not sent");
-            }
+        return new Promise((resolve, reject) => {
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                    r = new CustomResponse(Errors.BAD_REQUEST, "Email not sent");
+                } else {
+                    r = new CustomResponse(Errors.OK, "Email sent to address " + userEmail);
+                }
+                resolve(r);
+            });
         });
-        return new CustomResponse(Errors.OK, "Email sent to address " + userEmail);
     }
 }
 
 let external_norification_manager = new ExternalNotificationManager();
 
-testingRouter.post('/externalNotification', async (req, res) => {
-    let notificationId = req.body.notificationId;
-    let userId = req.body.userId;
-    let notificationText = req.body.notificationText;
-    let date = Date.now();
-    let read = false;
-    let response = await external_norification_manager.sendNotification(notificationId, userId, notificationText, date, read);
-    res.status(response.statusCode);
-    res.json(response);
-});
+if (process.env.NODE_ENV === 'development') {
+    testingRouter.post('/externalNotification', async (req, res) => {
+        let notificationId = req.body.notificationId;
+        let userId = req.body.userId;
+        let notificationText = req.body.notificationText;
+        let date = Date.now();
+        let read = false;
+        let response = await external_norification_manager.sendNotification(notificationId, userId, notificationText, date, read);
+        res.status(response.statusCode);
+        res.json(response);
+    });
+}
 
 module.exports = { testingRouter, ExternalNotificationManager };
