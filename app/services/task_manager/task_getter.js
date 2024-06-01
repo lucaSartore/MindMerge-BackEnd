@@ -75,6 +75,7 @@ class TaskGetter extends ServicesBaseClass{
      * @returns {CustomResponse<Task>}
      */
     getTask(organizationId, taskId, userId, userToken){
+        return this.taskManager.readTask(organizationId, taskId);
     }
 }
 

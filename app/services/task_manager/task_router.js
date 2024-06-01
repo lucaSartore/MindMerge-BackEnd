@@ -14,5 +14,15 @@ taskRouter.get('/task_tree', async (req, res) => {
 });
 
 
+taskRouter.get('/:task_id', async (req, res) => {
+
+    const taskId = req.params.task_id * 1;
+    const organizationId = req.query.organization_id * 1;
+
+    let response = await taskGetter.getTask(organizationId, taskId,null,null);
+    res.status(response.statusCode);
+    res.json(response);
+});
+
 
 exports.taskRouter = taskRouter;

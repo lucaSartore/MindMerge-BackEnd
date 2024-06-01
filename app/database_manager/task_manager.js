@@ -528,7 +528,7 @@ class TaskManager extends DataBaseManager {
         }
         let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
         if (task == null) {
-            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+            return new CustomResponse(Errors.NOT_FOUND, "Task not found", null);
         }
 
         let taskAssignees = task.taskAssignees.map((assignee) => assignee);
@@ -577,20 +577,20 @@ class TaskManager extends DataBaseManager {
     */
     async verifyThatTaskExist(organizationId, taskId) {
         if (organizationId == undefined) {
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid Organization Id", null);
         }
         if (typeof organizationId != "number" || isNaN(organizationId) ) {
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid Organization Id", null);
         }
         if (taskId == undefined) {
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid Task Id", null);
         }
         if (typeof taskId != "number" || isNaN(taskId) ) {
-            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Task Id");
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid Task Id", null);
         }
         let task = await TaskModel.findOne({ taskId: taskId, taskOrganizationId: organizationId });
         if (task == null) {
-            return new CustomResponse(Errors.NOT_FOUND, false, "Task not found");
+            return new CustomResponse(Errors.NOT_FOUND, "Task not found", null);
         }
         return new CustomResponse(Errors.OK, "", undefined);
     }
