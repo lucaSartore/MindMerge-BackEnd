@@ -61,7 +61,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    updateTaskName(organizationId, taskId, newName, userId, userToken){
+    async updateTaskName(organizationId, taskId, newName, userId, userToken){
+        await this.taskManager.updateTaskName(organizationId,taskId,newName)
     }
 
     /**
@@ -170,3 +171,8 @@ export default class TaskEditor extends ServicesBaseClass{
     */
     updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue, userId, userToken){}
 }
+
+
+const taskEditor = new TaskEditor();
+
+exports.taskEditor = taskEditor;
