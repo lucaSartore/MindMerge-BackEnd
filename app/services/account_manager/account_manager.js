@@ -206,7 +206,7 @@ class AccountManager extends ServicesBaseClass {
      */
     async generateUserToken(userId) {
         try {
-            const token = jwt.sign({ userId: userId }, process.env.SECRET_KEY, { expiresIn: '1d' });
+            const token = jwt.sign({ userId: userId }, process.env.SUPER_SECRET, { expiresIn: '1d' });
             return new CustomResponse(
                 Errors.OK,
                 "Success",

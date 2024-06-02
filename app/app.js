@@ -29,7 +29,7 @@ app.use((req, res, next) => {
     });
   }
 
-  jwt.verify(token, /*KEY*/, (err, decoded) => {
+  jwt.verify(token, process.env.SUPER_SECRET, (err, decoded) => {
     if (err) {
       return res.status(Errors.UNAUTHORIZED).json({
         code: Errors.UNAUTHORIZED,
