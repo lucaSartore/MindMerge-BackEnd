@@ -117,10 +117,16 @@ class AccountManager extends ServicesBaseClass {
         try {
             v = await getNameAndEmail(oauthCode);
         } catch (e) {
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null)
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null);
         }
 
-        // todo: verify in case of name existing but new email... add prefix to name
+        let nameExists = await this.userManager.readUserByName(v.name);
+        if (nameExists.statusCode === Errors.OK) {
+            // if username already taken, add a prefix to it
+            // TODO: double-check
+            v.name = `${v.name}2`;
+        }
+
         let response = await this.userManager.createUser(
             new User(
                 0,
@@ -129,10 +135,10 @@ class AccountManager extends ServicesBaseClass {
                 UserKind.Google,
                 v.email
             )
-        )
+        );
 
         if (response.statusCode != Errors.OK) {
-            console.log(response)
+            console.log(response);
             return response;
         }
 
