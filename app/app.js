@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
+const { Errors } = require('./errors');
 
 const app = express();
 
@@ -16,24 +18,41 @@ app.get('/hello', (req, res) => {
 
 app.use('/api/v1/account', accountRouter);
 
-// insert here the middleware to verify the user token
-// qui metti un middleware che verifica il token dell'utente\
-// se va tutto bene manda avanti... altrimenti ritorna unauthorized
-// GIOELE TODO
+// Middleware to verify the user token
+app.use((req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(Errors.UNAUTHORIZED).json({
+      code: Errors.UNAUTHORIZED,
+      message: 'Unauthorized: No token provided',
+      payload: null,
+    });
+  }
+
+  jwt.verify(token, 'your-secret-key', (err, decoded) => {
+    if (err) {
+      return res.status(Errors.UNAUTHORIZED).json({
+        code: Errors.UNAUTHORIZED,
+        message: 'Unauthorized: Invalid token',
+        payload: null,
+      });
+    }
+    req.user = decoded;
+    next();
+  });
+});
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/organization', organizationEditorRouter);
 
-
 // Global error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack); // Log the error for debugging
-  res.status(500).json({
-    code: 500,
+  res.status(Errors.INTERNAL_SERVER_ERROR).json({
+    code: Errors.INTERNAL_SERVER_ERROR,
     message: 'Internal Server Error',
     payload: null,
   });
 });
-
 
 module.exports = app;
