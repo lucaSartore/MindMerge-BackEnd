@@ -1,6 +1,6 @@
-const ServicesBaseClass = require('../services_base_class');
+const {ServicesBaseClass} = require('../services_base_class');
 
-export default class TaskEditor extends ServicesBaseClass{
+class TaskEditor extends ServicesBaseClass{
 
     /**
      * Delete the task with the specify ID, and all the sub tasks.
@@ -37,7 +37,7 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskNotes(organizationId, taskId, noteId, userId, userToken, userId, userToken){
+    deleteTaskNotes(organizationId, taskId, noteId, userId, userToken){
     }
 
     /**
@@ -62,7 +62,7 @@ export default class TaskEditor extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     async updateTaskName(organizationId, taskId, newName, userId, userToken){
-        await this.taskManager.updateTaskName(organizationId,taskId,newName)
+        return await this.taskManager.updateTaskName(organizationId,taskId,newName)
     }
 
     /**
@@ -174,5 +174,4 @@ export default class TaskEditor extends ServicesBaseClass{
 
 
 const taskEditor = new TaskEditor();
-
 exports.taskEditor = taskEditor;
