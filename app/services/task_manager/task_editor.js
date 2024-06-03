@@ -1,4 +1,7 @@
 const {ServicesBaseClass} = require('../services_base_class');
+const { TaskTree } = require('../../common_infrastructure/task_tree.js');
+//import { CustomResponse } from '../../common_infrastructure/response.js';
+//import { taskGetter } from './task_getter';
 
 class TaskEditor extends ServicesBaseClass{
 
@@ -11,6 +14,18 @@ class TaskEditor extends ServicesBaseClass{
      * @return {CustomResponse<void>}
      */
     deleteTask(organizationId, taskId, userId, userToken){
+        taskGetter.getSingleTaskTree(organizationId,taskId);
+
+    }
+
+    /**
+     * delete a task tree recursively
+     * @param {TaskTree} tree 
+     * @returns {CustomResponse<void>}
+     */
+    deleteTaskTree(tree){
+        let r = this.taskManager.deleteTask()
+        
     }
 
 

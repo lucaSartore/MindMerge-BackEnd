@@ -51,5 +51,10 @@ taskRouter.post("/", async (req,res) =>{
     res.json(response);
 });
 
+taskRouter.delete("/:task_id", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    
+});
 
 exports.taskRouter = taskRouter;
