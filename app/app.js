@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
+const {testingRouter} = require('./services/notification_manager/external_norification_manager.js');
 
 const app = express();
 
@@ -20,7 +21,9 @@ app.use('/api/v1/account', accountRouter);
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/organization', organizationEditorRouter);
-
+if (process.env.NODE_ENV === 'development') {
+  app.use('/api/v1/testing', testingRouter);
+}
 
 // Global error handling middleware
 app.use((err, req, res, next) => {
