@@ -3,7 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
-const { Errors } = require('./errors');
+const { Errors } = require('./common_infrastructure/errors.js');
 
 const app = express();
 
