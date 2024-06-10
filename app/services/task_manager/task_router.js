@@ -51,10 +51,32 @@ taskRouter.post("/", async (req,res) =>{
     res.json(response);
 });
 
+
 taskRouter.delete("/:task_id", async (req,res) => {
     const organizationId = req.query.organization_id * 1;
     const taskId = req.params.task_id * 1;
     
+});
+
+taskRouter.post("/:task_id/assignee/:assignee_id", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    const assigneeId = req.params.assignee_id * 1;
+
+    let response = await taskEditor.addNewAssignee(organizationId,taskId,assigneeId,null,null);
+    res.status(response.statusCode);
+    res.json(response);
+});
+
+
+taskRouter.delete("/:task_id/assignee/:assignee_id", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    const assigneeId = req.params.assignee_id * 1;
+
+    let response = await taskEditor.deleteTaskAssignee(organizationId,taskId,assigneeId,null,null);
+    res.status(response.statusCode);
+    res.json(response);
 });
 
 exports.taskRouter = taskRouter;
