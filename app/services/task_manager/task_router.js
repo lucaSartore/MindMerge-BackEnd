@@ -2,7 +2,8 @@ const express = require('express');
 const {taskGetter} = require('./task_getter');
 const { Task } = require('../../common_infrastructure/task.js');
 const { taskCreator} = require('./task_creator');
-const { taskEditor } = require('./task_editor.js') 
+const { taskEditor } = require('./task_editor.js'); 
+const { TaskNote } = require('../../common_infrastructure/task_note.js');
 const taskRouter = express.Router();
 
 
@@ -40,6 +41,16 @@ taskRouter.put("/:task_id/name/:new_name", async (req,res) => {
     res.json(response);
 })
 
+taskRouter.put("/:task_id/notes/:notes_id", async (req,res) => {
+        const taskId = req.params.task_id * 1;
+        const organizationId = req.query.organization_id * 1;
+        const noteId = req.params.notes_id * 1;
+        const newNotes = req.body.notes;
+        let response = await taskEditor.updateTaskNotes(organizationId,taskId,noteId,newNotes,null,null);
+        res.status(response.statusCode);
+        res.json(response);
+});
+
 taskRouter.post("/", async (req,res) =>{
 
     let task = req.body;
@@ -51,21 +62,19 @@ taskRouter.post("/", async (req,res) =>{
     res.json(response);
 });
 
+taskRouter.post("/:task_id/notes/", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    let taskNote = req.body;
+    taskNote = Object.assign(new TaskNote(), taskNote);
+    let response = await taskEditor.createTaskNotes(organizationId,taskNote.taskId,taskNote.notes);
+    res.status(response.statusCode);
+    res.json(response);
+});
+
 taskRouter.delete("/:task_id", async (req,res) => {
     const organizationId = req.query.organization_id * 1;
     const taskId = req.params.task_id * 1;
     
-});
-
-taskRouter.put("/:task_id/notes/:note_id", async (req,res) => {
-    const organizationId = req.query.organization_id * 1;
-    const taskId = req.params.task_id * 1;
-    const noteId = req.params.note_id * 1;
-    const newNote = req.body;
-
-    let response = await taskEditor.updateTaskNotes(organizationId,taskId,noteId,newNote,null,null);
-    res.status(response.statusCode);
-    res.json(response);
 });
 
 exports.taskRouter = taskRouter;

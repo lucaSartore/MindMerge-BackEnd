@@ -66,6 +66,16 @@ class TaskEditor extends ServicesBaseClass{
      */
     updateTask(organizationId, taskId, newTask, userId, userToken){
     }
+    /**
+     * Create a new note for the task with the given id
+     * @param {number} organizationId 
+     * @param {number} taskId 
+     * @param {string} notes 
+     * @returns 
+     */
+    async createTaskNotes(organizationId, taskId, notes){
+        return await this.taskManager.createTaskNotes(organizationId,taskId,notes);
+    }
 
     /**
      * Update the name of the task with the given id to the new name that is passed
