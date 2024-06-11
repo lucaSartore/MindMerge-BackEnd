@@ -57,4 +57,15 @@ taskRouter.delete("/:task_id", async (req,res) => {
     
 });
 
+taskRouter.put("/:task_id/notes/:note_id", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    const noteId = req.params.note_id * 1;
+    const newNote = req.body;
+
+    let response = await taskEditor.updateTaskNotes(organizationId,taskId,noteId,newNote,null,null);
+    res.status(response.statusCode);
+    res.json(response);
+});
+
 exports.taskRouter = taskRouter;

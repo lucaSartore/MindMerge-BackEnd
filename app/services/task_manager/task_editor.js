@@ -114,7 +114,8 @@ class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    updateTaskNotes(organizationId, taskId, noteId, newNotes, userId, userToken){
+    async updateTaskNotes(organizationId, taskId, noteId, newNotes, userId, userToken){
+        return await this.taskManager.updateTaskNotes(organizationId,taskId,noteId,newNotes);
     }
 
     /**
