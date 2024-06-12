@@ -119,7 +119,7 @@ class TaskManager extends DataBaseManager {
 
         let newId = 1;
         if (task.taskReports.length > 0) {
-            newId = Math.max(task.taskReports.map((report) => report.reportId)) + 1;
+            newId = Math.max(...task.taskReports.map((report) => report.reportId)) + 1;
         }
 
         await TaskModel.findOneAndUpdate({ taskId: taskId }, { $push: { taskReports: taskReportSchedule } });
