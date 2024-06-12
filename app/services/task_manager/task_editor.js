@@ -53,6 +53,7 @@ class TaskEditor extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     deleteTaskNotes(organizationId, taskId, noteId, userId, userToken){
+        return this.taskManager.deleteTaskNotes(organizationId,taskId,noteId);
     }
 
     /**
