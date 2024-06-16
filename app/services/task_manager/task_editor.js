@@ -39,7 +39,8 @@ class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskAssignee(organizationId, taskId, assigneeId, userId, userToken){
+    async deleteTaskAssignee(organizationId, taskId, assigneeId, userId, userToken){
+        return await this.taskManager.deleteTaskAssignee(organizationId,taskId,assigneeId)
     } 
 
     
@@ -150,7 +151,8 @@ class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    addNewAssignee(organizationId, taskId, assignee, userId, userToken){
+    async addNewAssignee(organizationId, taskId, assignee, userId, userToken){
+        return await this.taskManager.addNewAssignee(organizationId,taskId,assignee)
     }
 
     /**
