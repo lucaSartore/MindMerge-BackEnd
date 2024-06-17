@@ -16,7 +16,7 @@ async function promptLlm(prompt) {
         return new CustomResponse(Errors.OK, "", text);
     } catch (e) {
         console.log("error in promptLlm: ", e);
-        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "error due to LLM model connection", null);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "error due to LLM model connection: " + e, null);
     }
 }
 
