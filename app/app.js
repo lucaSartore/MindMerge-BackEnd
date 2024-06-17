@@ -11,8 +11,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-app.get('/hello', (req, res) => {
-  res.send('Hello World!');
+const {promptLlm} = require('./services/report_manager/llm_prompter.js');
+app.get('/hello', async (req, res) => {
+  let x = await promptLlm("write me a python script that prints 'hello world'");
+  res.send(x);
+  //res.send('Hello World!');
+
 });
 
 app.use('/api/v1/account', accountRouter);
