@@ -109,4 +109,14 @@ taskRouter.delete("/:task_id/assignee/:assignee_id", async (req,res) => {
     res.json(response);
 });
 
+taskRouter.put("/:task_id/status/:new_status", async (req,res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    const newStatus = req.params.new_status * 1;
+
+    let response = await taskEditor.updateTaskStatus(organizationId,taskId,newStatus,null,null);
+    res.status(response.statusCode);
+    res.json(response);
+});
+
 exports.taskRouter = taskRouter;
