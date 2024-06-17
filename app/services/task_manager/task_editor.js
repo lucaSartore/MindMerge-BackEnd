@@ -112,7 +112,8 @@ class TaskEditor extends ServicesBaseClass{
      * @param {number} userId 
      * @param {string} userToken 
      */
-    updateTaskStatus(organizationId, taskId, newStatus, userId, userToken){
+    async updateTaskStatus(organizationId, taskId, newStatus, userId, userToken){
+        return await this.taskManager.updateTaskStatus(organizationId,taskId,newStatus);
     }
 
     /**
