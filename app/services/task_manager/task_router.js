@@ -74,7 +74,9 @@ taskRouter.post("/:task_id/notes/", async (req,res) => {
 taskRouter.delete("/:task_id", async (req,res) => {
     const organizationId = req.query.organization_id * 1;
     const taskId = req.params.task_id * 1;
-    
+    let response = await taskEditor.deleteTask(organizationId,taskId,undefined,undefined);    
+    res.status(response.statusCode);
+    res.json(response);
 });
 
 taskRouter.delete("/:task_id/notes/:note_id", async (req,res) => {

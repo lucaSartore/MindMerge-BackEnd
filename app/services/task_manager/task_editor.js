@@ -1,7 +1,9 @@
 const {ServicesBaseClass} = require('../services_base_class');
 const { TaskTree } = require('../../common_infrastructure/task_tree.js');
-//import { CustomResponse } from '../../common_infrastructure/response.js';
-//import { taskGetter } from './task_getter';
+const {Errors } = require('../../common_infrastructure/errors.js');
+const { CustomResponse } = require('../../common_infrastructure/response.js');
+
+const { taskGetter } = require('./task_getter');
 
 class TaskEditor extends ServicesBaseClass{
 
@@ -13,19 +15,53 @@ class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @return {CustomResponse<void>}
      */
-    deleteTask(organizationId, taskId, userId, userToken){
-        taskGetter.getSingleTaskTree(organizationId,taskId);
+    async deleteTask(organizationId, taskId, userId, userToken){
+        let tree = await taskGetter.getSingleTaskTree(organizationId,taskId);
+        if(tree.statusCode !== Errors.OK){
+            return tree;
+        } 
+        tree = tree.payload;
 
+        // delete current task from the father
+        let task = await this.taskManager.readTask(organizationId, tree.taskId);
+        if(task.statusCode !== Errors.OK){
+            return task;
+        }
+        let taskFatherId = task.payload.taskFatherId;
+        if(taskFatherId != undefined){
+            let r = await this.taskManager.removeChildTask(organizationId, taskFatherId, tree.taskId);
+            if (r.statusCode !== Errors.OK){
+                return r;
+            }
+        }
+
+        let r = await this.deleteTaskTree(organizationId,tree);
+        return r;
     }
 
     /**
      * delete a task tree recursively
+     * @param {number} organizationId 
      * @param {TaskTree} tree 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskTree(tree){
-        let r = this.taskManager.deleteTask()
-        
+    async deleteTaskTree(organizationId, tree){
+        let r = await this.taskManager.deleteTask(organizationId, tree.taskId)
+        if (r.statusCode !== Errors.OK){
+            return r;
+        }
+        let promises = [];
+        for(let child of tree.childTasks){
+            promises.push(this.deleteTaskTree(organizationId, child));
+        }
+        promises = await Promise.all(promises);
+        for (let p of promises){
+            if(p.statusCode !== Errors.OK){
+                return p;
+            }
+        }
+
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
 

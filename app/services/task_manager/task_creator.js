@@ -18,8 +18,11 @@ class TaskCreator extends ServicesBaseClass{
         if(response.statusCode != Errors.OK){
             return response;
         }
-        let newTaskId = response.payload;
-        return await this.taskManager.addChildTask(organizationId,task.taskFatherId,newTaskId);
+        if (task.taskFatherId != undefined){
+            let newTaskId = response.payload;
+            return await this.taskManager.addChildTask(organizationId,task.taskFatherId,newTaskId);
+        }
+        return response;    
     }
     
     /**
