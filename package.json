@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node node_modules/jest/bin/jest.js --runInBand",
     "start": "node index.js",
-    "dev": "node -r dotenv/config index.js"
+    "dev": "node -r dotenv/config index.js",
+    "documentation": "node node_modules/jsdoc/jsdoc.js -c .\\jsdoc.conf.json -r"
   },
   "author": "",
   "license": "ISC",
