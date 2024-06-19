@@ -38,7 +38,7 @@ app.use((req, res, next) => {
                 res.status(403).json({success:false, message: 'Invalid token'})
             else {
                 req.loggedUser = decoded;
-                var organization_id = req.body.organization_id || 
+                // TODO: match organization_id with user request
                 next();
             }
         }
