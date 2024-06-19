@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test1": "jest",
-    "test": "node node_modules/jest/bin/jest.js",
+    "test": "node node_modules/jest/bin/jest.js --runInBand",
     "start": "node index.js",
     "dev": "node -r dotenv/config index.js"
   },

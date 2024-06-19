@@ -1,6 +1,11 @@
-const ServicesBaseClass = require('../services_base_class');
+const {ServicesBaseClass} = require('../services_base_class');
+const { TaskTree } = require('../../common_infrastructure/task_tree.js');
+const {Errors } = require('../../common_infrastructure/errors.js');
+const { CustomResponse } = require('../../common_infrastructure/response.js');
 
-export default class TaskEditor extends ServicesBaseClass{
+const { taskGetter } = require('./task_getter');
+
+class TaskEditor extends ServicesBaseClass{
 
     /**
      * Delete the task with the specify ID, and all the sub tasks.
@@ -10,7 +15,53 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @return {CustomResponse<void>}
      */
-    deleteTask(organizationId, taskId, userId, userToken){
+    async deleteTask(organizationId, taskId, userId, userToken){
+        let tree = await taskGetter.getSingleTaskTree(organizationId,taskId);
+        if(tree.statusCode !== Errors.OK){
+            return tree;
+        } 
+        tree = tree.payload;
+
+        // delete current task from the father
+        let task = await this.taskManager.readTask(organizationId, tree.taskId);
+        if(task.statusCode !== Errors.OK){
+            return task;
+        }
+        let taskFatherId = task.payload.taskFatherId;
+        if(taskFatherId != undefined){
+            let r = await this.taskManager.removeChildTask(organizationId, taskFatherId, tree.taskId);
+            if (r.statusCode !== Errors.OK){
+                return r;
+            }
+        }
+
+        let r = await this.deleteTaskTree(organizationId,tree);
+        return r;
+    }
+
+    /**
+     * delete a task tree recursively
+     * @param {number} organizationId 
+     * @param {TaskTree} tree 
+     * @returns {CustomResponse<void>}
+     */
+    async deleteTaskTree(organizationId, tree){
+        let r = await this.taskManager.deleteTask(organizationId, tree.taskId)
+        if (r.statusCode !== Errors.OK){
+            return r;
+        }
+        let promises = [];
+        for(let child of tree.childTasks){
+            promises.push(this.deleteTaskTree(organizationId, child));
+        }
+        promises = await Promise.all(promises);
+        for (let p of promises){
+            if(p.statusCode !== Errors.OK){
+                return p;
+            }
+        }
+
+        return new CustomResponse(Errors.OK, "", undefined);
     }
 
 
@@ -24,7 +75,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskAssignee(organizationId, taskId, assigneeId, userId, userToken){
+    async deleteTaskAssignee(organizationId, taskId, assigneeId, userId, userToken){
+        return await this.taskManager.deleteTaskAssignee(organizationId,taskId,assigneeId)
     } 
 
     
@@ -37,7 +89,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    deleteTaskNotes(organizationId, taskId, noteId, userId, userToken, userId, userToken){
+    deleteTaskNotes(organizationId, taskId, noteId, userId, userToken){
+        return this.taskManager.deleteTaskNotes(organizationId,taskId,noteId);
     }
 
     /**
@@ -51,6 +104,16 @@ export default class TaskEditor extends ServicesBaseClass{
      */
     updateTask(organizationId, taskId, newTask, userId, userToken){
     }
+    /**
+     * Create a new note for the task with the given id
+     * @param {number} organizationId 
+     * @param {number} taskId 
+     * @param {string} notes 
+     * @returns 
+     */
+    async createTaskNotes(organizationId, taskId, notes){
+        return await this.taskManager.createTaskNotes(organizationId,taskId,notes);
+    }
 
     /**
      * Update the name of the task with the given id to the new name that is passed
@@ -61,7 +124,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    updateTaskName(organizationId, taskId, newName, userId, userToken){
+    async updateTaskName(organizationId, taskId, newName, userId, userToken){
+        return await this.taskManager.updateTaskName(organizationId,taskId,newName)
     }
 
     /**
@@ -84,7 +148,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {number} userId 
      * @param {string} userToken 
      */
-    updateTaskStatus(organizationId, taskId, newStatus, userId, userToken){
+    async updateTaskStatus(organizationId, taskId, newStatus, userId, userToken){
+        return await this.taskManager.updateTaskStatus(organizationId,taskId,newStatus);
     }
 
     /**
@@ -98,7 +163,8 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    updateTaskNotes(organizationId, taskId, noteId, newNotes, userId, userToken){
+    async updateTaskNotes(organizationId, taskId, noteId, newNotes, userId, userToken){
+        return await this.taskManager.updateTaskNotes(organizationId,taskId,noteId,newNotes);
     }
 
     /**
@@ -122,7 +188,16 @@ export default class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    addNewAssignee(organizationId, taskId, assignee, userId, userToken){
+    async addNewAssignee(organizationId, taskId, assignee, userId, userToken){
+        // check if the assignee is in the organization
+        let organization = await this.organizationManager.readOrganization(organizationId)
+        if (organization.statusCode != Errors.OK){
+            return organization
+        }
+        if (organization.payload.userIds.find(x => x==assignee) == undefined){
+            return new CustomResponse(Errors.NOT_FOUND, "User not found in organization", null)
+        }
+        return await this.taskManager.addNewAssignee(organizationId,taskId,assignee)
     }
 
     /**
@@ -170,3 +245,7 @@ export default class TaskEditor extends ServicesBaseClass{
     */
     updateTaskRecursivePermissionsValue(organizationId, taskId, newRecursivePermissionsValue, userId, userToken){}
 }
+
+
+const taskEditor = new TaskEditor();
+exports.taskEditor = taskEditor;

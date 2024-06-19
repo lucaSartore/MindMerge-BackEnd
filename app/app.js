@@ -3,6 +3,7 @@ const cors = require('cors');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
 const {testingRouter} = require('./services/notification_manager/external_norification_manager.js');
+const {taskRouter} = require('./services/task_manager/task_router.js');
 
 const app = express();
 
@@ -28,16 +29,7 @@ app.use('/api/v1/organization', organizationEditorRouter);
 if (process.env.NODE_ENV === 'development') {
   app.use('/api/v1/testing', testingRouter);
 }
-
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error for debugging
-  res.status(500).json({
-    code: 500,
-    message: 'Internal Server Error',
-    payload: null,
-  });
-});
+app.use('/api/v1/task', taskRouter);
 
 
 module.exports = app;

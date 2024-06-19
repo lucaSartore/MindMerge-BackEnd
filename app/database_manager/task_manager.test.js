@@ -1028,7 +1028,7 @@ describe('TEST TASK MANAGER', () => {
     expect(result.payload).toStrictEqual(task);
   });
 
-
+  
   test('test not successful get task', async () => {
     await TaskModel.deleteMany({});
     let tm = new TaskManager();
@@ -1040,5 +1040,25 @@ describe('TEST TASK MANAGER', () => {
 
     result = await tm.readTask(33,1);
     expect(result.statusCode).toBe(Errors.NOT_FOUND);
+  });
+
+
+  test('test successful read root tasks' , async () => {
+    await TaskModel.deleteMany({});
+    let tm = new TaskManager();
+
+    let result = await tm.createTask(1, new Task(1,null, 1, new Date(), "a", "a",TaskStatus.Idea,[], [1], 1, [], false,[],0));
+    expect(result.statusCode).toBe(Errors.OK);
+    result = await tm.createTask(1, new Task(2,1, 1, new Date(), "b", "b",TaskStatus.Idea,[], [1], 1, [], false,[],0));
+    expect(result.statusCode).toBe(Errors.OK);
+    result = await tm.createTask(1, new Task(3,null, 1, new Date(), "c", "c",TaskStatus.Idea,[], [1], 1, [], false,[],0));
+    expect(result.statusCode).toBe(Errors.OK);
+    result = await tm.createTask(2, new Task(4,null, 2, new Date(), "d", "d",TaskStatus.Idea,[], [1], 1, [], false,[],0));
+    expect(result.statusCode).toBe(Errors.OK);
+
+    result = await tm.readRootTasks(1);
+
+    expect(result.statusCode).toBe(Errors.OK);
+    expect(result.payload).toStrictEqual([1,3]);
   });
 });
