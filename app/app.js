@@ -26,26 +26,11 @@ app.use('/api/v1/account', accountRouter);
 
 // Middleware to verify the user token
 app.use((req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) {
-    return res.status(Errors.UNAUTHORIZED).json({
-      code: Errors.UNAUTHORIZED,
-      message: 'Unauthorized: No token provided',
-      payload: null,
-    });
-  }
+    var token = req.body.token || req.query.token || req.headers['token'];
 
-  jwt.verify(token, process.env.SUPER_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(Errors.UNAUTHORIZED).json({
-        code: Errors.UNAUTHORIZED,
-        message: 'Unauthorized: Invalid token',
-        payload: null,
-      });
-    }
-    req.user = decoded;
-    next();
-  });
+    if (!token) res.status(403).json({success:false, message: 'No token provided.'})
+
+    
 });
 
 app.use('/api/v1/user', userRouter);
