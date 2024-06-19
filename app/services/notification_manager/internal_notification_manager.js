@@ -1,4 +1,4 @@
-const ServicesBaseClass = require('../services_base_class.js');
+const { ServicesBaseClass } = require("../services_base_class");
 
 class InternalNotificationManager extends ServicesBaseClass{
 

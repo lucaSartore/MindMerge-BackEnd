@@ -1,4 +1,4 @@
-const ServicesBaseClass = require('../services_base_class');
+const { ServicesBaseClass } = require("../services_base_class");
 const {ExternalNotificationManager} = require('./external_notification_manager');
 const {InternalNotificationManager} = require('./internal_notification_manager');
 
