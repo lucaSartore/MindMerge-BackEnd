@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: database_manager/organization_manager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: database_manager/organization_manager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const {DataBaseManager, OrganizationModel } = require('./database_manager.js');
+const { Organization } = require('../common_infrastructure/organization.js');
+const {CustomResponse} = require('../common_infrastructure/response.js');
+const {Errors} = require('../common_infrastructure/errors.js');
+
+class OrganizationManager extends DataBaseManager{
+
+    //////////////////////////// Creation ////////////////////////////
+
+    /**
+     * Create a new organization in the database, the id of the organization will be automatically generated
+     * return the id of the organization created
+     * @param {Organization} organization 
+     * @returns {CustomResponse&lt;number>}
+     */
+    async createOrganization(organization){
+        if(!organization.validate()){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid organization")
+        }
+        let new_organization = new OrganizationModel(organization);
+        await new_organization.save();
+        return new CustomResponse(Errors.OK, "Organization created", new_organization.organizationId);
+    }
+
+    //////////////////////////// Updating ////////////////////////////
+
+    /**
+     * Update the name of the organization with the given id to the new name that is passed
+     * this function will also edit the profile of the user to add the organization to the user's profile
+     * @param {number} organizationId
+     * @param {string} newName
+     * @returns {CustomResponse&lt;number>}
+    */
+    async addUserToOrganization(organizationId, userId){
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization.userIds.includes(userId)){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User already in organization");
+        }
+            
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {$push: {userIds: userId}});
+        return new CustomResponse(Errors.OK, "", null);
+    } 
+        
+
+    /**
+     * Update the license of the organization with the given id to the new license that is passed
+     * @param {number} organizationId
+     * @param {boolean} newLicense
+     * @returns {CustomResponse&lt;void>}
+     */
+    async updateLicense(organizationId, newLicense){
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
+        if(newLicense == undefined || typeof newLicense != "boolean"){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid License");
+        }
+
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {licenseValid: newLicense})
+
+        return new CustomResponse(Errors.OK, "License updated", undefined);
+    }
+
+    /**
+     * Update the license expiration date of the organization with the given id to the new date that is passed
+     * @param {number} organizationId
+     * @param {Date} newDate
+     * @returns {CustomResponse&lt;Date>}
+     */
+    async updateLicenseExpirationDate(organizationId, newDate){
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
+        if( typeof newDate != 'object' || ! newDate instanceof Date){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Date");
+        }
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, {licenseExpirationDate: newDate});
+
+        return new CustomResponse(Errors.OK, "License expiration date updated", newDate);
+    }
+
+    //////////////////////////// Deleting ////////////////////////////
+
+    /**
+     * Delete the organization with the given id 
+     * @param {number} organizationId 
+     * @returns {CustomResponse&lt;number>}
+     */
+    async deleteOrganization(organizationId){
+
+        // not necessary for MVP
+
+        // let result = await this.validateOrganization(organizationId);
+        // if(result.statusCode != Errors.OK){
+        //     return result;
+        // }
+
+        // if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        // }
+        // let organization = await OrganizationModel.findOne({OrganizationId: organizationId});
+        // if(organization == null){
+        //     return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        // }
+        // OrganizationModel.deleteOne({organizationId: organizationId});
+        // return new CustomResponse(Errors.OK, "Organization deleted", organizationId);
+    }
+
+    /**
+     * Remove a user from an organization
+     * Can return an error if the user is the owner of the organization
+     * This function will also update the profile of the user remove the organization from the user's profile
+     * @param {number} organizationId
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    async removeUserFromOrganization(organizationId, userId){
+
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found");
+        }
+
+        if(organization.ownerId == userId){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Cannot remove owner from organization");
+        }
+
+        if(organization.userIds.find((x) => x == userId) == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "User not in organization");
+        }
+
+        await OrganizationModel.findOneAndUpdate({organizationId: organizationId}, { $pull: { userIds: userId} });
+        
+        return new CustomResponse(Errors.OK, "User removed from organization", userId);
+    }
+
+    //////////////////////////// Reading ///////////////////////////
+
+    /**
+     * Return one single organization
+     * @param {number} organizationId 
+     * @returns {CustomResponse&lt;Organization>}
+     */
+    async readOrganization(organizationId){
+        
+        if(typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+
+        let result = await this.validateOrganization(organizationId);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        organization = new Organization(organization.organizationId, organization.organizationName, organization.userIds, organization.licenseValid, organization.licenseExpirationDate, organization.ownerId)
+        
+        return new CustomResponse(Errors.OK, "", organization);
+    }
+
+    /**
+     * Return whether an organization is valid or not
+     * @param {number} organizationId
+     * @returns {CustomResponse&lt;void>}
+     * */
+    async validateOrganization(organizationId){
+        if (organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        let organization = await OrganizationModel.findOne({organizationId: organizationId});
+        if(organization == null){
+            return new CustomResponse(Errors.NOT_FOUND, false, "Organization not found");
+        }
+        return new CustomResponse(Errors.OK,"", undefined);
+    }
+}
+
+exports.OrganizationManager = OrganizationManager;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculateSubscriptionPrice">calculateSubscriptionPrice</a></li><li><a href="global.html#createTaskNotes">createTaskNotes</a></li><li><a href="global.html#deleteNotification">deleteNotification</a></li><li><a href="global.html#deleteReportSchedule">deleteReportSchedule</a></li><li><a href="global.html#executeScheduledReport">executeScheduledReport</a></li><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#getNotificationDetails">getNotificationDetails</a></li><li><a href="global.html#getNotificationList">getNotificationList</a></li><li><a href="global.html#getReportSchedules">getReportSchedules</a></li><li><a href="global.html#getTask">getTask</a></li><li><a href="global.html#getTasksForUser">getTasksForUser</a></li><li><a href="global.html#markNotificationAsRead">markNotificationAsRead</a></li><li><a href="global.html#paySubscription">paySubscription</a></li><li><a href="global.html#scheduleReport">scheduleReport</a></li><li><a href="global.html#sendNotification">sendNotification</a></li><li><a href="global.html#verifySubscription">verifySubscription</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Jun 19 2024 16:32:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
