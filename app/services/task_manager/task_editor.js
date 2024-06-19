@@ -189,6 +189,14 @@ class TaskEditor extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     async addNewAssignee(organizationId, taskId, assignee, userId, userToken){
+        // check if the assignee is in the organization
+        let organization = await this.organizationManager.readOrganization(organizationId)
+        if (organization.statusCode != Errors.OK){
+            return organization
+        }
+        if (organization.payload.userIds.find(x => x==assignee) == undefined){
+            return new CustomResponse(Errors.NOT_FOUND, "User not found in organization", null)
+        }
         return await this.taskManager.addNewAssignee(organizationId,taskId,assignee)
     }
 
