@@ -4,6 +4,7 @@ const {CustomResponse} = require('../../common_infrastructure/response.js');
 const {Errors} = require('../../common_infrastructure/errors.js');
 const {AutomaticReportManager} = require('./automatic_report_manager.js');
 const {ManualReportManager} = require('./manual_report_manager.js');
+const {notificationManager} = require('../notification_manager/notification_manager.js');
 const express = require('express');
 const reportRouter = express.Router();
 
@@ -40,8 +41,11 @@ reportRouter.post('/automatic', async (req, res) => {
     let taskId = req.query.task_id * 1;
     let reportPrompt = req.body.prompt;
     result = await reportManager.generateReport(organizationId, taskId, reportPrompt, ReportType.AUTOMATIC, userId, null);
+    notificationManager.externalNotificationManager.sendNotification(userId, result.payload);
+    result.payload = "Report generated";
     res.status(result.statusCode);
     res.json(result);
+    console.log(result);
 });
 
 exports.reportRouter = reportRouter;
