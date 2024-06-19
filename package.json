@@ -7,7 +7,8 @@
     "test1": "jest",
     "test": "node node_modules/jest/bin/jest.js",
     "start": "node index.js",
-    "dev": "node -r dotenv/config index.js"
+    "dev": "node -r dotenv/config index.js",
+    "generate-api": "node swagger-jsdoc.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,8 +17,12 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "googleapis": "^137.1.0",
+    "install": "^0.13.0",
     "mongoose": "^8.3.4",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "npm": "^10.8.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",

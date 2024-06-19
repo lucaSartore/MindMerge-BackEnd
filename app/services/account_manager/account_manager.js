@@ -1,26 +1,26 @@
-const {ServicesBaseClass} = require('../services_base_class.js');
-const {OauthLogInInfo} = require('../../common_infrastructure/oauth_login_info.js');
-const {getGoogleOauthUrl,getNameAndEmail} = require('./google_oauth.js');
-const {CustomResponse} = require('../../common_infrastructure/response.js');
-const {Errors} = require('../../common_infrastructure/errors.js');
-const {UserKind} = require('../../common_infrastructure/user_kind.js');
-const {LogInResponse} = require('../../common_infrastructure/log_in_response.js');
+const { ServicesBaseClass } = require('../services_base_class.js');
+const { OauthLogInInfo } = require('../../common_infrastructure/oauth_login_info.js');
+const { getGoogleOauthUrl, getNameAndEmail } = require('./google_oauth.js');
+const { CustomResponse } = require('../../common_infrastructure/response.js');
+const { Errors } = require('../../common_infrastructure/errors.js');
+const { UserKind } = require('../../common_infrastructure/user_kind.js');
+const { LogInResponse } = require('../../common_infrastructure/log_in_response.js');
 
 const express = require('express');
 const { User } = require('../../common_infrastructure/user.js');
 const accountRouter = express.Router();
 const userRouter = express.Router();
 
-class AccountManager extends ServicesBaseClass{
+class AccountManager extends ServicesBaseClass {
 
     /**
      * find a user id starting from a name
      * @param {string} name 
      * @returns {CustomResponse<number>}
      */
-    async getUserByName(name){
+    async getUserByName(name) {
         let result = await this.userManager.readUserByName(name);
-        if(result.statusCode != Errors.OK){
+        if (result.statusCode != Errors.OK) {
             return result;
         }
         return new CustomResponse(
@@ -34,7 +34,7 @@ class AccountManager extends ServicesBaseClass{
      * @param {number} userId 
      * @returns {CustomResponse<User>}
      */
-    async getUserById(userId){
+    async getUserById(userId) {
         return this.userManager.readUser(userId);
     }
 
@@ -42,9 +42,9 @@ class AccountManager extends ServicesBaseClass{
      * @param {number} userId
      * @returns {CustomResponse<string>}
      */
-    async getUserName(userId){
+    async getUserName(userId) {
         let result = await this.userManager.readUser(userId);
-        if(result.statusCode != Errors.OK){
+        if (result.statusCode != Errors.OK) {
             return result;
         }
         return new CustomResponse(
@@ -57,7 +57,7 @@ class AccountManager extends ServicesBaseClass{
     /**
      * @returns {CustomResponse<OauthLogInInfo>}
      */
-    getGoogleOauthLogInInfo(){
+    getGoogleOauthLogInInfo() {
         return new CustomResponse(
             Errors.OK,
             "Success",
@@ -68,7 +68,7 @@ class AccountManager extends ServicesBaseClass{
     /**
      * @returns {CustomResponse<OauthLogInInfo>}
      */
-    getFacebookOauthLogInInfo(){
+    getFacebookOauthLogInInfo() {
     }
 
     /**
@@ -76,26 +76,26 @@ class AccountManager extends ServicesBaseClass{
      * @param {?string} userPassword 
      * @returns {CustomResponse<LogInResponse>}
      */
-    customLogIn(userName, userPassword){
+    customLogIn(userName, userPassword) {
     }
-    
+
     /**
      * @param {string} oauthCode 
      * @returns {CustomResponse<LogInResponse>}
      */
-    googleLogIn(oauthCode){
+    googleLogIn(oauthCode) {
         return new CustomResponse(
             Errors.OK,
             "Success",
             new LogInResponse(1, "token")
         )
     }
-    
+
     /**
      * @param {string} oauthCode 
      * @returns {CustomResponse<LogInResponse>}
      */
-    facebookLogIn(oauthCode){
+    facebookLogIn(oauthCode) {
     }
 
     /**
@@ -104,21 +104,21 @@ class AccountManager extends ServicesBaseClass{
      * @param {?string} userPassword 
      * @returns {CustomResponse<LogInResponse>}
      */
-    customSignUp(userName, userPassword){
+    customSignUp(userName, userPassword) {
     }
-    
+
     /**
      * return true if the user was created successfully, false if the user already exists
      * @param {string} oauthCode 
      * @returns {CustomResponse<LogInResponse>}
      */
-    async googleSignUp(oauthCode){
+    async googleSignUp(oauthCode) {
         let v;
-        try{
+        try {
             v = await getNameAndEmail(oauthCode);
-        }catch(e){
+        } catch (e) {
             return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null)
-        } 
+        }
 
         // todo: verify in case of name existing but new email... add prefix to name
         let response = await this.userManager.createUser(
@@ -131,14 +131,14 @@ class AccountManager extends ServicesBaseClass{
             )
         )
 
-        if(response.statusCode != Errors.OK){
+        if (response.statusCode != Errors.OK) {
             console.log(response)
             return response;
         }
 
         let userToken = await this.generateUserToken(response.payload);
 
-        if(userToken.statusCode != Errors.OK){
+        if (userToken.statusCode != Errors.OK) {
             return userToken;
         }
 
@@ -148,13 +148,13 @@ class AccountManager extends ServicesBaseClass{
             new LogInResponse(response.payload.userId, userToken.payload)
         );
     }
-    
+
     /**
      * return true if the user was created successfully, false if the user already exists
      * @param {string} oauthCode 
      * @returns {CustomResponse<bool>}
      */
-    facebookSignUp(oauthCode){
+    facebookSignUp(oauthCode) {
     }
     /**
      * register a user with a custom account
@@ -164,7 +164,7 @@ class AccountManager extends ServicesBaseClass{
      * @param {?string} oauthToken 
      * @returns {CustomResponse<bool>}
      */
-    signUp(userName, userPassword, oauthToken){
+    signUp(userName, userPassword, oauthToken) {
     }
 
     /**
@@ -173,16 +173,16 @@ class AccountManager extends ServicesBaseClass{
      * @param {string} newUserName 
      * @returns {CustomResponse<void>}
      */
-    editUserName(userId, userToken, newUserName){
+    editUserName(userId, userToken, newUserName) {
     }
- 
+
     /**
      * @param {newUserName} userId 
      * @param {string} userToken 
      * @param {string} newPassword 
      * @returns {CustomResponse<void>}
      */
-    changePassword(userId, userToken, newPassword){
+    changePassword(userId, userToken, newPassword) {
     }
 
     /**
@@ -190,7 +190,7 @@ class AccountManager extends ServicesBaseClass{
      * @param {string} userToken
      * @returns {CustomResponse<void>} 
      */
-    deleteAccount(userId, userToken){
+    deleteAccount(userId, userToken) {
     }
 
 
@@ -199,7 +199,7 @@ class AccountManager extends ServicesBaseClass{
      * @param {number} userId 
      * @returns {CustomResponse<string>}
      */
-    async generateUserToken(userId){
+    async generateUserToken(userId) {
         // TODO: implement for Gioele
         return new CustomResponse(
             Errors.OK,
@@ -207,7 +207,7 @@ class AccountManager extends ServicesBaseClass{
             "token"
         )
     }
-  
+
 
     /**
      * return true if the user token is valid 
@@ -215,7 +215,7 @@ class AccountManager extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<bool>}
      */
-    async verifyUserToken(userId, userToken){
+    async verifyUserToken(userId, userToken) {
         // TODO: implement for Gioele
         return true;
     }
@@ -224,33 +224,57 @@ class AccountManager extends ServicesBaseClass{
 
 const accountManager = new AccountManager();
 
+/**
+ * Return the oauth redirect uri
+ */
 accountRouter.get('/google/oauth_info', (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
 });
 
-// this need to be a get because of google's redirect
+/**
+ * The uri that google will redirect to after the user logs in
+ */
 accountRouter.get('/google/callback', async (req, res) => {
-    let response =  await accountManager.googleSignUp(req.query.code);
-    if(response.statusCode == Errors.OK){
-        res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI+'?response=' + JSON.stringify(response));
+    let response = await accountManager.googleSignUp(req.query.code);
+    if (response.statusCode == Errors.OK) {
+        res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI + '?response=' + JSON.stringify(response));
         return;
     }
     response = await accountManager.googleLogIn(req.query.code);
-    res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI+'?response=' + JSON.stringify(response));
+    res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI + '?response=' + JSON.stringify(response));
 });
 
-// return the user id starting from a name
 userRouter.get('/id', async (req, res) => {
     let response = await accountManager.getUserByName(req.query.name);
     res.status(response.statusCode)
     res.json(response)
 });
-
-// return all the user informations starting from an id
+/**
+  * @openapi
+  * /api/v1/user/{userId}:
+  *   get:
+  *     summary: Get a user starting from an id
+  *     description: Get a user starting from an id 
+  *
+  *     parameters:
+  *             - name: userId
+  *                 in: path
+  *                 required: true
+  *                 schema:
+  *                     type : integer
+  *     responses:
+  *         200:
+  *             description: Successfully returns the user
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: User
+  * 
+  */
 userRouter.get('/:userId', async (req, res) => {
-    let user = req.params.userId*1;
+    let user = req.params.userId * 1;
     let response = await accountManager.getUserById(user);
     res.status(response.statusCode)
     res.json(response)
@@ -258,7 +282,7 @@ userRouter.get('/:userId', async (req, res) => {
 
 // return the user name starting from an id
 userRouter.get('/:userId/name', async (req, res) => {
-    let user = req.params.userId*1;
+    let user = req.params.userId * 1;
     let response = await accountManager.getUserName(user);
     res.status(response.statusCode)
     res.json(response)

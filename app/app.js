@@ -3,6 +3,8 @@ const cors = require('cors');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
 const {testingRouter} = require('./services/notification_manager/external_norification_manager.js');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('../swagger.json');
 
 const app = express();
 
@@ -10,6 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
+
+// documentation of apis
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const {promptLlm} = require('./services/report_manager/llm_prompter.js');
 app.get('/hello', async (req, res) => {
