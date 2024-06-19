@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/organization_manager/organization_editor.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/organization_manager/organization_editor.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const {CustomResponse} = require("../../common_infrastructure/response.js")
+const {Errors} = require("../../common_infrastructure/errors.js")
+const {ServicesBaseClass} = require("../services_base_class.js");
+const express = require('express');
+const { Organization } = require("../../common_infrastructure/organization.js");
+
+const organizationEditorRouter = express.Router();
+
+class OrganizationEditor extends ServicesBaseClass{
+    
+    /** 
+     * @param {number} organizationId 
+     * @param {number} userToAddId 
+     * @param {number} userId 
+     * @param {number} userToken 
+     * @returns {CustomResponse&lt;void>}
+     */
+    async addUserToOrganization(organizationId, userToAddId, userId, userToken){
+        let r = await this.organizationManager.addUserToOrganization(organizationId, userToAddId);
+        if(r.statusCode != Errors.OK){
+            return r;
+        }
+        return await this.userManager.addUserToOrganization(organizationId, userToAddId);
+    }
+    
+    /** 
+     * @param {number} organizationId 
+     * @param {number} userToDeleteId 
+     * @param {number} userId 
+     * @param {number} userToken 
+     * @returns {CustomResponse&lt;void>}
+     */
+    async removeUserFromOrganization(organizationId, userToDeleteId ,userId, userToken){
+        let r = await this.organizationManager.removeUserFromOrganization(organizationId, userToDeleteId);
+        if(r.statusCode != Errors.OK){
+            return r;
+        }
+        return await this.userManager.removeUserFromOrganization(organizationId, userToDeleteId);
+    }
+    
+
+    /**
+     * @param {number} organizationId
+     * @returns {CustomResponse&lt;Organization>}
+     **/
+    async getOrganization(organizationId){
+        return await this.organizationManager.readOrganization(organizationId);
+    }
+
+    /**
+     * @param {number} organizationId 
+     * @returns {CustomResponse&lt;string>}
+     */
+    async getOrganizationName(organizationId){
+        let organization = await this.organizationManager.readOrganization(organizationId);
+        if(organization.statusCode != Errors.OK){
+            return organization;
+        }
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            organization.payload.organizationName
+        )
+    }
+
+
+    /**
+     * @param {number} organizationId
+     * @returns {CustomResponse&lt;{id: number, name: string}>}
+    */
+    async getOrganizationUsers(organizationId){
+        let organization = await this.organizationManager.readOrganization(organizationId);
+        if(organization.statusCode != Errors.OK){
+            return organization;
+        }
+        let users = organization.payload.userIds.map(
+            async(userId) => {
+                
+                return {
+                    id: userId,
+                    name: (await this.userManager.readUser(userId)).payload.userName
+                }
+            }
+        )
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            await Promise.all(users)
+        )
+    }
+
+    /**
+     * @param {Organization} organization // a json of a vaild organization
+     * @returns {CustomResponse&lt;void>}
+     */
+    async createOrganization(organization){
+        organization = Object.assign(new Organization(), organization);
+        let user_ids = organization.userIds;
+        organization.userIds = [];
+        organization.licenseExpirationDate = new Date(organization.licenseExpirationDate);
+        let result = await this.organizationManager.createOrganization(organization);
+        if(result.statusCode != Errors.OK){
+            return result;
+        }
+        for(let userId of user_ids){
+            let r = await this.addUserToOrganization(result.payload, userId);
+            if(r.statusCode != Errors.OK){
+                return r;
+            }
+        }
+        return result;
+    }
+
+
+}
+
+const organizationEditor = new OrganizationEditor();
+
+
+organizationEditorRouter.get('/:organization_id/users', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    let response =  await organizationEditor.getOrganizationUsers(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.post('/:organization_id/user/:user_id', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    const userToAddId = req.params.user_id * 1;
+    let response = await organizationEditor.addUserToOrganization(organizationId, userToAddId, undefined, undefined);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.delete('/:organization_id/user/:user_id', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    const userToDeleteId = req.params.user_id * 1;
+    let response =  await organizationEditor.removeUserFromOrganization(organizationId, userToDeleteId, undefined, undefined);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.get('/:organization_id', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    let response =  await organizationEditor.getOrganization(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.post('/', async (req, res) => {
+    let response = await organizationEditor.createOrganization(req.body);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+organizationEditorRouter.get('/:organization_id/name', async (req, res) => {
+    const organizationId = req.params.organization_id * 1;
+    let response =  await organizationEditor.getOrganizationName(organizationId);
+    res.status(response.statusCode)
+    res.json(response);
+});
+
+module.exports = {organizationEditorRouter, OrganizationEditor};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculateSubscriptionPrice">calculateSubscriptionPrice</a></li><li><a href="global.html#createTaskNotes">createTaskNotes</a></li><li><a href="global.html#deleteNotification">deleteNotification</a></li><li><a href="global.html#deleteReportSchedule">deleteReportSchedule</a></li><li><a href="global.html#executeScheduledReport">executeScheduledReport</a></li><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#getNotificationDetails">getNotificationDetails</a></li><li><a href="global.html#getNotificationList">getNotificationList</a></li><li><a href="global.html#getReportSchedules">getReportSchedules</a></li><li><a href="global.html#getTask">getTask</a></li><li><a href="global.html#getTasksForUser">getTasksForUser</a></li><li><a href="global.html#markNotificationAsRead">markNotificationAsRead</a></li><li><a href="global.html#paySubscription">paySubscription</a></li><li><a href="global.html#scheduleReport">scheduleReport</a></li><li><a href="global.html#sendNotification">sendNotification</a></li><li><a href="global.html#verifySubscription">verifySubscription</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Jun 19 2024 16:32:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
