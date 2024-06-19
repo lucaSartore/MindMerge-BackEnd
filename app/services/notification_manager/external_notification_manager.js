@@ -58,7 +58,7 @@ class ExternalNotificationManager extends ServicesBaseClass {
     }
 }
 
-let external_norification_manager = new ExternalNotificationManager();
+let externalNotificationManager = new ExternalNotificationManager();
 
 if (process.env.NODE_ENV === 'development') {
     testingRouter.post('/externalNotification', async (req, res) => {
@@ -67,7 +67,7 @@ if (process.env.NODE_ENV === 'development') {
         let notificationText = req.body.notificationText;
         let date = Date.now();
         let read = false;
-        let response = await external_norification_manager.sendNotification(notificationId, userId, notificationText, date, read);
+        let response = await externalNotificationManager.sendNotification(notificationId, userId, notificationText, date, read);
         res.status(response.statusCode);
         res.json(response);
     });
