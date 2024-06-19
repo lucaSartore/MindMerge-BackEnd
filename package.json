@@ -4,20 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test1": "jest",
-    "test": "node node_modules/jest/bin/jest.js",
+    "test": "node node_modules/jest/bin/jest.js --runInBand",
     "start": "node index.js",
     "dev": "node -r dotenv/config index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.12.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "googleapis": "^137.1.0",
-    "mongoose": "^8.3.4"
+    "mongoose": "^8.3.4",
+    "nodemailer": "^6.9.13"
   },
   "devDependencies": {
+    "jsdoc": "^4.0.3",
     "dotenv": "^8.2.0",
     "jest": "^27.4.7"
   }
