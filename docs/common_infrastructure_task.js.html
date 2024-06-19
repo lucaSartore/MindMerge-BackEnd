@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: common_infrastructure/task.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: common_infrastructure/task.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const TaskNote = require('./task_note.js');
+const TaskReportSchedule = require('./task_report_schedule.js');
+/**
+ * @typedef Task
+ * @type {Object}
+ * @property {number} taskId - The id of the task
+ * @property {number | null} taskFatherId - The id of the father task
+ * @property {Date} lastUpdated - The date when the task was last updated
+ * @property {string} taskName - The name of the task
+ * @property {string} taskDescription - The description of the task
+ * @property {number} taskStatus - The status of the task
+ * @property {TaskNote[]} taskNotes - The notes of the task
+ * @property {number[]} taskAssignees - A list containing the ids of the assignees for the current task 
+ * @property {number} taskManager - The id of the manager 
+ * @property {number} taskOrganizationId - The id of the organization 
+ * @property {TaskReportSchedule[]} taskReports - The reports of the task
+ * @property {bool} notificationEnable - whether to send notification to the manager when the status of the task changes or not
+ * @property {number[]} childTasks - The ids of the child tasks 
+ * @property {number} recusivePermissionsValue - Now far down the task tree the permissions of the task are inherited
+ */
+class Task{
+    /**
+     * @param {number} taskId 
+     * @param {number | null} taskFatherId 
+     * @param {number} taskOrganizationId
+     * @param {Date} lastUpdated 
+     * @param {string} taskName 
+     * @param {string} taskDescription 
+     * @param {number} taskStatus 
+     * @param {TaskNote[]} taskNotes 
+     * @param {number | number[]} taskAssignee 
+     * @param {number} taskManager 
+     * @param {TaskReportSchedule[]} taskReports
+     * @param {bool} notificationEnable
+     * @param {number[]} childTasks
+     * @param {number} recursivePermissionsValue
+     */
+    constructor(
+        taskId,
+        taskFatherId,
+        taskOrganizationId,
+        lastUpdated,
+        taskName,
+        taskDescription,
+        taskStatus,
+        taskNotes,
+        taskAssignee,
+        taskManager,
+        taskReports,
+        notificationEnable,
+        childTasks,
+        recursivePermissionsValue
+    ){
+        this.taskId = taskId;
+        this.taskFatherId = taskFatherId;
+        this.taskOrganizationId = taskOrganizationId;
+        this.lastUpdated = lastUpdated;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskStatus = taskStatus;
+        this.taskNotes = taskNotes;
+        if(taskAssignee.constructor === Array){
+            this.taskAssignees = taskAssignee;
+        }else{
+            this.taskAssignees = [taskAssignee];
+        }
+        this.taskManager = taskManager;
+        this.taskReports = taskReports;
+        this.notificationEnable = notificationEnable;
+        this.childTasks = childTasks;
+        this.recursivePermissionsValue = recursivePermissionsValue;
+    }
+
+    /**
+    * @returns {bool}
+    */
+    validate(){
+        return this.taskId != undefined &amp;&amp;
+        (this.taskFatherId === null || typeof this.taskFatherId === "number") &amp;&amp;
+        this.taskOrganizationId != undefined &amp;&amp;
+        typeof this.taskOrganizationId === "number" &amp;&amp;
+        !isNaN(this.taskOrganizationId )&amp;&amp;
+        this.lastUpdated != undefined &amp;&amp;
+        this.lastUpdated instanceof Date &amp;&amp;
+        this.taskName != undefined &amp;&amp;
+        typeof this.taskName === "string" &amp;&amp;
+        this.taskDescription != undefined &amp;&amp;
+        typeof this.taskDescription === "string" &amp;&amp;
+        this.taskStatus != undefined &amp;&amp;
+        typeof this.taskStatus === "number" &amp;&amp;
+        !isNaN(this.taskStatus )&amp;&amp;
+        this.taskNotes != undefined &amp;&amp;
+        Array.isArray(this.taskNotes) &amp;&amp;
+        this.taskNotes.every((note) => {try{return note.validate()} catch {return false}}) &amp;&amp;
+        this.taskAssignees != undefined &amp;&amp;
+        Array.isArray(this.taskAssignees) &amp;&amp;
+        this.taskAssignees.every((assignee) => {return typeof assignee === "number" &amp;&amp; !isNaN(assignee )}) &amp;&amp;
+        this.taskManager != undefined &amp;&amp;
+        typeof this.taskManager === "number" &amp;&amp;
+        !isNaN(this.taskManager )&amp;&amp;
+        this.taskReports != undefined &amp;&amp;
+        Array.isArray(this.taskReports) &amp;&amp;
+        this.taskReports.every((report) => {try{return report.validate()} catch {return false}}) &amp;&amp;
+        this.notificationEnable != undefined &amp;&amp;
+        typeof this.notificationEnable === "boolean" &amp;&amp;
+        this.childTasks != undefined &amp;&amp;
+        this.recursivePermissionsValue != undefined &amp;&amp;
+        typeof this.recursivePermissionsValue === "number" &amp;&amp;
+        !isNaN(this.recursivePermissionsValue );
+    }
+}
+
+module.exports = {Task};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculateSubscriptionPrice">calculateSubscriptionPrice</a></li><li><a href="global.html#createTaskNotes">createTaskNotes</a></li><li><a href="global.html#deleteNotification">deleteNotification</a></li><li><a href="global.html#deleteReportSchedule">deleteReportSchedule</a></li><li><a href="global.html#executeScheduledReport">executeScheduledReport</a></li><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#getNotificationDetails">getNotificationDetails</a></li><li><a href="global.html#getNotificationList">getNotificationList</a></li><li><a href="global.html#getReportSchedules">getReportSchedules</a></li><li><a href="global.html#getTask">getTask</a></li><li><a href="global.html#getTasksForUser">getTasksForUser</a></li><li><a href="global.html#markNotificationAsRead">markNotificationAsRead</a></li><li><a href="global.html#paySubscription">paySubscription</a></li><li><a href="global.html#scheduleReport">scheduleReport</a></li><li><a href="global.html#sendNotification">sendNotification</a></li><li><a href="global.html#verifySubscription">verifySubscription</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Jun 19 2024 16:32:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

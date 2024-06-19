@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: database_manager/user_manager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: database_manager/user_manager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const mongoose = require("mongoose");
+const { DataBaseManager, UserModel, NotificationModel } = require('./database_manager.js');
+const {User} = require("../common_infrastructure/user.js");
+const {CustomResponse} = require("../common_infrastructure/response.js");
+const {Errors} = require('../common_infrastructure/errors.js');
+const { Notification } = require("../common_infrastructure/notification.js");
+
+class UserManager extends DataBaseManager{
+
+    //////////////////////////// Creation ////////////////////////////
+
+    /**
+     * Create a new user in the database, the id of the user will be automatically generated
+     * return the id of the user created
+     * @param {User} user 
+     * @returns {CustomResponse&lt;number>}
+     */
+    async createUser(user) {
+        try {
+            if (!user.validate()) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid user", null);
+            }
+
+            const existingUser = await UserModel.findOne({ userName: user.userName });
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Username already exists", null);
+            }            
+            
+            const existingUserMail = await UserModel.findOne({ email: user.email });
+            if (existingUserMail) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Username already exists", null);
+            }
+
+            const newUser = new UserModel(user);
+            await newUser.save();
+            
+            return new CustomResponse(Errors.OK, "User created successfully", newUser);
+        } catch (error) {
+            console.error("Error while creating user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to create user", null);
+        }
+    }
+
+    /**
+     * Create a new notification in the database, the id of the notification will be automatically generated 
+     * return the id of the notification created
+     * @param {number} userId 
+     * @param {Notification} notification
+     * @returns {CustomResponse&lt;number>}
+     */
+    async createNotification(userId, notification) {
+        try {
+
+            if (typeof userId != "number" || isNaN(userId) || userId == 0) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
+            }
+
+            notification.userId = userId;
+
+            if (notification == undefined || notification.validate == undefined || !notification.validate()) {
+                return new CustomResponse(Errors.BAD_REQUEST, "Invalid notification", null);
+            }
+
+            const user = await UserModel.findOne({ userId: userId });
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            const newNotification = new NotificationModel(notification);
+            await newNotification.save();
+
+            return new CustomResponse(Errors.OK, "Notification created successfully", notification);
+        } catch (error) {
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to add notification", null);
+        }
+    }
+
+
+    //////////////////////////// Updating ////////////////////////////
+
+    /**
+    * Update the name of the user with the given id to the new name that is passed
+    * @param {number} userId
+    * @param {string} newName
+    * @returns {CustomResponse&lt;void>}
+    */
+    async updateUserName(userId, newName) {
+        if (typeof newName != "string" || newName == "") {
+            return new CustomResponse(Errors.BAD_REQUEST, "New username invalid", null);
+        }
+
+        try {
+            const existingUser = await UserModel.findOne({ userName: newName });
+
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "User with the provided username already exists", null);
+            }
+
+            const user = await UserModel.findOneAndUpdate(
+                { userId: userId },
+                { userName: newName },
+                { new: true }
+            );
+
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "User name updated successfully", user);
+        } catch (error) {
+            console.error("Error while updating user name:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user name", null);
+        }
+    }
+
+    /**
+    * Update the kind of the user with the given id to the new kind that is passed
+    * @param {number} userId
+    * @param {userKind} newUserKind
+    * @returns {CustomResponse&lt;void>}
+    */
+    async updateUserKind(userId, newUserKind) {
+    try {
+        
+        if(typeof newUserKind != "number" || isNaN(newUserKind) || newUserKind &lt;= 0 || newUserKind > 3) {
+            return new CustomResponse(Errors.BAD_REQUEST, "New user kind invalid", null);
+        }
+
+        const user = await UserModel.findOneAndUpdate(
+            { userId: userId },
+            { userKind: newUserKind },
+            { new: true }
+        );
+
+        if (!user) {
+            return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+        }
+
+        return new CustomResponse(Errors.OK, "User kind updated successfully", user);
+    } catch (error) {
+        console.error("Error while updating user kind:", error);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user kind", null);
+    }
+}
+
+    /**
+    * Update the mail of the user with the given id to the new mail that is passed
+    * @param {number} userId
+    * @param {userKind} newUserMail
+    * @returns {CustomResponse&lt;void>}
+    */
+    async updateUserEmail(userId, newEmail) {
+        if (typeof newEmail != "string" || newEmail == "") {
+            return new CustomResponse(Errors.BAD_REQUEST, "New username invalid", null);
+        }
+
+        try {
+            const existingUser = await UserModel.findOne({ email: newEmail });
+
+            if (existingUser) {
+                return new CustomResponse(Errors.BAD_REQUEST, "User with the provided email already exists", null);
+            }
+
+            const user = await UserModel.findOneAndUpdate(
+                { userId: userId },
+                { email: newEmail },
+                { new: true }
+            );
+
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "User email updated successfully", user);
+        } catch (error) {
+            console.error("Error while updating user email:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to update user email", null);
+        }
+    }
+
+    /**
+    * Mark a notification as read 
+    * @param {number} userId 
+    * @param {number} notificationId 
+    * @returns {CustomResponse&lt;void>}
+    */
+    async markNotificationAsRead(userId, notificationId) {
+        try {
+            const notification = await NotificationModel.findOneAndUpdate(
+                { userId: userId, notificationId: notificationId },
+                { read: true },
+                { new: true }
+            );
+
+            if (!notification) {
+                return new CustomResponse(Errors.NOT_FOUND, "Notification not found", null);
+            }
+
+            return new CustomResponse(Errors.OK, "Notification marked as read", null);
+        } catch (error) {
+            console.error("Error while marking notification as read:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to mark notification as read", null);
+        }
+    }
+
+    /**
+     * @param {number} organizationId 
+     * @param {number} userToAddId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    async addUserToOrganization(organizationId, userToAddId){
+        
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userToAddId == undefined || typeof userToAddId != "number" || isNaN(userToAddId) || isNaN(userToAddId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let user = await UserModel.findOne({userId: userToAddId});
+        if( user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "user not found");
+        }
+
+        if(user.organizations.find((x) => x == organizationId) != undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization already in user");
+        }
+
+        await UserModel.findOneAndUpdate({userId: userToAddId}, { $push: { organizations: organizationId} });
+        
+        return new CustomResponse(Errors.OK, "", userToAddId);
+
+    }
+
+    //////////////////////////// Deleting ////////////////////////////
+
+    /**
+    * Delete the user with the given id 
+    * @param {number} userId 
+    * @returns {CustomResponse&lt;void>}
+    */
+    async deleteUser(userId) {
+        // not necessary for MVP
+
+        // try {
+        //     const user = await UserModel.findOneAndDelete({ userId: userId });
+        //     if (!user) {
+        //         return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+        //     }
+
+        //     return new CustomResponse(Errors.OK, "User deleted successfully", null);
+        // } catch (error) {
+        //     console.error("Error while deleting user:", error);
+        //     return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to delete user", null);
+        // }
+    }
+    
+    /**
+     * Remove a user from an organization
+     * @param {number} organizationId
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    async removeUserFromOrganization(organizationId, userId){
+        
+        if(organizationId == undefined || typeof organizationId != "number" || isNaN(organizationId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid Organization Id");
+        }
+        if(userId == undefined || typeof userId != "number" || isNaN(userId) ){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Invalid User Id");
+        }
+        let user = await UserModel.findOne({userId: userId});
+        if( user == null){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "user not found");
+        }
+
+        if(user.organizations.find((x) => x == organizationId) == undefined){
+            return new CustomResponse(Errors.BAD_REQUEST, false, "Organization not found in user");
+        }
+
+        await UserModel.findOneAndUpdate({userId: userId}, { $pull: { organizations: organizationId} });
+        
+        return new CustomResponse(Errors.OK, "", userId);
+    }
+
+
+    /**
+     * Delete the notification with the given id 
+     * @param {number} userId 
+     * @param {number} notificationId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    deleteNotification(userId, notificationId){
+        // not necessary for MVP
+    }
+
+
+    //////////////////////////// Reading ///////////////////////////
+
+    /**
+     * Convert a mongoose structure (userModel) to a user structure (User)
+     * @param {UserModel} userModel 
+     * @returns {User}
+     */
+    convertUserModelToUser(userModel) {
+        return new User(userModel.userId, userModel.userName, userModel.organizations,userModel.userKind, userModel.email);
+    }
+
+    /**
+     * Return one single user
+     * @param {number} userId
+     * @returns {CustomResponse&lt;User>}
+     */
+    async readUser(userId) {
+        if (typeof userId != "number" || isNaN(userId) ) {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null)
+        }
+        try {
+            const user = await UserModel.findOne({ userId: userId }).exec(); 
+            if (user) {
+                return new CustomResponse(Errors.OK, "User found", this.convertUserModelToUser(user));
+            } else {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+        } catch (error) {
+            console.error("Error while searching for user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to fetch user", null);
+        }
+    }
+
+    /**
+     * Return one single user
+     * @param {strung} userName
+     * @returns {CustomResponse&lt;User>}
+     */
+    async readUserByName(userName) {
+        if (typeof userName != "string") {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null)
+        }
+        try {
+            const user = await UserModel.findOne({userName: userName}).exec(); 
+            if (user) {
+                return new CustomResponse(Errors.OK, "User found", this.convertUserModelToUser(user));
+            } else {
+                return new CustomResponse(Errors.NOT_FOUND, "User not found", null);
+            }
+        } catch (error) {
+            console.error("Error while searching for user:", error);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to fetch user", null);
+        }
+    }
+
+    /**
+     * Return every user
+     * @returns {CustomResponse&lt;User[]}
+     */
+    async readAllUsers() {
+        try {
+            let users = await UserModel.find();
+            if (users == null) {
+                return new CustomResponse(Errors.OK, "", []);
+            }
+            users = users.map((user) => this.convertUserModelToUser(user));
+            return new CustomResponse(Errors.OK, "", users);
+            
+        } catch (error) {
+            console.error("Error while searching for users:", error);
+            return new CustomResponse(Error.INTERNAL_SERVER_ERROR, "Failed to fetch users", null);
+        }
+    }
+
+    /**
+     * Return a list of all the notifications that the user has 
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;Notification[]>}
+     */
+    async readUserNotifications(userId) {
+        if (typeof userId != "number" || isNaN(userId) ) {
+            return new CustomResponse(Errors.BAD_REQUEST, "Invalid userId", null);
+        }
+
+        try {
+            
+            let user = await UserModel.findOne({ userId: userId }).exec();
+            if (!user) {
+                return new CustomResponse(Errors.NOT_FOUND, "user not found", null);
+            }
+
+            let notifications = await NotificationModel.find({ userId: userId }).exec();
+            if (!notifications) {
+                return new CustomResponse(Errors.BAD_REQUEST, "user not found", null);
+            }
+
+            notifications = notifications.map((notification) => { return new Notification(notification.notificationId, notification.userId, notification.notificationText, notification.date, notification.read) });
+
+          
+            return new CustomResponse(Errors.OK, "", notifications);
+        } catch (error) {
+            console.error("Error while searching for notifications:", error);
+            return new CustomResponse(Error.INTERNAL_SERVER_ERROR, "Failed to fetch notifications", null);
+        }
+    }
+
+
+    ////////////////////////// Authentication ////////////////////////
+
+    /**
+     * @param {number} userId
+     * @param {CustomUserInfo} customUserInfo
+     * @returns {CustomResponse&lt;number>}
+    */
+    createCustomUserInfo(userId, customUserInfo){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @param {FacebookUserInfo} facebookUserInfo 
+     * @returns {CustomResponse&lt;number>}
+     */
+    createFacebookUserInfo(userId, facebookUserInfo){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @param {GoogleUserInfo} googleUserInfo 
+     * @returns {CustomResponse&lt;number>}
+     */
+    createGoogleUserInfo(userId, googleUserInfo){
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;CustomUserInfo>}
+     */
+    readCustomUserInfo(userId){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;FacebookUserInfo>}
+     */
+    readFacebookUserInfo(userId){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;GoogleUserInfo>}
+     */
+    readGoogleUserInfo(userId){
+    }
+
+    /**
+     * @param {number} userId 
+     * @param {CustomUserInfo} newCustomUserInfo 
+     * @returns {CustomResponse&lt;void>}
+     */
+    updateCustomUserInfo(userId, newCustomUserInfo){
+        // not necessary for MVP
+    }
+    
+    /**
+     * @param {number} userId 
+     * @param {FacebookUserInfo} newFacebookUserInfo 
+     * @returns {CustomResponse&lt;void>}
+     */
+    updateFacebookUserInfo(userId, newFacebookUserInfo){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @param {GoogleUserInfo} newGoogleUserInfo 
+     * @returns {CustomResponse&lt;void>}
+     */
+    updateGoogleUserInfo(userId, newGoogleUserInfo){
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    deleteCustomUserInfo(userId){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    deleteFacebookUserInfo(userId){
+        // not necessary for MVP
+    }
+
+    /**
+     * @param {number} userId 
+     * @returns {CustomResponse&lt;void>}
+     */
+    deleteGoogleUserInfo(userId){
+        // not necessary for MVP
+    }
+}
+
+exports.UserManager = UserManager;
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculateSubscriptionPrice">calculateSubscriptionPrice</a></li><li><a href="global.html#createTaskNotes">createTaskNotes</a></li><li><a href="global.html#deleteNotification">deleteNotification</a></li><li><a href="global.html#deleteReportSchedule">deleteReportSchedule</a></li><li><a href="global.html#executeScheduledReport">executeScheduledReport</a></li><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#getNotificationDetails">getNotificationDetails</a></li><li><a href="global.html#getNotificationList">getNotificationList</a></li><li><a href="global.html#getReportSchedules">getReportSchedules</a></li><li><a href="global.html#getTask">getTask</a></li><li><a href="global.html#getTasksForUser">getTasksForUser</a></li><li><a href="global.html#markNotificationAsRead">markNotificationAsRead</a></li><li><a href="global.html#paySubscription">paySubscription</a></li><li><a href="global.html#scheduleReport">scheduleReport</a></li><li><a href="global.html#sendNotification">sendNotification</a></li><li><a href="global.html#verifySubscription">verifySubscription</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Jun 19 2024 16:32:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
