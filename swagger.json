@@ -10,6 +10,17 @@
         "summary": "Get a user starting from an id",
         "description": "Get a user starting from an id"
       },
+      "parameters": [
+        {
+          "name": "userId",
+          "description": "The id of the user to get",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
       "responses": {
         "200": {
           "description": "Successfully returns the user",
@@ -20,6 +31,15 @@
               }
             }
           }
+        },
+        "400": {
+          "description": "Bad request"
+        },
+        "404": {
+          "description": "Not found"
+        },
+        "500": {
+          "description": "Internal server error"
         }
       }
     }

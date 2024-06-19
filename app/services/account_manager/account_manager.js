@@ -254,16 +254,17 @@ userRouter.get('/id', async (req, res) => {
 /**
   * @openapi
   * /api/v1/user/{userId}:
-  *   get:
-  *     summary: Get a user starting from an id
-  *     description: Get a user starting from an id 
+  *     get:
+  *         summary: Get a user starting from an id
+  *         description: Get a user starting from an id 
   *
   *     parameters:
-  *             - name: userId
-  *                 in: path
-  *                 required: true
-  *                 schema:
-  *                     type : integer
+  *         - name: userId
+  *           description: The id of the user to get
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
   *     responses:
   *         200:
   *             description: Successfully returns the user
@@ -271,6 +272,13 @@ userRouter.get('/id', async (req, res) => {
   *                 application/json:   
   *                     schema:
   *                         type: User
+  *         400:
+  *             description: Bad request
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
   * 
   */
 userRouter.get('/:userId', async (req, res) => {
