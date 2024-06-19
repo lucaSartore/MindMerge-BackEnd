@@ -845,7 +845,7 @@ describe('TEST TASK MANAGER', () => {
     let task = await TaskModel.findOne({ taskId: 1 });
     expect(task).not.toBeNull();
     expect(task.taskNotes.length).toBe(1);
-    expect(task.taskNotes[0].noteId).toBe(2);
+    expect(task.taskNotes[0].notes).toBe("second notes for task 1");
   });
 
   test('test not successful delete task notes', async () => {
