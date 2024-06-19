@@ -1,6 +1,8 @@
-const ServicesBaseClass = require('../services_base_class');
 
-export default class TaskCreator extends ServicesBaseClass{
+const { Errors } = require('../../common_infrastructure/errors');
+const {ServicesBaseClass} = require('../services_base_class');
+
+class TaskCreator extends ServicesBaseClass{
 
 
     /*    
@@ -11,7 +13,16 @@ export default class TaskCreator extends ServicesBaseClass{
      * @param {number} userId
      * @param {string} userToken
      */
-    createTask(organizationId, task, userId, userToken){
+    async createTask(organizationId, task, userId, userToken){
+        let response = await this.taskManager.createTask(organizationId,task)
+        if(response.statusCode != Errors.OK){
+            return response;
+        }
+        if (task.taskFatherId != undefined){
+            let newTaskId = response.payload;
+            return await this.taskManager.addChildTask(organizationId,task.taskFatherId,newTaskId);
+        }
+        return response;    
     }
     
     /**
@@ -30,3 +41,6 @@ export default class TaskCreator extends ServicesBaseClass{
     }
 
 }
+
+const taskCreator = new TaskCreator();
+exports.taskCreator = taskCreator;
