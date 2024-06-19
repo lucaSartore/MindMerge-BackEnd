@@ -30,7 +30,18 @@ app.use((req, res, next) => {
 
     if (!token) res.status(403).json({success:false, message: 'No token provided.'})
 
-    
+    jwt.verify (
+        token,
+        process.env.SUPER_SECRET,
+        function(err, decoded) {
+            if (err)
+                res.status(403).json({success:false, message: 'Invalid token'})
+            else {
+                req.loggedUser = decoded;
+                next();
+            }
+        }
+    )
 });
 
 app.use('/api/v1/user', userRouter);
