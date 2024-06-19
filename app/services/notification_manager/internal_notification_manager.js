@@ -1,6 +1,6 @@
 const ServicesBaseClass = require('../services_base_class.js');
 
-export default class InternalNotificationManager extends ServicesBaseClass{
+class InternalNotificationManager extends ServicesBaseClass{
 
     /**
      * 
@@ -40,3 +40,5 @@ export default class InternalNotificationManager extends ServicesBaseClass{
     getNotificationList(userId, userToken){
     }
 }
+
+exports.InternalNotificationManager = InternalNotificationManager;

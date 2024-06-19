@@ -1,6 +1,9 @@
 const ServicesBaseClass = require('../services_base_class');
+const {ExternalNotificationManager} = require('./external_notification_manager');
+const {InternalNotificationManager} = require('./internal_notification_manager');
 
-export default class NotificationManager extends ServicesBaseClass{
+
+class NotificationManager extends ServicesBaseClass{
 
     constructor(){
         super();
@@ -18,5 +21,11 @@ export default class NotificationManager extends ServicesBaseClass{
      * @returns {CustomResponse<void>}
      */
     sendNotification(notificationId, userId, notificationText, date, read){
+        return this.externalNotificationManager.sendNotification(notificationId, userId, notificationText, date, read);
+        // this.internalNotificationManager.sendNotification(notificationId, userId, notificationText, date, read);
     }
 }
+const notificationManager = new NotificationManager();
+
+exports.NotificationManager = NotificationManager;
+exports.notificationManager = notificationManager;
