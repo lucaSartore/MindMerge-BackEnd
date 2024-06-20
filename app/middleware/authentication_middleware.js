@@ -12,8 +12,8 @@ async function authenticationMiddleware(req, res, next)  {
         process.env.SUPER_SECRET,
         async function(err, decoded) {
             if (err){
-                res.status(403);
                 res.json({success:false, message: 'Invalid token'})
+                res.status(403);
                 return;
             }
             else {
@@ -28,14 +28,16 @@ async function authenticationMiddleware(req, res, next)  {
                 
                 let isInOrganization = await accountManager.verifyUserIsInOrganization(req.loggedUser, organizationId)
                 if (isInOrganization.statusCode != Errors.OK){
-                    res.status(isInOrganization.statusCode).json(isInOrganization);
+                    res.json(isInOrganization);
+                    res.status(isInOrganization.statusCode);
                     return;
                 }
                 if (!isInOrganization.payload){
-                    res.status(403).json({success:false, message: 'User has no access to the requested organization'});
+                    res.json({success:false, message: 'User has no access to the requested organization'});
+                    res.status(403);
                     return;
                 }
-                // TODO: match organization_id with user request
+                
                 next();
             }
         }
