@@ -327,4 +327,5 @@ userRouter.get('/:userId/name', async (req, res) => {
 
 exports.accountRouter = accountRouter;
 exports.userRouter = userRouter;
+exports.accountManager = accountManager;
 
