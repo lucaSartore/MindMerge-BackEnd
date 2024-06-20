@@ -2,6 +2,7 @@ const { ServicesBaseClass } = require("../services_base_class");
 const { CustomResponse } = require("../../common_infrastructure/response");
 const { Errors } = require("../../common_infrastructure/errors.js");
 const express = require('express');
+const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
 
 var nodemailer = require('nodemailer'); //importing nodemailer
 
@@ -61,7 +62,7 @@ class ExternalNotificationManager extends ServicesBaseClass {
 let external_norification_manager = new ExternalNotificationManager();
 
 if (process.env.NODE_ENV === 'development') {
-    testingRouter.post('/externalNotification', async (req, res) => {
+    testingRouter.post('/externalNotification',requestWrapper( async (req, res) => {
         let notificationId = req.body.notificationId;
         let userId = req.body.userId;
         let notificationText = req.body.notificationText;
@@ -70,7 +71,7 @@ if (process.env.NODE_ENV === 'development') {
         let response = await external_norification_manager.sendNotification(notificationId, userId, notificationText, date, read);
         res.status(response.statusCode);
         res.json(response);
-    });
+    }));
 }
 
 module.exports = { testingRouter, ExternalNotificationManager };
