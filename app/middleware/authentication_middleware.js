@@ -8,6 +8,7 @@ async function authenticationMiddleware(req, res, next)  {
     if (!token){
         res.status(403);
         res.json({success:false, message: 'No token provided.'});
+        return;
     }
 
     jwt.verify (
