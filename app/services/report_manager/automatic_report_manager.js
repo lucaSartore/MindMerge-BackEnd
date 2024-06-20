@@ -13,22 +13,24 @@ class AutomaticReportManager extends ServicesBaseClass{
      * @param {number} organizationId 
      * @param {number} taskId 
      * @param {string} reportPrompt 
+     * @returns {CustomResponse<string>}
      */
     async generateAutomaticReports(organizationId, taskId, reportPrompt){
         let taskTree = await taskGetter.getSingleTaskTree(organizationId, taskId);
         if (taskTree.statusCode !== Errors.OK){
             return taskTree;
         }
-        return await this.generateAutomaticReportRecursive(organizationId, reportPrompt, taskTree.payload);
+        return await this.generateAutomaticReportRecursive(organizationId, reportPrompt, taskTree.payload,[]);
     }
 
     /**
      * 
      * @param {string} reportPrompt 
      * @param {TaskTree} taskTree 
+     * @param {string[]} fathers
      * @returns {Promise<CustomResponse<string>>}
      */
-    async generateAutomaticReportRecursive(organizationId, reportPrompt, taskTree){
+    async generateAutomaticReportRecursive(organizationId, reportPrompt, taskTree, fathers){
         let response = await taskGetter.getTask(organizationId, taskTree.taskId);
         if (response.statusCode !== Errors.OK){
             return response;
@@ -37,13 +39,17 @@ class AutomaticReportManager extends ServicesBaseClass{
 
         let reportsOfChildTasks = [];
 
-        for(let childTaskTree in taskTree.childTasks){
+        fathers.push(task.taskName);
+
+        for(let i=0; i<task.childTasks.length; i++){
            reportsOfChildTasks.push(
-                this.generateAutomaticReportRecursive(organizationId, reportPrompt, childTaskTree)
+                this.generateAutomaticReportRecursive(organizationId, reportPrompt,taskTree.childTasks[i],fathers)
            );
         }
 
         reportsOfChildTasks = await Promise.all(reportsOfChildTasks);
+
+        fathers.pop();
 
         for(let i=0; i<reportsOfChildTasks.length; i++){
             if(reportsOfChildTasks[i].statusCode !== Errors.OK){
@@ -67,29 +73,34 @@ class AutomaticReportManager extends ServicesBaseClass{
 
 The question is: ${reportPrompt}
             
-Keep in mind that it is possible that you don't have enough information to answer the question, in that case you should reply: "No relevant information were found".
+Keep in mind that your answer may be used to generate a better answer in a recursive call... therefore even if you can only give a partial answer it's totally fine!
+However it is also possible that the question dose not anything to do with the informations that you where given... in that case you should reply: "No relevant information were found".
 
-The task in question has the name: ${task.taskName}
+The task in question has the name: ${task.taskName}`
+        
+        if(fathers.length != 0){
+            prompt +=` This task is only a small part of the overall project... in particular it is a sub task of: ${fathers.join(" > ")}\n\n`
+        }
 
-Has the description:
+        prompt += `The description of the task is:
 
 ${task.taskDescription}
 
-and has a series of notes:
+And this are the notes of the task:
 
 ${notes}
 
 
-the task has also a series of children tasks, that could have relevant informations, here you find a report trying to answer the question for each of them:
+The task has also a series of children tasks, that could have relevant informations, here you find a report trying to answer the question for each of them:
 
-${reportsOfChildTasks}
-        `
+${reportsOfChildTasks}`
 
-        let result = promptLlm(prompt);
+        let result = await promptLlm(prompt);
         if (result.statusCode !== Errors.OK){
             return result;
         }
-        result. payload 
+        return result
+
     }
 }
 

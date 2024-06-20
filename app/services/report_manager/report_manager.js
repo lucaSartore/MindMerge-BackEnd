@@ -18,10 +18,10 @@ class ReportManager extends ServicesBaseClass{
         this.manualReportManager = new ManualReportManager();
     }
 
-    generateReport(organizationId, taskId, reportPrompt, reportType, userId, userToken){
+    async generateReport(organizationId, taskId, reportPrompt, reportType, userId, userToken){
         let report;
         if (reportType == ReportType.AUTOMATIC){
-            let result = this.automaticReportManager.generateAutomaticReports(organizationId, taskId, reportPrompt);
+            let result = await this.automaticReportManager.generateAutomaticReports(organizationId, taskId, reportPrompt);
             if (result.statusCode !== Errors.OK){
                 return result;
             }
@@ -31,6 +31,9 @@ class ReportManager extends ServicesBaseClass{
         }
        
         console.log("Report generated: " + report);
+
+        let result = await notificationManager.externalNotificationManager.sendNotification(userId, report);
+        return result
     }
 }
 
@@ -41,12 +44,10 @@ reportRouter.post('/automatic',requestWrapper( async (req, res) => {
     let userId = req.query.user_id * 1;
     let taskId = req.query.task_id * 1;
     let reportPrompt = req.body.prompt;
-    result = await reportManager.generateReport(organizationId, taskId, reportPrompt, ReportType.AUTOMATIC, userId, null);
-    notificationManager.externalNotificationManager.sendNotification(userId, result.payload);
-    result.payload = "Report generated";
+    
+    let result = await reportManager.generateReport(organizationId, taskId, reportPrompt, ReportType.AUTOMATIC, userId, null);
     res.status(result.statusCode);
     res.json(result);
-    console.log(result);
 }));
 
 exports.reportRouter = reportRouter;
