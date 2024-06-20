@@ -304,6 +304,13 @@ userRouter.get('/id', async (req, res) => {
 
 // return all the user informations starting from an id
 userRouter.get('/:userId', async (req, res) => {
+
+    if(req.loggedUser != req.params.userId){
+        res.status(403)
+        res.json(new CustomResponse(Errors.UNAUTHORIZED, "You are not authorized to see this user", null))
+        return;
+    }
+
     let user = req.params.userId * 1;
     let response = await accountManager.getUserById(user);
     res.status(response.statusCode)
