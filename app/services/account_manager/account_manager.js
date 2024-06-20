@@ -271,13 +271,12 @@ accountRouter.get('/google/oauth_info', (req, res) => {
 
 // this need to be a get because of google's redirect
 accountRouter.get('/google/callback', async (req, res) => {
-    let response = await accountManager.googleSignUp(req.query.code);
+    let response  = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
         res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI + '?response=' + JSON.stringify(response));
         return;
     }
-    response = await accountManager.googleLogIn(req.query.code);
-    res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI + '?response=' + JSON.stringify(response));
+    res.redirect(process.env.AFTER_BAD_LOGIN_REDIRECT_URI+ '?response=' + JSON.stringify(response));
 });
 
 // return the user id starting from a name
