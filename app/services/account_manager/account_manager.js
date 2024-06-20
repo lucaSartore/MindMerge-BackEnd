@@ -259,6 +259,22 @@ class AccountManager extends ServicesBaseClass {
             );
         }
     }
+
+    /**
+     * return true if an user is in an organization
+     * @param {number} userId 
+     * @param {number} organizationId 
+     * @returns {CustomResponse<bool>}
+     */
+    async verifyUserIsInOrganization(userId, organizationId) {
+       let user = await this.userManager.readUser(userId); 
+       if (user.statusCode != Errors.OK) {
+           return user;
+       }
+       let organizations = user.payload.organizations;
+       let condition = organizations.find((org) => org == organizationId) != undefined;
+       return new CustomResponse(Errors.OK, "Success", condition);
+    }
 }
 
 const accountManager = new AccountManager();
