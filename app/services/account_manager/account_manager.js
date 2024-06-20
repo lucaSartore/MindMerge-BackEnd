@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../../common_infrastructure/user.js');
 const accountRouter = express.Router();
 const userRouter = express.Router();
+const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
 
 class AccountManager extends ServicesBaseClass {
 
@@ -279,31 +280,31 @@ class AccountManager extends ServicesBaseClass {
 
 const accountManager = new AccountManager();
 
-accountRouter.get('/google/oauth_info', (req, res) => {
+accountRouter.get('/google/oauth_info',requestWrapper( (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 // this need to be a get because of google's redirect
-accountRouter.get('/google/callback', async (req, res) => {
+accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     let response  = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
         res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI + '?response=' + JSON.stringify(response));
         return;
     }
     res.redirect(process.env.AFTER_BAD_LOGIN_REDIRECT_URI+ '?response=' + JSON.stringify(response));
-});
+}));
 
 // return the user id starting from a name
-userRouter.get('/id', async (req, res) => {
+userRouter.get('/id',requestWrapper( async (req, res) => {
     let response = await accountManager.getUserByName(req.query.name);
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 // return all the user informations starting from an id
-userRouter.get('/:userId', async (req, res) => {
+userRouter.get('/:userId',requestWrapper( async (req, res) => {
 
     if(req.loggedUser != req.params.userId){
         res.status(403)
@@ -315,15 +316,15 @@ userRouter.get('/:userId', async (req, res) => {
     let response = await accountManager.getUserById(user);
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 // return the user name starting from an id
-userRouter.get('/:userId/name', async (req, res) => {
+userRouter.get('/:userId/name',requestWrapper( async (req, res) => {
     let user = req.params.userId * 1;
     let response = await accountManager.getUserName(user);
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 exports.accountRouter = accountRouter;
 exports.userRouter = userRouter;
