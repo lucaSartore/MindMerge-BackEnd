@@ -80,15 +80,18 @@ class AccountManager extends ServicesBaseClass {
     }
 
     /**
-     * @param {string} oauthCode 
+     * @param {string} userName
      * @returns {CustomResponse<LogInResponse>}
      */
-    googleLogIn(oauthCode) {
-        return new CustomResponse(
-            Errors.OK,
-            "Success",
-            new LogInResponse(1, "token")
-        )
+    async googleLogIn(userName) {
+        let v;
+
+        let user = await this.userManager.readUserByName(userName);
+        if (user.statusCode != Errors.OK) {
+            return user;
+        }
+
+        return this.generateUserToken(user.payload.userId);
     }
 
     /**
