@@ -11,8 +11,11 @@ async function authenticationMiddleware(req, res, next)  {
         token,
         process.env.SUPER_SECRET,
         async function(err, decoded) {
-            if (err)
-                res.status(403).json({success:false, message: 'Invalid token'})
+            if (err){
+                res.status(403);
+                res.json({success:false, message: 'Invalid token'})
+                return;
+            }
             else {
                 req.loggedUser = decoded.userId * 1;
                 let organizationId = req.params.organization_id || req.query.organization_id;
