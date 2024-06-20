@@ -149,17 +149,7 @@ class AccountManager extends ServicesBaseClass {
             return response;
         }
 
-        let userToken = await this.generateUserToken(response.payload);
-
-        if (userToken.statusCode != Errors.OK) {
-            return userToken;
-        }
-
-        return new CustomResponse(
-            Errors.OK,
-            "Success",
-            new LogInResponse(response.payload.userId, userToken.payload)
-        );
+        return  await this.generateUserToken(response.payload);
     }
 
     /**
@@ -288,7 +278,7 @@ accountRouter.get('/google/oauth_info',requestWrapper( (req, res) => {
 
 // this need to be a get because of google's redirect
 accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
-    let response  = await accountManager.googleSignUp(req.query.code);
+    let response = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
         res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI + '?response=' + JSON.stringify(response));
         return;
