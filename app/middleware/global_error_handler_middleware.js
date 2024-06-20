@@ -9,4 +9,15 @@ function errorHandler (err, req, res, next) {
   res.json(new CustomResponse(Errors.INTERNAL_SERVER_ERROR, 'Internal server error: ' + err, null))
 }
 
+function requestWrapper(fn) {
+    return async (req, res, next) => {
+        try {
+            return await fn(req, res);
+        } catch (err) {
+            next(err);
+        }
+    }
+}
+
 exports.errorHandler = errorHandler;
+exports.requestWrapper = requestWrapper;
