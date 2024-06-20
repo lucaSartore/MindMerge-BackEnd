@@ -120,14 +120,17 @@ class AccountManager extends ServicesBaseClass {
         try {
             v = await getNameAndEmail(oauthCode);
         } catch (e) {
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null);
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google, oauth token is probably invalid", null);
         }
 
         let nameExists = await this.userManager.readUserByName(v.name);
-        if (nameExists.statusCode === Errors.OK) {
-            // if username already taken, add a prefix to it
-            // TODO: double-check
-            v.name = `${v.name}2`;
+        if (nameExists.statusCode == Errors.OK) {
+            if (v.email != nameExists.payload.email) {
+                // todo: implement a system to add a postfix to the user name if i have already a user with the same name
+                return new CustomResponse(Errors.BAD_REQUEST, "User already exists", null);
+            }
+            // if user is already signed up, i automatically log him in
+            return await this.googleLogIn(v.name);
         }
 
         let response = await this.userManager.createUser(
