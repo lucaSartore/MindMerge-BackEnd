@@ -28,7 +28,7 @@ class ExternalNotificationManager extends ServicesBaseClass {
      * @param {boolean} read
      * @returns {CustomResponse<void>}
      */
-    async sendNotification(notificationId, userId, notificationText, date, read) {
+    async sendNotification(userId, notificationText) {
         let r = await this.userManager.readUser(userId);
         if (r.statusCode != Errors.OK) {
             return r;
@@ -59,16 +59,14 @@ class ExternalNotificationManager extends ServicesBaseClass {
     }
 }
 
-let external_norification_manager = new ExternalNotificationManager();
+let externalNotificationManager = new ExternalNotificationManager();
 
 if (process.env.NODE_ENV === 'development') {
     testingRouter.post('/externalNotification',requestWrapper( async (req, res) => {
         let notificationId = req.body.notificationId;
         let userId = req.body.userId;
         let notificationText = req.body.notificationText;
-        let date = Date.now();
-        let read = false;
-        let response = await external_norification_manager.sendNotification(notificationId, userId, notificationText, date, read);
+        let response = await externalNotificationManager.sendNotification(userId, notificationText);
         res.status(response.statusCode);
         res.json(response);
     }));

@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
-const {testingRouter} = require('./services/notification_manager/external_norification_manager.js');
+const {testingRouter} = require('./services/notification_manager/external_notification_manager.js');
 const {taskRouter} = require('./services/task_manager/task_router.js');
+const {reportRouter} = require('./services/report_manager/report_manager.js');
 const app = express();
 const {authenticationMiddleware} = require('./middleware/authentication_middleware.js');
 const {printRequestMiddleware} = require('./middleware/print_request_middleware.js');
@@ -34,6 +35,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use('/api/v1/testing', testingRouter);
 }
 app.use('/api/v1/task', taskRouter);
+app.use('/api/v1/report', reportRouter);
 
 app.use(errorHandler);
 
