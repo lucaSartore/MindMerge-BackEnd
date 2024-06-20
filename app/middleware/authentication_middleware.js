@@ -1,13 +1,14 @@
 const { Errors } = require('../common_infrastructure/errors.js');
 const jwt = require('jsonwebtoken');
+const { CustomResponse } = require('../common_infrastructure/response.js');
 const {accountManager} = require('../services/account_manager/account_manager.js');
 
 async function authenticationMiddleware(req, res, next)  {
     var token = req.body.token || req.query.token || req.headers['token'];
 
     if (!token){
-        res.status(403);
-        res.json({success:false, message: 'No token provided.'});
+        res.status(Errors.UNAUTHORIZED);
+        res.json(new CustomResponse(Errors.UNAUTHORIZED, 'No token provided', null));
         return;
     }
 
@@ -16,8 +17,8 @@ async function authenticationMiddleware(req, res, next)  {
         process.env.SUPER_SECRET,
         async function(err, decoded) {
             if (err){
-                res.status(403);
-                res.json({success:false, message: 'Invalid token'})
+                res.status(Errors.UNAUTHORIZED);
+                res.json(new CustomResponse(Errors.UNAUTHORIZED, 'Invalid token', null));
                 return;
             }
             else {
@@ -37,8 +38,8 @@ async function authenticationMiddleware(req, res, next)  {
                     return;
                 }
                 if (!isInOrganization.payload){
-                    res.status(403);
-                    res.json({success:false, message: 'User has no access to the requested organization'});
+                    res.status(Errors.UNAUTHORIZED);
+                    res.json(new CustomResponse(Errors.UNAUTHORIZED, 'User dose not have access to the specified organization', null));
                     return;
                 }
 
