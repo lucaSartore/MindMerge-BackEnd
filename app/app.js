@@ -8,6 +8,7 @@ const app = express();
 const {authenticationMiddleware} = require('./middleware/authentication_middleware.js');
 const {printRequestMiddleware} = require('./middleware/print_request_middleware.js');
 const {adjustStatusCodeMiddleware} = require('./middleware/adjust_status_code_middleware.js');
+const {errorHandler} = require('./middleware/global_error_handler_middleware.js')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,5 +34,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use('/api/v1/testing', testingRouter);
 }
 app.use('/api/v1/task', taskRouter);
+
+app.use(errorHandler);
 
 module.exports = app;
