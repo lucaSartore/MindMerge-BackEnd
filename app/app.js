@@ -6,11 +6,14 @@ const {testingRouter} = require('./services/notification_manager/external_norifi
 const {taskRouter} = require('./services/task_manager/task_router.js');
 const app = express();
 const {authenticationMiddleware} = require('./middleware/authentication_middleware.js');
+const {printRequestMiddleware} = require('./middleware/print_request_middleware.js');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
+
+app.use(printRequestMiddleware);
 
 app.get('/hello', async (req, res) => {
   res.send('Hello World!');
