@@ -216,7 +216,7 @@ class AccountManager extends ServicesBaseClass {
             return new CustomResponse(
                 Errors.OK,
                 "Success",
-                token
+                new LogInResponse(userId, token)
             );
         } catch (error) {
             console.error(error);
