@@ -95,6 +95,69 @@
           "schema": {
             "type": "integer"
           }
+        },
+        {
+          "name": "user_id",
+          "description": "The id of the user to add",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successfully removes the user from the organization",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": {
+                  "id": "number",
+                  "name": "string"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad request"
+        },
+        "404": {
+          "description": "Not found"
+        },
+        "500": {
+          "description": "Internal server error"
+        }
+      },
+      "delete": {
+        "summary": "Remove an user from an organization",
+        "description": "Remove the user with the given id from the organization with the given id"
+      }
+    },
+    "/api/v1/organization/{organization_id}/user/{user_id}": {
+      "post": {
+        "summary": "Add an user to an organization",
+        "description": "Add the user with the given id to the organization with the given id"
+      },
+      "parameters": [
+        {
+          "name": "organization_id",
+          "description": "The id of the organization",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "user_id",
+          "description": "The id of the user to add",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
         }
       ],
       "responses": {
