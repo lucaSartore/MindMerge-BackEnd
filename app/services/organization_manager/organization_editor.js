@@ -240,6 +240,37 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id', async (req, r
     res.json(response);
 });
 
+/**
+  * @openapi
+  * /api/v1/organization/{organization_id}:
+  *     get:
+  *         summary: Get an organization
+  *         description: Get an organization with the given id
+  *
+  *     parameters:
+  *         - name: organization_id
+  *           description: The id of the organization
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *     responses:
+  *         200:
+  *             description: Successfully returns the organization
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: Organization
+  *         400:
+  *             description: Bad request
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
 organizationEditorRouter.get('/:organization_id', async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response = await organizationEditor.getOrganization(organizationId);

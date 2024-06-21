@@ -184,6 +184,44 @@
           "description": "Internal server error"
         }
       }
+    },
+    "/api/v1/organization/{organization_id}": {
+      "get": {
+        "summary": "Get an organization",
+        "description": "Get an organization with the given id"
+      },
+      "parameters": [
+        {
+          "name": "organization_id",
+          "description": "The id of the organization",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Successfully returns the organization",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "Organization"
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "Bad request"
+        },
+        "404": {
+          "description": "Not found"
+        },
+        "500": {
+          "description": "Internal server error"
+        }
+      }
     }
   },
   "components": {},
