@@ -12,6 +12,7 @@ const options = {
   },
   apis: [
     './app/services/account_manager/account_manager.js',
+    './app/services/organization_manager/organization_editor.js',
   ],
 };
 

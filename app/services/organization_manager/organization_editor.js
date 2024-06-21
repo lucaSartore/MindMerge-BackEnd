@@ -116,6 +116,36 @@ class OrganizationEditor extends ServicesBaseClass{
 
 const organizationEditor = new OrganizationEditor();
 
+/**
+  * @openapi
+  * /api/v1/organization/{organization_id}/users:
+  *     get:
+  *         summary: Get all the users ids and names in an organization
+  *         description: Get all the users ids and names in an organization
+  *
+  *     parameters:
+  *         - name: organization_id
+  *           description: The id of the organization
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *     responses:
+  *         200:
+  *             description: Successfully returns the users ids and names list
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: {id: number, name: string}
+  *         400:
+  *             description: Bad request
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
 
 organizationEditorRouter.get('/:organization_id/users', async (req, res) => {
     const organizationId = req.params.organization_id * 1;

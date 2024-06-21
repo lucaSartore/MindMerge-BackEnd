@@ -255,7 +255,7 @@ userRouter.get('/id', async (req, res) => {
   * @openapi
   * /api/v1/user/{userId}:
   *     get:
-  *         summary: Get a user starting from an id
+  *         summary: Get an user starting from an id
   *         description: Get a user starting from an id 
   *
   *     parameters:
@@ -288,7 +288,37 @@ userRouter.get('/:userId', async (req, res) => {
     res.json(response)
 });
 
-// return the user name starting from an id
+
+/**
+  * @openapi
+  * /api/v1/user/{userId}/name:
+  *     get:
+  *         summary: Get an user's name starting from an id
+  *         description: Get an user's name starting from an id 
+  *
+  *     parameters:
+  *         - name: userId
+  *           description: The id of the user to get
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *     responses:
+  *         200:
+  *             description: Successfully returns the user
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: string
+  *         400:
+  *             description: Bad request
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
 userRouter.get('/:userId/name', async (req, res) => {
     let user = req.params.userId * 1;
     let response = await accountManager.getUserName(user);
