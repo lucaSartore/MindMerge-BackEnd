@@ -39,6 +39,63 @@ class ReportManager extends ServicesBaseClass{
 
 const reportManager = new ReportManager();
 
+/**
+  * @openapi
+  * /api/v1/report/automatic:
+  *     post:
+  *         summary: Generate automatic report
+  *         description: Generate automatic report for task, organization and user with the given prompt
+  *         parameters:
+  *           - name: task_id
+  *             description: The id of the task
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: organization_id
+  *             description: The id of the organization
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: user_id
+  *             description: The id of the user
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: Token
+  *             description: The jwt (json web token) of the user
+  *             in: header
+  *             required: true
+  *             schema:
+  *               type : string
+  *         requestBody:
+  *             name: Prompt
+  *             description: The prompt for the report
+  *             required: true
+  *             content:
+  *                application/json:
+  *                   schema:      
+  *                       type: object
+  *                       properties:
+  *                         prompt:
+  *                            type : string
+  *     responses:
+  *         200:
+  *             description: Successfully creates the task note
+  *         400:
+  *             description: Bad request
+  *         403:
+  *             description: Not authorized
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
 reportRouter.post('/automatic',requestWrapper( async (req, res) => {
     let organizationId = req.query.organization_id * 1;
     let userId = req.query.user_id * 1;
