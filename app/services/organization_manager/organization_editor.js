@@ -371,6 +371,45 @@ organizationEditorRouter.post('/', requestWrapper(async (req, res) => {
     res.json(response);
 }));
 
+/**
+  * @openapi
+  * /api/v1/organization/{organization_id}/name:
+  *     get:
+  *         summary: Get an organization name
+  *         description: Get an organization name with the given id
+  *
+  *     parameters:
+  *         - name: organization_id
+  *           description: The id of the organization
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
+  *     responses:
+  *         200:
+  *             description: Successfully returns the organization name
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: string
+  *         400:
+  *             description: Bad request
+  *         403:
+  *             description: Not authorized
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
 organizationEditorRouter.get('/:organization_id/name', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response = await organizationEditor.getOrganizationName(organizationId);
