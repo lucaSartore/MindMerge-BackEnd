@@ -5,8 +5,14 @@ const {organizationEditorRouter} = require('./services/organization_manager/orga
 const {testingRouter} = require('./services/notification_manager/external_norification_manager.js');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
-
+const {testingRouter} = require('./services/notification_manager/external_notification_manager.js');
+const {taskRouter} = require('./services/task_manager/task_router.js');
+const {reportRouter} = require('./services/report_manager/report_manager.js');
 const app = express();
+const {authenticationMiddleware} = require('./middleware/authentication_middleware.js');
+const {printRequestMiddleware} = require('./middleware/print_request_middleware.js');
+const {adjustStatusCodeMiddleware} = require('./middleware/adjust_status_code_middleware.js');
+const {errorHandler} = require('./middleware/global_error_handler_middleware.js')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,31 +24,30 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const {promptLlm} = require('./services/report_manager/llm_prompter.js');
 app.get('/hello', async (req, res) => {
-  let x = await promptLlm("write me a python script that prints 'hello world'");
-  res.send(x);
-  //res.send('Hello World!');
+  res.send('Hello World!');
+});
 
+app.use(adjustStatusCodeMiddleware);
+app.use(printRequestMiddleware);
+
+app.get('/hello', async (req, res) => {
+  res.send('Hello World!');
 });
 
 app.use('/api/v1/account', accountRouter);
 
-// insert here the middleware to verify the user token
+// Middleware to verify the user token
+app.use(authenticationMiddleware);
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/organization', organizationEditorRouter);
+
 if (process.env.NODE_ENV === 'development') {
   app.use('/api/v1/testing', testingRouter);
 }
+app.use('/api/v1/task', taskRouter);
+app.use('/api/v1/report', reportRouter);
 
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack); // Log the error for debugging
-  res.status(500).json({
-    code: 500,
-    message: 'Internal Server Error',
-    payload: null,
-  });
-});
-
+app.use(errorHandler);
 
 module.exports = app;

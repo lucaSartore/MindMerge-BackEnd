@@ -34,7 +34,7 @@ class UserManager extends DataBaseManager{
             const newUser = new UserModel(user);
             await newUser.save();
             
-            return new CustomResponse(Errors.OK, "User created successfully", newUser);
+            return new CustomResponse(Errors.OK, "User created successfully", newUser.userId);
         } catch (error) {
             console.error("Error while creating user:", error);
             return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Failed to create user", null);

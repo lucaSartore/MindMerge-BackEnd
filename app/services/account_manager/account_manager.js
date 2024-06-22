@@ -7,9 +7,11 @@ const { UserKind } = require('../../common_infrastructure/user_kind.js');
 const { LogInResponse } = require('../../common_infrastructure/log_in_response.js');
 
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { User } = require('../../common_infrastructure/user.js');
 const accountRouter = express.Router();
 const userRouter = express.Router();
+const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
 
 class AccountManager extends ServicesBaseClass {
 
@@ -99,6 +101,27 @@ class AccountManager extends ServicesBaseClass {
     }
 
     /**
+     * @param {string} userName
+     * @returns {CustomResponse<LogInResponse>}
+     */
+    async googleLogIn(userName) {
+
+        let user = await this.userManager.readUserByName(userName);
+        if (user.statusCode != Errors.OK) {
+            return user;
+        }
+
+        return this.generateUserToken(user.payload.userId);
+    }
+
+    /**
+     * @param {string} oauthCode 
+     * @returns {CustomResponse<LogInResponse>}
+     */
+    facebookLogIn(oauthCode) {
+    }
+
+    /**
      * return true if the user was created successfully, false if the user already exists
      * @param {?string} userName 
      * @param {?string} userPassword 
@@ -117,10 +140,19 @@ class AccountManager extends ServicesBaseClass {
         try {
             v = await getNameAndEmail(oauthCode);
         } catch (e) {
-            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google", null)
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Error when getting user info from google, oauth token is probably invalid", null);
         }
 
-        // todo: verify in case of name existing but new email... add prefix to name
+        let nameExists = await this.userManager.readUserByName(v.name);
+        if (nameExists.statusCode == Errors.OK) {
+            if (v.email != nameExists.payload.email) {
+                // todo: implement a system to add a postfix to the user name if i have already a user with the same name
+                return new CustomResponse(Errors.BAD_REQUEST, "User already exists", null);
+            }
+            // if user is already signed up, i automatically log him in
+            return await this.googleLogIn(v.name);
+        }
+
         let response = await this.userManager.createUser(
             new User(
                 0,
@@ -129,24 +161,14 @@ class AccountManager extends ServicesBaseClass {
                 UserKind.Google,
                 v.email
             )
-        )
+        );
 
         if (response.statusCode != Errors.OK) {
-            console.log(response)
+            console.log(response);
             return response;
         }
 
-        let userToken = await this.generateUserToken(response.payload);
-
-        if (userToken.statusCode != Errors.OK) {
-            return userToken;
-        }
-
-        return new CustomResponse(
-            Errors.OK,
-            "Success",
-            new LogInResponse(response.payload.userId, userToken.payload)
-        );
+        return  await this.generateUserToken(response.payload);
     }
 
     /**
@@ -193,21 +215,28 @@ class AccountManager extends ServicesBaseClass {
     deleteAccount(userId, userToken) {
     }
 
-
     /**
      * generate a jwt token for a user
      * @param {number} userId 
      * @returns {CustomResponse<string>}
      */
     async generateUserToken(userId) {
-        // TODO: implement for Gioele
-        return new CustomResponse(
-            Errors.OK,
-            "Success",
-            "token"
-        )
+        try {
+            const token = jwt.sign({ userId: userId }, process.env.SUPER_SECRET, { expiresIn: '1d' });
+            return new CustomResponse(
+                Errors.OK,
+                "Success",
+                new LogInResponse(userId, token)
+            );
+        } catch (error) {
+            console.error(error);
+            return new CustomResponse(
+                Errors.INTERNAL_SERVER_ERROR,
+                "Error generating token",
+                null
+            );
+        }
     }
-
 
     /**
      * return true if the user token is valid 
@@ -216,77 +245,87 @@ class AccountManager extends ServicesBaseClass {
      * @returns {CustomResponse<bool>}
      */
     async verifyUserToken(userId, userToken) {
-        // TODO: implement for Gioele
-        return true;
+        try {
+            const decoded = jwt.verify(userToken, SECRET_KEY);
+            if (decoded.userId === userId) {
+                return new CustomResponse(
+                    Errors.OK,
+                    "Success",
+                    true
+                );
+            } else {
+                return new CustomResponse(
+                    Errors.UNAUTHORIZED,
+                    "Invalid token: User ID does not match",
+                    false
+                );
+            }
+        } catch (error) {
+            console.error(error);
+            return new CustomResponse(
+                Errors.UNAUTHORIZED,
+                "Invalid token",
+                false
+            );
+        }
+    }
+
+    /**
+     * return true if an user is in an organization
+     * @param {number} userId 
+     * @param {number} organizationId 
+     * @returns {CustomResponse<bool>}
+     */
+    async verifyUserIsInOrganization(userId, organizationId) {
+       let user = await this.userManager.readUser(userId); 
+       if (user.statusCode != Errors.OK) {
+           return user;
+       }
+       let organizations = user.payload.organizations;
+       let condition = organizations.find((org) => org == organizationId) != undefined;
+       return new CustomResponse(Errors.OK, "Success", condition);
     }
 }
 
-
 const accountManager = new AccountManager();
 
-/**
- * Return the oauth redirect uri
- */
-accountRouter.get('/google/oauth_info', (req, res) => {
+accountRouter.get('/google/oauth_info',requestWrapper( (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
-/**
- * The uri that google will redirect to after the user logs in
- */
-accountRouter.get('/google/callback', async (req, res) => {
+// this need to be a get because of google's redirect
+accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     let response = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
         res.redirect(process.env.AFTER_SIGNUP_REDIRECT_URI + '?response=' + JSON.stringify(response));
         return;
     }
-    response = await accountManager.googleLogIn(req.query.code);
-    res.redirect(process.env.AFTER_SIGNIN_REDIRECT_URI + '?response=' + JSON.stringify(response));
-});
+    res.redirect(process.env.AFTER_BAD_LOGIN_REDIRECT_URI+ '?response=' + JSON.stringify(response));
+}));
 
-userRouter.get('/id', async (req, res) => {
+// return the user id starting from a name
+userRouter.get('/id',requestWrapper( async (req, res) => {
     let response = await accountManager.getUserByName(req.query.name);
     res.status(response.statusCode)
     res.json(response)
-});
-/**
-  * @openapi
-  * /api/v1/user/{userId}:
-  *     get:
-  *         summary: Get an user starting from an id
-  *         description: Get a user starting from an id 
-  *
-  *     parameters:
-  *         - name: userId
-  *           description: The id of the user to get
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *     responses:
-  *         200:
-  *             description: Successfully returns the user
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: User
-  *         400:
-  *             description: Bad request
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
-  *         
-  * 
-  */
-userRouter.get('/:userId', async (req, res) => {
+}));
+
+// return all the user informations starting from an id
+userRouter.get('/:userId',requestWrapper( async (req, res) => {
+
+    if(req.loggedUser != req.params.userId){
+        res.status(403)
+        res.json(new CustomResponse(Errors.UNAUTHORIZED, "You are not authorized to see this user", null))
+        return;
+    }
+
     let user = req.params.userId * 1;
     let response = await accountManager.getUserById(user);
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 
 /**
@@ -319,12 +358,13 @@ userRouter.get('/:userId', async (req, res) => {
   *         
   * 
   */
-userRouter.get('/:userId/name', async (req, res) => {
+userRouter.get('/:userId/name',requestWrapper( async (req, res) => {
     let user = req.params.userId * 1;
     let response = await accountManager.getUserName(user);
     res.status(response.statusCode)
     res.json(response)
-});
+}));
 
 exports.accountRouter = accountRouter;
 exports.userRouter = userRouter;
+exports.accountManager = accountManager;

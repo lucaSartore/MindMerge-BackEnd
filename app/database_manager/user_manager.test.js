@@ -45,10 +45,12 @@ describe('TEST USER MANAGER', () => {
                 let result = await um.createUser(user);
 
                 expect(result.statusCode).toBe(Errors.OK);
-                expect(result.payload.userId).toBe(user.userId);
-                expect(result.payload.userName).toBe(user.userName);
-                expect(result.payload.userKind).toBe(user.userKind);
-                expect(result.payload.email).toBe(user.email);
+                expect(result.payload).toBe(user.userId);
+                let createdUser = await UserModel.findOne({ userId: user.userId });
+                expect(createdUser.userName).toBe(user.userName);
+                expect(createdUser.userId).toBe(user.userId);
+                expect(createdUser.userKind).toBe(user.userKind);
+                expect(createdUser.email).toBe(user.email);
             }
         });
 
