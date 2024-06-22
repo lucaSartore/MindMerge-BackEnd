@@ -12,6 +12,13 @@ const accountRouter = express.Router();
 const userRouter = express.Router();
 const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
 
+/**
+ * @typedef AccountManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class AccountManager extends ServicesBaseClass {
 
     /**
