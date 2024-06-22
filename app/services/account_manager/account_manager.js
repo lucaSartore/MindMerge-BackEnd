@@ -380,6 +380,12 @@ userRouter.get('/:userId',requestWrapper( async (req, res) => {
   *           required: true
   *           schema:
   *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
   *     responses:
   *         200:
   *             description: Successfully returns the user
@@ -389,6 +395,8 @@ userRouter.get('/:userId',requestWrapper( async (req, res) => {
   *                         type: string
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
