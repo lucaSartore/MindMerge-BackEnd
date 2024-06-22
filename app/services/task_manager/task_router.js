@@ -342,6 +342,51 @@ taskRouter.post("/",requestWrapper( async (req,res) =>{
     res.json(response);
 }));
 
+/**
+  * @openapi
+  * /api/v1/task/{task_id}/notes/:
+  *     post:
+  *         summary: Create a new task note
+  *         description: Create a new task note with given data
+  *         parameters:
+  *           - name: task_id
+  *             description: The id of the task
+  *             in: path
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: Token
+  *             description: The jwt (json web token) of the user
+  *             in: header
+  *             required: true
+  *             schema:
+  *               type : string
+  *         requestBody:
+  *             name: Task
+  *             description: The Task data
+  *             required: true
+  *             content:
+  *                application/json:
+  *                   schema:      
+  *                       type: object
+  *                       properties:
+  *                         notes:
+  *                            type : string
+  *     responses:
+  *         200:
+  *             description: Successfully creates the task note
+  *         400:
+  *             description: Bad request
+  *         403:
+  *             description: Not authorized
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
 taskRouter.post("/:task_id/notes/",requestWrapper( async (req,res) => {
     const organizationId = req.query.organization_id * 1;
     let taskNote = req.body;
@@ -351,6 +396,48 @@ taskRouter.post("/:task_id/notes/",requestWrapper( async (req,res) => {
     res.json(response);
 }));
 
+/**
+  * @openapi
+  * /api/v1/task/{task_id}:
+  *     delete:
+  *         summary: Delete a task
+  *         description: Delete a task with given id and valid organization id
+  *
+  *     parameters:
+  *         - name: task_id
+  *           description: The id of the task
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: organization_id
+  *           description: The id of the organization
+  *           in: query
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
+  *     responses:
+  *         200:
+  *             description: Successfully removes the task
+  *         400:
+  *             description: Bad request
+  *         403:
+  *             description: Not authorized
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
+
 taskRouter.delete("/:task_id",requestWrapper( async (req,res) => {
     const organizationId = req.query.organization_id * 1;
     const taskId = req.params.task_id * 1;
@@ -358,6 +445,53 @@ taskRouter.delete("/:task_id",requestWrapper( async (req,res) => {
     res.status(response.statusCode);
     res.json(response);
 }));
+
+/**
+  * @openapi
+  * /api/v1/task/{task_id}/notes/{note_id}:
+  *     delete:
+  *         summary: Delete a task note
+  *         description: Delete a task note with given id and valid organization id
+  *
+  *     parameters:
+  *         - name: task_id
+  *           description: The id of the task
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: note_id
+  *           description: The id of the note
+  *           in: path
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: organization_id
+  *           description: The id of the organization
+  *           in: query
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
+  *     responses:
+  *         200:
+  *             description: Successfully removes the task note
+  *         400:
+  *             description: Bad request
+  *         403:
+  *             description: Not authorized
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
 
 taskRouter.delete("/:task_id/notes/:note_id",requestWrapper( async (req,res) => {
     const organizationId = req.query.organization_id * 1;
@@ -367,6 +501,8 @@ taskRouter.delete("/:task_id/notes/:note_id",requestWrapper( async (req,res) => 
     res.status(response.statusCode);
     res.json(response);
 }));
+
+
 
 taskRouter.post("/:task_id/assignee/:assignee_id",requestWrapper( async (req,res) => {
     const organizationId = req.query.organization_id * 1;
