@@ -145,7 +145,7 @@ OrganizationSchema.pre('save', async function(next) {
 const OrganizationModel = mongoose.model("Organization", OrganizationSchema);
 
 /**
- * @typedef dataBaseManager
+ * @typedef DataBaseManager
  * @type {Object}
  * @property {mongoose} mongoose - The mongoose object
  */

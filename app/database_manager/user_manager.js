@@ -5,6 +5,11 @@ const {CustomResponse} = require("../common_infrastructure/response.js");
 const {Errors} = require('../common_infrastructure/errors.js');
 const { Notification } = require("../common_infrastructure/notification.js");
 
+/**
+ * @typedef UserManager
+ * @type {Object}
+ * @property {mongoose} mongoose - The mongoose object
+ */
 class UserManager extends DataBaseManager{
 
     //////////////////////////// Creation ////////////////////////////
@@ -351,7 +356,7 @@ class UserManager extends DataBaseManager{
 
     /**
      * Return every user
-     * @returns {CustomResponse<User[]}
+     * @returns {CustomResponse<User[]>}
      */
     async readAllUsers() {
         try {

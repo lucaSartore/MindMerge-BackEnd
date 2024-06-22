@@ -5,6 +5,13 @@ const { CustomResponse } = require('../../common_infrastructure/response.js');
 
 const { taskGetter } = require('./task_getter');
 
+/**
+ * @typedef TaskEditor 
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class TaskEditor extends ServicesBaseClass{
 
     /**
@@ -109,7 +116,7 @@ class TaskEditor extends ServicesBaseClass{
      * @param {number} organizationId 
      * @param {number} taskId 
      * @param {string} notes 
-     * @returns 
+     * @returns {number} 
      */
     async createTaskNotes(organizationId, taskId, notes){
         return await this.taskManager.createTaskNotes(organizationId,taskId,notes);

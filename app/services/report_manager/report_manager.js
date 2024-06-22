@@ -10,6 +10,13 @@ const reportRouter = express.Router();
 const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
 
 
+/**
+ * @typedef ReportManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class ReportManager extends ServicesBaseClass{
 
     constructor(){
@@ -18,6 +25,16 @@ class ReportManager extends ServicesBaseClass{
         this.manualReportManager = new ManualReportManager();
     }
 
+    /**
+     * 
+     * @param {number} organizationId 
+     * @param {number} taskId 
+     * @param {string} reportPrompt 
+     * @param {number} reportType 
+     * @param {number} userId 
+     * @param {string} userToken 
+     * @returns {CustomResponse<string>}
+     */
     async generateReport(organizationId, taskId, reportPrompt, reportType, userId, userToken){
         let report;
         if (reportType == ReportType.AUTOMATIC){

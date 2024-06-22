@@ -9,7 +9,6 @@ const {UserManager} = require('../database_manager/user_manager.js');
  * @property {TaskManager} taskManager - The task manager class to edit the database
  * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
  * @property {UserManager} userManager - The user manager class to edit the database
- * 
  */
 class ServicesBaseClass{
     constructor() {

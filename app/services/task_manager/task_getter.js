@@ -5,6 +5,13 @@ const {Errors} = require('../../common_infrastructure/errors.js');
 const {CustomResponse} = require('../../common_infrastructure/response.js');
 const express = require('express');
 
+/**
+ * @typedef TaskGetter 
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class TaskGetter extends ServicesBaseClass{
     
     /**
@@ -36,6 +43,7 @@ class TaskGetter extends ServicesBaseClass{
     /**
      * return a task tree starting from one task id
      * @param {number} taskId
+     * @return {CustomResponse<TaskTree>}  
      */
     async getSingleTaskTree(organizationId, taskId){
         let task = await this.taskManager.readTask(organizationId, taskId);

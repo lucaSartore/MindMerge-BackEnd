@@ -1,6 +1,13 @@
 const ServicesBaseClass = require("../services_base_class");
 
-export default class OrganizationSubscriptionManager extends ServicesBaseClass{
+/**
+ * @typedef default
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
+class OrganizationSubscriptionManager extends ServicesBaseClass{
 
     /**
      * @param {number} organizationId
@@ -27,3 +34,5 @@ export default class OrganizationSubscriptionManager extends ServicesBaseClass{
     verifySubscription(organizationId){
     }
 }
+
+exports.OrganizationSubscriptionManager = OrganizationSubscriptionManager;

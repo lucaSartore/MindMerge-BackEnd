@@ -7,6 +7,13 @@ const {Task} = require("../../common_infrastructure/task.js");
 const {promptLlm} = require("./llm_prompter.js");
 
 
+/**
+ * @typedef AutomaticReportManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class AutomaticReportManager extends ServicesBaseClass{
     /**
      * 

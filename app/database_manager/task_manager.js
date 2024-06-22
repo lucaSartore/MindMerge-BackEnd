@@ -10,12 +10,12 @@ const ReportType = require("../common_infrastructure/report_type.js");
 const reportFrequency = require("../common_infrastructure/report_frequency.js");
 
 
+
+
 /**
- * @typedef ServicesBaseClass
+ * @typedef TaskManager
  * @type {Object}
- * @property {TaskManager} taskManager - The task manager class to edit the database
- * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
- * @property {UserManager} userManager - The user manager class to edit the database
+ * @property {mongoose} mongoose - The mongoose object
  */
 class TaskManager extends DataBaseManager {
 

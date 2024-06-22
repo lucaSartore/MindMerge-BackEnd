@@ -3,6 +3,11 @@ const { Organization } = require('../common_infrastructure/organization.js');
 const {CustomResponse} = require('../common_infrastructure/response.js');
 const {Errors} = require('../common_infrastructure/errors.js');
 
+/**
+ * @typedef OrganizationManager
+ * @type {Object}
+ * @property {mongoose} mongoose - The mongoose object
+ */
 class OrganizationManager extends DataBaseManager{
 
     //////////////////////////// Creation ////////////////////////////

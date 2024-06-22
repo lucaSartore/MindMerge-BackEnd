@@ -3,6 +3,13 @@ const {ExternalNotificationManager} = require('./external_notification_manager')
 const {InternalNotificationManager} = require('./internal_notification_manager');
 
 
+/**
+ * @typedef NotificationManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class NotificationManager extends ServicesBaseClass{
 
     constructor(){

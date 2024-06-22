@@ -17,6 +17,13 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+/**
+ * @typedef ExternalNotificationManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class ExternalNotificationManager extends ServicesBaseClass {
 
     /**

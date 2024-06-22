@@ -7,6 +7,13 @@ const {requestWrapper} = require('../../middleware/global_error_handler_middlewa
 
 const organizationEditorRouter = express.Router();
 
+/**
+ * @typedef OrganizationEditor
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
 class OrganizationEditor extends ServicesBaseClass{
     
     /** 

@@ -2,10 +2,19 @@
 const { Errors } = require('../../common_infrastructure/errors');
 const {ServicesBaseClass} = require('../services_base_class');
 
+
+/**
+ * @typedef TaskCreator 
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ * 
+ */
 class TaskCreator extends ServicesBaseClass{
 
 
-    /*    
+    /**    
      * Create a new task in the database, the id of the task will be automatically generated
      * return the id of the task created
      * @param {number} organizationId
