@@ -13,6 +13,8 @@ const options = {
   apis: [
     './app/services/account_manager/account_manager.js',
     './app/services/organization_manager/organization_editor.js',
+    './app/services/report_manager/report_manager.js',
+    './app/services/task_manager/task_router.js',
   ],
 };
 
