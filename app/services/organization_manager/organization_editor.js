@@ -3,7 +3,7 @@ const { Errors } = require("../../common_infrastructure/errors.js")
 const { ServicesBaseClass } = require("../services_base_class.js");
 const express = require('express');
 const { Organization } = require("../../common_infrastructure/organization.js");
-const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
+const { requestWrapper } = require('../../middleware/global_error_handler_middleware.js')
 
 const organizationEditorRouter = express.Router();
 
@@ -131,6 +131,12 @@ const organizationEditor = new OrganizationEditor();
   *           required: true
   *           schema:
   *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
   *     responses:
   *         200:
   *             description: Successfully returns the users ids and names list
@@ -140,6 +146,8 @@ const organizationEditor = new OrganizationEditor();
   *                         type: {id: number, name: string}
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
@@ -148,7 +156,7 @@ const organizationEditor = new OrganizationEditor();
   * 
   */
 
-organizationEditorRouter.get('/:organization_id/users',requestWrapper( async (req, res) => {
+organizationEditorRouter.get('/:organization_id/users', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response = await organizationEditor.getOrganizationUsers(organizationId);
     res.status(response.statusCode)
@@ -175,15 +183,30 @@ organizationEditorRouter.get('/:organization_id/users',requestWrapper( async (re
   *           required: true
   *           schema:
   *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
   *     responses:
   *         200:
   *             description: Successfully returns the users ids and names list
   *             content:
   *                 application/json:   
   *                     schema:
-  *                         type: {id: number, name: string}
+  *                         type: array
+  *                         items: 
+  *                             type: object
+  *                             properties: 
+  *                                 id: 
+  *                                     type: integer
+  *                                 name: 
+  *                                     type: string
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
@@ -192,7 +215,7 @@ organizationEditorRouter.get('/:organization_id/users',requestWrapper( async (re
   * 
   */
 
-organizationEditorRouter.post('/:organization_id/user/:user_id',requestWrapper( async (req, res) => {
+organizationEditorRouter.post('/:organization_id/user/:user_id', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     const userToAddId = req.params.user_id * 1;
     let response = await organizationEditor.addUserToOrganization(organizationId, userToAddId, undefined, undefined);
@@ -214,17 +237,19 @@ organizationEditorRouter.post('/:organization_id/user/:user_id',requestWrapper( 
   *           required: true
   *           schema:
   *             type : integer
-  *         - name: user_id
-  *           description: The id of the user to add
-  *           in: path
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
   *           required: true
   *           schema:
-  *             type : integer
+  *             type : string
   *     responses:
   *         200:
   *             description: Successfully removes the user from the organization
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
@@ -233,7 +258,7 @@ organizationEditorRouter.post('/:organization_id/user/:user_id',requestWrapper( 
   * 
   */
 
-organizationEditorRouter.delete('/:organization_id/user/:user_id',requestWrapper( async (req, res) => {
+organizationEditorRouter.delete('/:organization_id/user/:user_id', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     const userToDeleteId = req.params.user_id * 1;
     let response = await organizationEditor.removeUserFromOrganization(organizationId, userToDeleteId, undefined, undefined);
@@ -255,6 +280,12 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id',requestWrapper
   *           required: true
   *           schema:
   *             type : integer
+  *         - name: Token
+  *           description: The jwt (json web token) of the user
+  *           in: header
+  *           required: true
+  *           schema:
+  *             type : string
   *     responses:
   *         200:
   *             description: Successfully returns the organization
@@ -264,6 +295,8 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id',requestWrapper
   *                         type: Organization
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
@@ -272,7 +305,7 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id',requestWrapper
   * 
   */
 
-organizationEditorRouter.get('/:organization_id',requestWrapper( async (req, res) => {
+organizationEditorRouter.get('/:organization_id', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response = await organizationEditor.getOrganization(organizationId);
     res.status(response.statusCode)
@@ -285,30 +318,44 @@ organizationEditorRouter.get('/:organization_id',requestWrapper( async (req, res
   *     post:
   *         summary: Create an organization
   *         description: Create an organization with the given data
-  *
-  *     parameters:
-  *         - name: organizationId
-  *           description: The id of the organization
-  *           in: body
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: organizationName
-  *           description: The name of the organization
-  *           in: body
-  *           required: true
-  *           schema:
-  *             type : string
-  *         - name: licenseExpirationDate
+  *         requestBody:
+  *             name: organization
+  *             description: The organization data
+  *             required: true
+  *             content:
+  *                application/json:
+  *                   schema:      
+  *                       type: object
+  *                       properties:
+  *                         organizationId:
+  *                            type : integer
+  *                         organizationName:
+  *                           type : string
+  *                         userIds:
+  *                           type : array
+  *                           items: 
+  *                              type: integer
+  *                         licenseValid:
+  *                           type : boolean
+  *                         licenseExpirationDate:
+  *                           type : string
+  *                           format: date-time
+  *                         ownerId:
+  *                             type : integer
+  *         parameters:
+  *           - name: Token
+  *             description: The jwt (json web token) of the user
+  *             in: header
+  *             required: true
+  *             schema:
+  *               type : string
   *     responses:
   *         200:
   *             description: Successfully returns the users ids and names list
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: {id: number, name: string}
   *         400:
   *             description: Bad request
+  *         403:
+  *             description: Not authorized
   *         404:
   *             description: Not found
   *         500:
@@ -317,13 +364,14 @@ organizationEditorRouter.get('/:organization_id',requestWrapper( async (req, res
   * 
   */
 
-organizationEditorRouter.post('/',requestWrapper( async (req, res) => {
+organizationEditorRouter.post('/', requestWrapper(async (req, res) => {
     let response = await organizationEditor.createOrganization(req.body);
+    console.log(req.body);
     res.status(response.statusCode)
     res.json(response);
 }));
 
-organizationEditorRouter.get('/:organization_id/name',requestWrapper( async (req, res) => {
+organizationEditorRouter.get('/:organization_id/name', requestWrapper(async (req, res) => {
     const organizationId = req.params.organization_id * 1;
     let response = await organizationEditor.getOrganizationName(organizationId);
     res.status(response.statusCode)
