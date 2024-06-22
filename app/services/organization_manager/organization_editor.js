@@ -279,6 +279,44 @@ organizationEditorRouter.get('/:organization_id',requestWrapper( async (req, res
     res.json(response);
 }));
 
+/**
+  * @openapi
+  * /api/v1/organization/:
+  *     post:
+  *         summary: Create an organization
+  *         description: Create an organization with the given data
+  *
+  *     parameters:
+  *         - name: organizationId
+  *           description: The id of the organization
+  *           in: body
+  *           required: true
+  *           schema:
+  *             type : integer
+  *         - name: organizationName
+  *           description: The name of the organization
+  *           in: body
+  *           required: true
+  *           schema:
+  *             type : string
+  *         - name: licenseExpirationDate
+  *     responses:
+  *         200:
+  *             description: Successfully returns the users ids and names list
+  *             content:
+  *                 application/json:   
+  *                     schema:
+  *                         type: {id: number, name: string}
+  *         400:
+  *             description: Bad request
+  *         404:
+  *             description: Not found
+  *         500:
+  *             description: Internal server error
+  *         
+  * 
+  */
+
 organizationEditorRouter.post('/',requestWrapper( async (req, res) => {
     let response = await organizationEditor.createOrganization(req.body);
     res.status(response.statusCode)
