@@ -144,7 +144,8 @@ class TaskEditor extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse<void>}
      */
-    updateTaskDescription(organizationId, taskId, newDescription, userId, userToken){
+    async updateTaskDescription(organizationId, taskId, newDescription, userId, userToken){
+        return await this.taskManager.updateTaskDescription(organizationId,taskId,newDescription)
     }
 
     /**
