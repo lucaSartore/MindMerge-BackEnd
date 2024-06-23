@@ -317,38 +317,41 @@ userRouter.get('/id',requestWrapper( async (req, res) => {
   * /api/v1/user/{userId}:
   *     get:
   *         summary: return the details of an user starting from an id
-*         description: return the details of an user starting from an id. This API is protected, by the token, therefore only the user with the same id can see the details
-  *
-  *     parameters:
-  *         - name: userId
-  *           description: The id of the user to get
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
+  *         description: return the details of an user starting from an id. This API is protected, by the token, therefore only the user with the same id can see the details
   * 
-  *     responses:
-  *         200:
-  *             description: Successfully returns the user
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: string
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
-  *         
+  *         tags:
+  *            - Users
+  *
+  *         parameters:
+  *             - name: userId
+  *               description: The id of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the user
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *             
   * 
   */
 userRouter.get('/:userId',requestWrapper( async (req, res) => {
@@ -373,34 +376,37 @@ userRouter.get('/:userId',requestWrapper( async (req, res) => {
   *         summary: Get an user's name starting from an id
   *         description: Get an user's name starting from an id 
   *
-  *     parameters:
-  *         - name: userId
-  *           description: The id of the user to get
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the user
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: string
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Users
+  * 
+  *         parameters:
+  *             - name: userId
+  *               description: The id of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the user
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */

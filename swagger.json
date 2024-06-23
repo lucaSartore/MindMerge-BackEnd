@@ -4,226 +4,1333 @@
     "title": "Mind Merge API",
     "version": "1.0.0"
   },
+  "tags": [
+    {
+      "name": "Users",
+      "description": "APIs for managing users"
+    },
+    {
+      "name": "Account",
+      "description": "APIs to manage account and login"
+    },
+    {
+      "name": "Organizations",
+      "description": "APIs for managing organizations"
+    },
+    {
+      "name": "Tasks",
+      "description": "APIs for managing tasks"
+    },
+    {
+      "name": "Reports",
+      "description": "APIs for managing reports"
+    }
+  ],
   "paths": {
     "/api/v1/user/{userId}": {
       "get": {
-        "summary": "Get an user starting from an id",
-        "description": "Get a user starting from an id"
-      },
-      "parameters": [
-        {
-          "name": "userId",
-          "description": "The id of the user to get",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Successfully returns the user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "User"
-              }
+        "summary": "return the details of an user starting from an id",
+        "description": "return the details of an user starting from an id. This API is protected, by the token, therefore only the user with the same id can see the details",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "The id of the user to get",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        },
-        "400": {
-          "description": "Bad request"
-        },
-        "404": {
-          "description": "Not found"
-        },
-        "500": {
-          "description": "Internal server error"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
     "/api/v1/user/{userId}/name": {
       "get": {
         "summary": "Get an user's name starting from an id",
-        "description": "Get an user's name starting from an id"
-      },
-      "parameters": [
-        {
-          "name": "userId",
-          "description": "The id of the user to get",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Successfully returns the user",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
+        "description": "Get an user's name starting from an id",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "description": "The id of the user to get",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        },
-        "400": {
-          "description": "Bad request"
-        },
-        "404": {
-          "description": "Not found"
-        },
-        "500": {
-          "description": "Internal server error"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     },
     "/api/v1/organization/{organization_id}/users": {
       "get": {
         "summary": "Get all the users ids and names in an organization",
-        "description": "Get all the users ids and names in an organization"
-      },
-      "parameters": [
-        {
-          "name": "organization_id",
-          "description": "The id of the organization",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
+        "description": "Get all the users ids and names in an organization",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        },
-        {
-          "name": "user_id",
-          "description": "The id of the user to add",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Successfully removes the user from the organization",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": {
-                  "id": "number",
-                  "name": "string"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the users ids and names list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": {
+                    "id": "number",
+                    "name": "string"
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        },
-        "400": {
-          "description": "Bad request"
-        },
-        "404": {
-          "description": "Not found"
-        },
-        "500": {
-          "description": "Internal server error"
         }
       },
       "delete": {
         "summary": "Remove an user from an organization",
-        "description": "Remove the user with the given id from the organization with the given id"
+        "description": "Remove the user with the given id from the organization with the given id",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removes the user from the organization"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
       }
     },
     "/api/v1/organization/{organization_id}/user/{user_id}": {
       "post": {
         "summary": "Add an user to an organization",
-        "description": "Add the user with the given id to the organization with the given id"
-      },
-      "parameters": [
-        {
-          "name": "organization_id",
-          "description": "The id of the organization",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
+        "description": "Add the user with the given id to the organization with the given id",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "user_id",
+            "description": "The id of the user to add",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        },
-        {
-          "name": "user_id",
-          "description": "The id of the user to add",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "responses": {
-        "200": {
-          "description": "Successfully returns the users ids and names list",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": {
-                  "id": "number",
-                  "name": "string"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the users ids and names list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
-        },
-        "400": {
-          "description": "Bad request"
-        },
-        "404": {
-          "description": "Not found"
-        },
-        "500": {
-          "description": "Internal server error"
         }
       }
     },
     "/api/v1/organization/{organization_id}": {
       "get": {
         "summary": "Get an organization",
-        "description": "Get an organization with the given id"
-      },
-      "parameters": [
-        {
-          "name": "organization_id",
-          "description": "The id of the organization",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
+        "description": "Get an organization with the given id",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "Organization"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
-      ],
-      "responses": {
-        "200": {
-          "description": "Successfully returns the organization",
+      }
+    },
+    "/api/v1/organization/": {
+      "post": {
+        "summary": "Create an organization",
+        "description": "Create an organization with the given data",
+        "tags": [
+          "Organizations"
+        ],
+        "requestBody": {
+          "name": "organization",
+          "description": "The organization data",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "Organization"
+                "type": "object",
+                "properties": {
+                  "organizationId": {
+                    "type": "integer"
+                  },
+                  "organizationName": {
+                    "type": "string"
+                  },
+                  "userIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "licenseValid": {
+                    "type": "boolean"
+                  },
+                  "licenseExpirationDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "ownerId": {
+                    "type": "integer"
+                  }
+                }
               }
             }
           }
         },
-        "400": {
-          "description": "Bad request"
+        "parameters": [
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the users ids and names list"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/organization/{organization_id}/name": {
+      "get": {
+        "summary": "Get an organization name",
+        "description": "Get an organization name with the given id",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the organization name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/report/automatic": {
+      "post": {
+        "summary": "Generate automatic report",
+        "description": "Generate automatic report for task, organization and user with the given prompt",
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "user_id",
+            "description": "The id of the user",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "name": "Prompt",
+          "description": "The prompt for the report",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
         },
-        "404": {
-          "description": "Not found"
+        "responses": {
+          "200": {
+            "description": "Successfully creates the task note"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/task_tree": {
+      "get": {
+        "summary": "Get all tasks for a user and organization",
+        "description": "Get all tasks for a user with given id and organization with given id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "description": "The id of the user",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the task tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}": {
+      "get": {
+        "summary": "Get a task",
+        "description": "Get a task with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the Task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a task",
+        "description": "Delete a task with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removes the task"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/name/{new_name}": {
+      "put": {
+        "summary": "Update a task name",
+        "description": "Update a task name with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "new_name",
+            "description": "The new name of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updates the task name"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/notes/{notes_id}": {
+      "put": {
+        "summary": "Update a task note",
+        "description": "Update a task note with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "requestBody": {
+          "description": "The new notes for the task",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
         },
-        "500": {
-          "description": "Internal server error"
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "notes_id",
+            "description": "The id of the note",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updates the task name"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/": {
+      "post": {
+        "summary": "Create a new task",
+        "description": "Create a new task with given data",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "name": "Task",
+          "description": "The Task data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "childTasks": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "default": []
+                  },
+                  "lastUpdated": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notificationEnable": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "recursivePermissionsValue": {
+                    "type": "integer"
+                  },
+                  "taskAssignees": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "taskDescription": {
+                    "type": "string",
+                    "default": " "
+                  },
+                  "taskFatherId": {
+                    "type": "integer",
+                    "default": null
+                  },
+                  "taskId": {
+                    "type": "integer",
+                    "default": 1
+                  },
+                  "taskManager": {
+                    "type": "integer"
+                  },
+                  "taskName": {
+                    "type": "string"
+                  },
+                  "taskNotes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "noteId": {
+                          "type": "integer"
+                        },
+                        "taskId": {
+                          "type": "integer"
+                        },
+                        "notes": {
+                          "type": "string"
+                        },
+                        "date": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "default": null
+                  },
+                  "taskOrganizationId": {
+                    "type": "integer"
+                  },
+                  "taskReports": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "taskStatus": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully creates the task"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/notes/": {
+      "post": {
+        "summary": "Create a new task note",
+        "description": "Create a new task note with given data",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "name": "Task",
+          "description": "The Task data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully creates the task note"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/notes/{note_id}": {
+      "delete": {
+        "summary": "Delete a task note",
+        "description": "Delete a task note with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "note_id",
+            "description": "The id of the note",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removes the task note"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/assignee/{assignee_id}": {
+      "post": {
+        "summary": "Assign a new user to a task",
+        "description": "Assign a new user with given id to a task with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "assignee_id",
+            "description": "The id of the assignee",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigns the user to the task"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a user from a task",
+        "description": "Remove a user with given id from a task with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "assignee_id",
+            "description": "The id of the assignee",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully removes the user from the task"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/status/{new_status}": {
+      "put": {
+        "summary": "Update a task status",
+        "description": "Update a task status with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "new_status",
+            "description": "The new status of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updates the task status"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     }
   },
-  "components": {},
-  "tags": []
+  "components": {}
 }

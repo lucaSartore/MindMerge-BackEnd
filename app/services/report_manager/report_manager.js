@@ -45,6 +45,10 @@ const reportManager = new ReportManager();
   *     post:
   *         summary: Generate automatic report
   *         description: Generate automatic report for task, organization and user with the given prompt
+  * 
+  *         tags:
+  *            - Reports
+  * 
   *         parameters:
   *           - name: task_id
   *             description: The id of the task
@@ -81,17 +85,17 @@ const reportManager = new ReportManager();
   *                       properties:
   *                         prompt:
   *                            type : string
-  *     responses:
-  *         200:
-  *             description: Successfully creates the task note
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         responses:
+  *             200:
+  *                 description: Successfully creates the task note
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */

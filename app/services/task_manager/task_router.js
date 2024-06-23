@@ -14,40 +14,43 @@ const {requestWrapper} = require('../../middleware/global_error_handler_middlewa
   *         summary: Get all tasks for a user and organization
   *         description: Get all tasks for a user with given id and organization with given id
   *
-  *     parameters:
-  *         - name: user_id
-  *           description: The id of the user
-  *           in: query
-  *           required: false
-  *           schema:
-  *             type : integer
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the task tree
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: string
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: user_id
+  *               description: The id of the user
+  *               in: query
+  *               required: false
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the task tree
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -68,40 +71,43 @@ taskRouter.get('/task_tree',requestWrapper( async (req, res) => {
   *         summary: Get a task
   *         description: Get a task with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the Task
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: Task
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the Task
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: Task
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -123,42 +129,46 @@ taskRouter.get('/:task_id',requestWrapper( async (req, res) => {
   *         summary: Update a task name
   *         description: Update a task name with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: new_name
-  *           description: The new name of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : string  
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully updates the task name
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: new_name
+  *               description: The new name of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string  
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully updates the task name
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -180,6 +190,10 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *     put:
   *         summary: Update a task note
   *         description: Update a task note with given id and valid organization id
+  * 
+  *         tags:
+  *            - Tasks
+  * 
   *         requestBody:
   *           description: The new notes for the task
   *           required: true
@@ -191,42 +205,42 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *                       notes:
   *                          type : string
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: notes_id
-  *           description: The id of the note
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : string  
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully updates the task name
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: notes_id
+  *               description: The id of the note
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string  
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully updates the task name
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -247,6 +261,10 @@ taskRouter.put("/:task_id/notes/:notes_id",requestWrapper( async (req,res) => {
   *     post:
   *         summary: Create a new task
   *         description: Create a new task with given data
+  * 
+  *         tags:
+  *            - Tasks
+  * 
   *         parameters:
   *           - name: Token
   *             description: The jwt (json web token) of the user
@@ -316,17 +334,17 @@ taskRouter.put("/:task_id/notes/:notes_id",requestWrapper( async (req,res) => {
   *                              type: object
   *                         taskStatus:
   *                           type : integer
-  *     responses:
-  *         200:
-  *             description: Successfully creates the task
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         responses:
+  *             200:
+  *                 description: Successfully creates the task
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -348,6 +366,10 @@ taskRouter.post("/",requestWrapper( async (req,res) =>{
   *     post:
   *         summary: Create a new task note
   *         description: Create a new task note with given data
+  * 
+  *         tags:
+  *            - Tasks
+  * 
   *         parameters:
   *           - name: task_id
   *             description: The id of the task
@@ -372,17 +394,17 @@ taskRouter.post("/",requestWrapper( async (req,res) =>{
   *                       properties:
   *                         notes:
   *                            type : string
-  *     responses:
-  *         200:
-  *             description: Successfully creates the task note
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         responses:
+  *             200:
+  *                 description: Successfully creates the task note
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -403,36 +425,39 @@ taskRouter.post("/:task_id/notes/",requestWrapper( async (req,res) => {
   *         summary: Delete a task
   *         description: Delete a task with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully removes the task
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully removes the task
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -453,42 +478,45 @@ taskRouter.delete("/:task_id",requestWrapper( async (req,res) => {
   *         summary: Delete a task note
   *         description: Delete a task note with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: note_id
-  *           description: The id of the note
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully removes the task note
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: note_id
+  *               description: The id of the note
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully removes the task note
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -508,6 +536,10 @@ taskRouter.delete("/:task_id/notes/:note_id",requestWrapper( async (req,res) => 
   *     post:
   *         summary: Assign a new user to a task
   *         description: Assign a new user with given id to a task with given id and valid organization id
+  * 
+  *         tags:
+  *            - Tasks
+  * 
   *         parameters:
   *           - name: task_id
   *             description: The id of the task
@@ -533,17 +565,17 @@ taskRouter.delete("/:task_id/notes/:note_id",requestWrapper( async (req,res) => 
   *             required: true
   *             schema:
   *               type : string
-  *     responses:
-  *         200:
-  *             description: Successfully assigns the user to the task
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         responses:
+  *             200:
+  *                 description: Successfully assigns the user to the task
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -565,42 +597,45 @@ taskRouter.post("/:task_id/assignee/:assignee_id",requestWrapper( async (req,res
   *         summary: Remove a user from a task
   *         description: Remove a user with given id from a task with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: assignee_id
-  *           description: The id of the assignee
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully removes the user from the task
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: assignee_id
+  *               description: The id of the assignee
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully removes the user from the task
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -622,42 +657,45 @@ taskRouter.delete("/:task_id/assignee/:assignee_id",requestWrapper( async (req,r
   *         summary: Update a task status
   *         description: Update a task status with given id and valid organization id
   *
-  *     parameters:
-  *         - name: task_id
-  *           description: The id of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: new_status
-  *           description: The new status of the task
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : string  
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: query
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully updates the task status
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: new_status
+  *               description: The new status of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string  
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully updates the task status
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */

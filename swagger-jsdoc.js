@@ -9,6 +9,28 @@ const options = {
       title: 'Mind Merge API',
       version: '1.0.0',
     },
+    tags: [
+      {
+        name: 'Users',
+        description: 'APIs for managing users',
+      },
+      {
+        name: 'Account',
+        description: 'APIs to manage account and login',
+      },
+      {
+        name: 'Organizations',
+        description: 'APIs for managing organizations',
+      },
+      {
+        name: 'Tasks',
+        description: 'APIs for managing tasks',
+      },
+      {
+        name: 'Reports',
+        description: 'APIs for managing reports',
+      }
+    ]
   },
   apis: [
     './app/services/account_manager/account_manager.js',

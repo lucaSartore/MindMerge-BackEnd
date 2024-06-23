@@ -124,34 +124,37 @@ const organizationEditor = new OrganizationEditor();
   *         summary: Get all the users ids and names in an organization
   *         description: Get all the users ids and names in an organization
   *
-  *     parameters:
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the users ids and names list
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: {id: number, name: string}
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Organizations
+  * 
+  *         parameters:
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the users ids and names list
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: {id: number, name: string}
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -170,48 +173,51 @@ organizationEditorRouter.get('/:organization_id/users', requestWrapper(async (re
   *         summary: Add an user to an organization
   *         description: Add the user with the given id to the organization with the given id
   *
-  *     parameters:
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: user_id
-  *           description: The id of the user to add
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the users ids and names list
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: array
-  *                         items: 
-  *                             type: object
-  *                             properties: 
-  *                                 id: 
-  *                                     type: integer
-  *                                 name: 
-  *                                     type: string
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
-  *         
+  *         tags:
+  *            - Organizations
+  * 
+  *         parameters:
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: user_id
+  *               description: The id of the user to add
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the users ids and names list
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: array
+  *                             items: 
+  *                                 type: object
+  *                                 properties: 
+  *                                     id: 
+  *                                         type: integer
+  *                                     name: 
+  *                                         type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *            
   * 
   */
 
@@ -230,30 +236,33 @@ organizationEditorRouter.post('/:organization_id/user/:user_id', requestWrapper(
   *         summary: Remove an user from an organization
   *         description: Remove the user with the given id from the organization with the given id
   *
-  *     parameters:
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully removes the user from the organization
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Organizations
+  * 
+  *         parameters:
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully removes the user from the organization
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -273,34 +282,37 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id', requestWrappe
   *         summary: Get an organization
   *         description: Get an organization with the given id
   *
-  *     parameters:
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the organization
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: Organization
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Organizations
+  * 
+  *         parameters:
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the organization
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: Organization
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -318,6 +330,10 @@ organizationEditorRouter.get('/:organization_id', requestWrapper(async (req, res
   *     post:
   *         summary: Create an organization
   *         description: Create an organization with the given data
+  *
+  *         tags:
+  *            - Organizations
+  *  
   *         requestBody:
   *             name: organization
   *             description: The organization data
@@ -349,17 +365,18 @@ organizationEditorRouter.get('/:organization_id', requestWrapper(async (req, res
   *             required: true
   *             schema:
   *               type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the users ids and names list
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the users ids and names list
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
@@ -378,34 +395,37 @@ organizationEditorRouter.post('/', requestWrapper(async (req, res) => {
   *         summary: Get an organization name
   *         description: Get an organization name with the given id
   *
-  *     parameters:
-  *         - name: organization_id
-  *           description: The id of the organization
-  *           in: path
-  *           required: true
-  *           schema:
-  *             type : integer
-  *         - name: Token
-  *           description: The jwt (json web token) of the user
-  *           in: header
-  *           required: true
-  *           schema:
-  *             type : string
-  *     responses:
-  *         200:
-  *             description: Successfully returns the organization name
-  *             content:
-  *                 application/json:   
-  *                     schema:
-  *                         type: string
-  *         400:
-  *             description: Bad request
-  *         403:
-  *             description: Not authorized
-  *         404:
-  *             description: Not found
-  *         500:
-  *             description: Internal server error
+  *         tags:
+  *            - Organizations
+  * 
+  *         parameters:
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the organization name
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
   *         
   * 
   */
