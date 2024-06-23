@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/report_manager/report_manager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/report_manager/report_manager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const {ServicesBaseClass} = require('../services_base_class');
+const {ReportType} = require('../../common_infrastructure/report_type.js');
+const {CustomResponse} = require('../../common_infrastructure/response.js');
+const {Errors} = require('../../common_infrastructure/errors.js');
+const {AutomaticReportManager} = require('./automatic_report_manager.js');
+const {ManualReportManager} = require('./manual_report_manager.js');
+const {notificationManager} = require('../notification_manager/notification_manager.js');
+const express = require('express');
+const reportRouter = express.Router();
+const {requestWrapper} = require('../../middleware/global_error_handler_middleware.js')
+
+
+/**
+ * @typedef ReportManager
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
+class ReportManager extends ServicesBaseClass{
+
+    constructor(){
+        super();
+        this.automaticReportManager = new AutomaticReportManager();
+        this.manualReportManager = new ManualReportManager();
+    }
+
+    /**
+     * 
+     * @param {number} organizationId 
+     * @param {number} taskId 
+     * @param {string} reportPrompt 
+     * @param {number} reportType 
+     * @param {number} userId 
+     * @param {string} userToken 
+     * @returns {CustomResponse&lt;string>}
+     */
+    async generateReport(organizationId, taskId, reportPrompt, reportType, userId, userToken){
+        let report;
+        if (reportType == ReportType.AUTOMATIC){
+            let result = await this.automaticReportManager.generateAutomaticReports(organizationId, taskId, reportPrompt);
+            if (result.statusCode !== Errors.OK){
+                return result;
+            }
+            report = result.payload;
+        }else{
+            return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "Not implemented", null);
+        }
+       
+        console.log("Report generated: " + report);
+
+        let result = await notificationManager.externalNotificationManager.sendNotification(userId, report);
+        return result
+    }
+}
+
+const reportManager = new ReportManager();
+
+/**
+  * @openapi
+  * /api/v1/report/automatic:
+  *     post:
+  *         summary: Generate automatic report
+  *         description: Generate automatic report for task, organization and user with the given prompt
+  * 
+  *         tags:
+  *            - Reports
+  * 
+  *         parameters:
+  *           - name: task_id
+  *             description: The id of the task
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: organization_id
+  *             description: The id of the organization
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: user_id
+  *             description: The id of the user
+  *             in: query
+  *             required: true
+  *             schema:
+  *               type : integer
+  *           - name: Token
+  *             description: The jwt (json web token) of the user
+  *             in: header
+  *             required: true
+  *             schema:
+  *               type : string
+  *         requestBody:
+  *             name: Prompt
+  *             description: The prompt for the report
+  *             required: true
+  *             content:
+  *                application/json:
+  *                   schema:      
+  *                       type: object
+  *                       properties:
+  *                         prompt:
+  *                            type : string
+  *         responses:
+  *             201:
+  *                 description: Successfully creates the task note
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *         
+  * 
+  */
+
+reportRouter.post('/automatic',requestWrapper( async (req, res) => {
+    let organizationId = req.query.organization_id * 1;
+    let userId = req.query.user_id * 1;
+    let taskId = req.query.task_id * 1;
+    let reportPrompt = req.body.prompt;
+    
+    let result = await reportManager.generateReport(organizationId, taskId, reportPrompt, ReportType.AUTOMATIC, userId, null);
+    res.status(result.statusCode);
+    res.json(result);
+}));
+
+exports.reportRouter = reportRouter;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#promptLlm">promptLlm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 23 2024 19:31:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

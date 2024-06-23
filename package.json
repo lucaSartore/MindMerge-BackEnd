@@ -8,7 +8,7 @@
     "start": "node index.js",
     "dev": "node -r dotenv/config index.js",
     "generate-api": "node swagger-jsdoc.js",
-    "documentation": "node node_modules/jsdoc/jsdoc.js -c .\\jsdoc.conf.json -r"
+    "documentation": "node node_modules/jsdoc/jsdoc.js -c ./jsdoc.conf.json -r"
   },
   "author": "",
   "license": "ISC",

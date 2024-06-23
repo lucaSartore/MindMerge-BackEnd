@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: services/services_base_class.js</title>
+    <title>JSDoc: Source: services/report_manager/manual_report_manager.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: services/services_base_class.js</h1>
+    <h1 class="page-title">Source: services/report_manager/manual_report_manager.js</h1>
 
     
 
@@ -26,60 +26,21 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const {TaskManager} = require('../database_manager/task_manager.js');
-const {OrganizationManager} = require('../database_manager/organization_manager.js');
-const {UserManager} = require('../database_manager/user_manager.js');
-
+            <pre class="prettyprint source linenums"><code>const {ServicesBaseClass} = require("../services_base_class");
 
 /**
- * @typedef ServicesBaseClass
+ * @typedef ManualReportManager
  * @type {Object}
  * @property {TaskManager} taskManager - The task manager class to edit the database
  * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
  * @property {UserManager} userManager - The user manager class to edit the database
  */
-class ServicesBaseClass{
-    constructor() {
-        this.taskManager = new TaskManager(); 
-        this.organizationManager = new OrganizationManager();
-        this.userManager = new UserManager();
+class ManualReportManager extends ServicesBaseClass{
+    generateManualReports(organizationId, taskId, reportPrompt){
     }
-
-    /**
-     * verify that a user has a permission to do a particular action on a task 
-     * @param {number} organizationId
-     * @param {number} taskId 
-     * @param {number} userId 
-     * @param {string} userToken
-     * @param {number} permission 
-     * @returns {CustomResponse&lt;bool>}
-     */
-    verifyTaskPermission(organizationId, taskId, userId, userToken, permission){
-    }
-
-    /**
-     * verify that a user is really hwo they say they are, by comparing the token given to the token in the database
-     * @param {number} userId 
-     * @param {string} userToken
-     * @returns {CustomResponse&lt;bool>}
-     */
-    verifyAccount(userId, userToken){
-    }
-
-
-    /**
-     * verify that a user has a permission to do a particular action on an organization 
-     * @param {number} organizationId 
-     * @param {number} userId 
-     * @param {number} userToken 
-     * @param {number} permission 
-     */
-    verifyOrganizationPermission(organizationId, userId, userToken, permission){
-    }
-
 }
-
-exports.ServicesBaseClass = ServicesBaseClass;</code></pre>
+exports.ManualReportManager = ManualReportManager;
+</code></pre>
         </article>
     </section>
 

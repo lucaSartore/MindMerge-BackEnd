@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: common_infrastructure/log_in_response.js</title>
+    <title>JSDoc: Source: services/report_manager/llm_prompter.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: common_infrastructure/log_in_response.js</h1>
+    <h1 class="page-title">Source: services/report_manager/llm_prompter.js</h1>
 
     
 
@@ -26,22 +26,29 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * @typedef LogInResponse
- * @type {Object}
- * @property {number} userId - The id of the user
- * @property {string} userToken - The token of the user, will be used to authorize the successive requests.
+            <pre class="prettyprint source linenums"><code>const { CustomResponse } = require("../../common_infrastructure/response");
+const { Errors } = require("../../common_infrastructure/errors");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.BARD_API_KEY);
+
+/**
+ * ask a question to the LLM model
+ * @param {string} prompt 
+ * @returns {CustomResponse&lt;string>}
  */
-class LogInResponse{
-    constructor(userId, userToken){
-        this.userId = userId;
-        this.userToken = userToken;
+async function promptLlm(prompt) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent([prompt]);
+        const text = result.response.text();
+        return new CustomResponse(Errors.OK, "", text);
+    } catch (e) {
+        console.log("error in promptLlm: ", e);
+        return new CustomResponse(Errors.INTERNAL_SERVER_ERROR, "error due to LLM model connection: " + e, null);
     }
 }
 
-module.exports = {LogInResponse};
-
-</code></pre>
+exports.promptLlm = promptLlm;</code></pre>
         </article>
     </section>
 

@@ -26,9 +26,21 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const ServicesBaseClass = require('../services_base_class');
+            <pre class="prettyprint source linenums"><code>const {ServicesBaseClass} = require('../services_base_class.js');
+const {TaskTree} = require('../../common_infrastructure/task_tree.js');
+const {Task} = require('../../common_infrastructure/task.js');
+const {Errors} = require('../../common_infrastructure/errors.js');
+const {CustomResponse} = require('../../common_infrastructure/response.js');
+const express = require('express');
 
-export default class TaskGetter extends ServicesBaseClass{
+/**
+ * @typedef TaskGetter 
+ * @type {Object}
+ * @property {TaskManager} taskManager - The task manager class to edit the database
+ * @property {OrganizationManager} organizationManager - The organization manager class to edit the database
+ * @property {UserManager} userManager - The user manager class to edit the database
+ */
+class TaskGetter extends ServicesBaseClass{
     
     /**
      * returns the task trees a user can see inside an organization 
@@ -37,7 +49,57 @@ export default class TaskGetter extends ServicesBaseClass{
      * @param {string} userToken 
      * @returns {CustomResponse&lt;TaskTree[]>}
      */
-    getTasksForUser(organizationId, userId, userToken){
+    async getTasksForUser(organizationId, userId, userToken){
+        let result = await this.taskManager.readRootTasks(organizationId);
+        if(result.statusCode !== Errors.OK){
+            return result;
+        }
+        let tasks = result.payload.map((x) => this.getSingleTaskTree(organizationId, x));
+        tasks = await Promise.all(tasks);
+
+        for(let task of tasks){
+            if(task.statusCode !== Errors.OK){
+                return task;
+            }
+        }
+
+        tasks = tasks.map((x) => x.payload);
+
+        return new CustomResponse(Errors.OK, "", tasks);
+    }
+
+    /**
+     * return a task tree starting from one task id
+     * @param {number} taskId
+     * @return {CustomResponse&lt;TaskTree>}  
+     */
+    async getSingleTaskTree(organizationId, taskId){
+        let task = await this.taskManager.readTask(organizationId, taskId);
+        if(task.statusCode !== Errors.OK){
+            return task;
+        }
+        /**
+         * @type {Task}
+         */
+        task = task.payload;
+        let taskTree = new TaskTree(task.taskId, task.taskName);
+
+        for(let childTaskId of task.childTasks){
+            let childTask = this.getSingleTaskTree(organizationId, childTaskId);
+            taskTree.childTasks.push(childTask);
+        }
+
+        taskTree.childTasks = await Promise.all(taskTree.childTasks);
+
+        for(let childTask of taskTree.childTasks){
+            if(childTask.statusCode !== Errors.OK){
+                return childTask;
+            }
+        }
+
+        taskTree.childTasks = taskTree.childTasks.map((x) => x.payload);
+
+        return new CustomResponse(Errors.OK, "", taskTree);
     }
 
     /**
@@ -49,8 +111,15 @@ export default class TaskGetter extends ServicesBaseClass{
      * @returns {CustomResponse&lt;Task>}
      */
     getTask(organizationId, taskId, userId, userToken){
+        return this.taskManager.readTask(organizationId, taskId);
     }
-}</code></pre>
+}
+
+const taskGetter = new TaskGetter();
+
+
+exports.TaskGetter = TaskGetter;
+exports.taskGetter = taskGetter;</code></pre>
         </article>
     </section>
 
@@ -60,13 +129,13 @@ export default class TaskGetter extends ServicesBaseClass{
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calculateSubscriptionPrice">calculateSubscriptionPrice</a></li><li><a href="global.html#createTaskNotes">createTaskNotes</a></li><li><a href="global.html#deleteNotification">deleteNotification</a></li><li><a href="global.html#deleteReportSchedule">deleteReportSchedule</a></li><li><a href="global.html#executeScheduledReport">executeScheduledReport</a></li><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#getNotificationDetails">getNotificationDetails</a></li><li><a href="global.html#getNotificationList">getNotificationList</a></li><li><a href="global.html#getReportSchedules">getReportSchedules</a></li><li><a href="global.html#getTask">getTask</a></li><li><a href="global.html#getTasksForUser">getTasksForUser</a></li><li><a href="global.html#markNotificationAsRead">markNotificationAsRead</a></li><li><a href="global.html#paySubscription">paySubscription</a></li><li><a href="global.html#scheduleReport">scheduleReport</a></li><li><a href="global.html#sendNotification">sendNotification</a></li><li><a href="global.html#verifySubscription">verifySubscription</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="CustomResponse.html">CustomResponse</a></li><li><a href="global.html#Notification">Notification</a></li><li><a href="global.html#Organization">Organization</a></li><li><a href="global.html#Task">Task</a></li><li><a href="global.html#TaskNote">TaskNote</a></li><li><a href="global.html#TaskReportSchedule">TaskReportSchedule</a></li><li><a href="global.html#TaskTree">TaskTree</a></li><li><a href="global.html#User">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getGoogleOauthUrl">getGoogleOauthUrl</a></li><li><a href="global.html#getNameAndEmail">getNameAndEmail</a></li><li><a href="global.html#promptLlm">promptLlm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Wed Jun 19 2024 16:32:18 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Sun Jun 23 2024 19:31:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
