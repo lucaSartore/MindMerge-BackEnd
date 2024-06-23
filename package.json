@@ -7,6 +7,7 @@
     "test": "node node_modules/jest/bin/jest.js --runInBand",
     "start": "node index.js",
     "dev": "node -r dotenv/config index.js",
+    "generate-api": "node swagger-jsdoc.js",
     "documentation": "node node_modules/jsdoc/jsdoc.js -c .\\jsdoc.conf.json -r"
   },
   "author": "",
@@ -16,9 +17,13 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "googleapis": "^137.1.0",
+    "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.4",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "npm": "^10.8.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "jsdoc": "^4.0.3",

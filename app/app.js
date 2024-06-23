@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const {accountRouter, userRouter} = require('./services/account_manager/account_manager.js');
 const {organizationEditorRouter} = require('./services/organization_manager/organization_editor.js');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('../swagger.json');
 const {testingRouter} = require('./services/notification_manager/external_notification_manager.js');
 const {taskRouter} = require('./services/task_manager/task_router.js');
 const {reportRouter} = require('./services/report_manager/report_manager.js');
@@ -15,6 +17,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
+
+// documentation of apis
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const {promptLlm} = require('./services/report_manager/llm_prompter.js');
+app.get('/hello', async (req, res) => {
+  res.send('Hello World!');
+});
 
 app.use(adjustStatusCodeMiddleware);
 app.use(printRequestMiddleware);

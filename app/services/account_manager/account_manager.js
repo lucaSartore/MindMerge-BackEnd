@@ -5,6 +5,7 @@ const { CustomResponse } = require('../../common_infrastructure/response.js');
 const { Errors } = require('../../common_infrastructure/errors.js');
 const { UserKind } = require('../../common_infrastructure/user_kind.js');
 const { LogInResponse } = require('../../common_infrastructure/log_in_response.js');
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { User } = require('../../common_infrastructure/user.js');
@@ -88,11 +89,29 @@ class AccountManager extends ServicesBaseClass {
     }
 
     /**
+     * @param {string} oauthCode 
+     * @returns {CustomResponse<LogInResponse>}
+     */
+    googleLogIn(oauthCode) {
+        return new CustomResponse(
+            Errors.OK,
+            "Success",
+            new LogInResponse(1, "token")
+        )
+    }
+
+    /**
+     * @param {string} oauthCode 
+     * @returns {CustomResponse<LogInResponse>}
+     */
+    facebookLogIn(oauthCode) {
+    }
+
+    /**
      * @param {string} userName
      * @returns {CustomResponse<LogInResponse>}
      */
     async googleLogIn(userName) {
-        let v;
 
         let user = await this.userManager.readUserByName(userName);
         if (user.statusCode != Errors.OK) {
@@ -277,13 +296,71 @@ class AccountManager extends ServicesBaseClass {
 
 const accountManager = new AccountManager();
 
+/**
+  * @openapi
+  * /api/v1/account/oauth_info:
+  *     get:
+  *         summary: Informations client needs to log in with google
+  *         description: Return the informations (in particular the url) that the client needs to log in with google
+  *
+  *         tags:
+  *            - Account
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully returns oauth informations
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                 statusCode:
+  *                                     type: integer
+  *                                 message:
+  *                                     type: string
+  *                                 payload:
+  *                                     type: object
+  *                                     properties:
+  *                                         redirectUrl:
+  *                                          type : string
+  *             500:
+  *                 description: Internal server error
+  */
 accountRouter.get('/google/oauth_info',requestWrapper( (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
 }));
 
-// this need to be a get because of google's redirect
+/**
+  * @openapi
+  * /api/v1/account/google/callback:
+  *     get:
+  *         summary: Callback for google oauth
+  *         description: After a sign up or login with google, the user is redirected to this endpoint, so that the server can generate a token for the user
+  *
+  *         tags:
+  *            - Account
+  * 
+  *         parameters:
+  *             - name: code
+  *               description: The code returned by google after the user logs in
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             304:
+  *                 description: Redirect to the frontend with a valid token
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             500:
+  *                 description: Internal server error
+  *         
+  * 
+  */
 accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     let response = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
@@ -293,14 +370,109 @@ accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     res.redirect(process.env.AFTER_BAD_LOGIN_REDIRECT_URI+ '?response=' + JSON.stringify(response));
 }));
 
-// return the user id starting from a name
+/**
+  * @openapi
+  * /api/v1/user/id:
+  *     get:
+  *         summary: Return user ID
+  *         description: Get an user's ID starting from the unique name
+  *
+  *         tags:
+  *            - Users
+  * 
+  *         parameters:
+  *             - name: name
+  *               description: The name of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the id of the user
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: number
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  */
 userRouter.get('/id',requestWrapper( async (req, res) => {
     let response = await accountManager.getUserByName(req.query.name);
     res.status(response.statusCode)
     res.json(response)
 }));
 
-// return all the user informations starting from an id
+/**
+  * @openapi
+  * /api/v1/user/{userId}:
+  *     get:
+  *         summary: return the details of an user starting from an id
+  *         description: return the details of an user starting from an id. This API is protected, by the token, therefore only the user with the same id can see the details
+  * 
+  *         tags:
+  *            - Users
+  *
+  *         parameters:
+  *             - name: userId
+  *               description: The id of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the user
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: object
+  *                                     $ref: '#/components/schemas/User'
+  * 
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *             
+  * 
+  */
 userRouter.get('/:userId',requestWrapper( async (req, res) => {
 
     if(req.loggedUser != req.params.userId){
@@ -315,7 +487,55 @@ userRouter.get('/:userId',requestWrapper( async (req, res) => {
     res.json(response)
 }));
 
-// return the user name starting from an id
+
+/**
+  * @openapi
+  * /api/v1/user/{userId}/name:
+  *     get:
+  *         summary: Get an user's name starting from an id
+  *         description: Get an user's name starting from an id 
+  *
+  *         tags:
+  *            - Users
+  * 
+  *         parameters:
+  *             - name: userId
+  *               description: The id of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the user's name
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *         
+  * 
+  */
 userRouter.get('/:userId/name',requestWrapper( async (req, res) => {
     let user = req.params.userId * 1;
     let response = await accountManager.getUserName(user);
@@ -326,4 +546,3 @@ userRouter.get('/:userId/name',requestWrapper( async (req, res) => {
 exports.accountRouter = accountRouter;
 exports.userRouter = userRouter;
 exports.accountManager = accountManager;
-
