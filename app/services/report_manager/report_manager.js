@@ -86,8 +86,17 @@ const reportManager = new ReportManager();
   *                         prompt:
   *                            type : string
   *         responses:
-  *             200:
+  *             201:
   *                 description: Successfully creates the task note
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:

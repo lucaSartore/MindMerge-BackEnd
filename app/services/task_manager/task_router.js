@@ -21,7 +21,7 @@ const {requestWrapper} = require('../../middleware/global_error_handler_middlewa
   *             - name: user_id
   *               description: The id of the user
   *               in: query
-  *               required: false
+  *               required: true
   *               schema:
   *                 type : integer
   *             - name: organization_id
@@ -42,7 +42,17 @@ const {requestWrapper} = require('../../middleware/global_error_handler_middlewa
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: string
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: array
+  *                                     items:
+  *                                         type: object
+  *                                         $ref: '#/components/schemas/TaskTree'
   *             400:
   *                 description: Bad request
   *             403:
@@ -99,7 +109,15 @@ taskRouter.get('/task_tree',requestWrapper( async (req, res) => {
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: Task
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: object
+  *                                     $ref: '#/components/schemas/Task'
   *             400:
   *                 description: Bad request
   *             403:
@@ -161,6 +179,15 @@ taskRouter.get('/:task_id',requestWrapper( async (req, res) => {
   *         responses:
   *             200:
   *                 description: Successfully updates the task name
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -198,12 +225,17 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *           description: The new notes for the task
   *           required: true
   *           content:
-  *              application/json:
-  *                 schema:      
-  *                     type: object
-  *                     properties:
-  *                       notes:
-  *                          type : string
+  *               application/json:   
+  *                   schema:
+  *                       type: object
+  *                       properties:
+  *                          statusCode:
+  *                               type: integer
+  *                          message:
+  *                               type: string
+  *                          payload: 
+  *                               type: object
+  *                               $ref: '#/components/schemas/TaskNote'
   *
   *         parameters:
   *             - name: task_id
@@ -217,7 +249,7 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *               in: path
   *               required: true
   *               schema:
-  *                 type : string  
+  *                 type : integer
   *             - name: organization_id
   *               description: The id of the organization
   *               in: query
@@ -232,7 +264,16 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *                 type : string
   *         responses:
   *             200:
-  *                 description: Successfully updates the task name
+  *                 description: Successfully updates the task notes
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -277,66 +318,22 @@ taskRouter.put("/:task_id/notes/:notes_id",requestWrapper( async (req,res) => {
   *             description: The Task data
   *             required: true
   *             content:
-  *                application/json:
-  *                   schema:      
-  *                       type: object
-  *                       properties:
-  *                         childTasks:
-  *                            type : array
-  *                            items:
-  *                              type: integer
-  *                            default: []
-  *                         lastUpdated:
-  *                            type : string
-  *                            format: date-time    
-  *                         notificationEnable:
-  *                           type : boolean
-  *                           default: false
-  *                         recursivePermissionsValue:
-  *                           type : integer
-  *                         taskAssignees:
-  *                            type : array
-  *                            items:
-  *                              type: integer
-  *                         taskDescription:
-  *                           type : string
-  *                           default: " "
-  *                         taskFatherId:
-  *                           type : integer
-  *                           default: null
-  *                         taskId:
-  *                           type : integer
-  *                           default: 1
-  *                         taskManager:
-  *                           type : integer
-  *                         taskName:
-  *                           type : string
-  *                         taskNotes:
-  *                            type : array
-  *                            items:
-  *                              type: object
-  *                              properties:
-  *                                 noteId:
-  *                                    type : integer
-  *                                 taskId:
-  *                                    type : integer
-  *                                 notes:
-  *                                    type : string
-  *                                 date:
-  *                                    type : string
-  *                                    format: date-time
-  *                            default: null
-  *                         taskOrganizationId:
-  *                           type : integer
-  *                         taskReports:
-  *                           type : array
-  *                           items:
-  *                              type: object
-  *                         taskStatus:
-  *                           type : integer
+  *                 application/json:   
+  *                     schema:
+  *                        type: object
+  *                        $ref: '#/components/schemas/Task'
   *         responses:
-  *             200:
+  *             201:
   *                 description: Successfully creates the task
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -395,8 +392,17 @@ taskRouter.post("/",requestWrapper( async (req,res) =>{
   *                         notes:
   *                            type : string
   *         responses:
-  *             200:
+  *             201:
   *                 description: Successfully creates the task note
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -448,7 +454,7 @@ taskRouter.post("/:task_id/notes/",requestWrapper( async (req,res) => {
   *               schema:
   *                 type : string
   *         responses:
-  *             200:
+  *             204:
   *                 description: Successfully removes the task
   *             400:
   *                 description: Bad request
@@ -507,7 +513,7 @@ taskRouter.delete("/:task_id",requestWrapper( async (req,res) => {
   *               schema:
   *                 type : string
   *         responses:
-  *             200:
+  *             204:
   *                 description: Successfully removes the task note
   *             400:
   *                 description: Bad request
@@ -566,8 +572,17 @@ taskRouter.delete("/:task_id/notes/:note_id",requestWrapper( async (req,res) => 
   *             schema:
   *               type : string
   *         responses:
-  *             200:
+  *             201:
   *                 description: Successfully assigns the user to the task
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -626,7 +641,7 @@ taskRouter.post("/:task_id/assignee/:assignee_id",requestWrapper( async (req,res
   *               schema:
   *                 type : string
   *         responses:
-  *             200:
+  *             204:
   *                 description: Successfully removes the user from the task
   *             400:
   *                 description: Bad request
@@ -688,6 +703,15 @@ taskRouter.delete("/:task_id/assignee/:assignee_id",requestWrapper( async (req,r
   *         responses:
   *             200:
   *                 description: Successfully updates the task status
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:

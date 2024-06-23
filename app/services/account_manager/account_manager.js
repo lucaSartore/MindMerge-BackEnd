@@ -289,13 +289,71 @@ class AccountManager extends ServicesBaseClass {
 
 const accountManager = new AccountManager();
 
+/**
+  * @openapi
+  * /api/v1/account/oauth_info:
+  *     get:
+  *         summary: Informations client needs to log in with google
+  *         description: Return the informations (in particular the url) that the client needs to log in with google
+  *
+  *         tags:
+  *            - Account
+  * 
+  *         responses:
+  *             200:
+  *                 description: Successfully returns oauth informations
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                 statusCode:
+  *                                     type: integer
+  *                                 message:
+  *                                     type: string
+  *                                 payload:
+  *                                     type: object
+  *                                     properties:
+  *                                         redirectUrl:
+  *                                          type : string
+  *             500:
+  *                 description: Internal server error
+  */
 accountRouter.get('/google/oauth_info',requestWrapper( (req, res) => {
     let response = accountManager.getGoogleOauthLogInInfo();
     res.status(response.statusCode)
     res.json(response)
 }));
 
-// this need to be a get because of google's redirect
+/**
+  * @openapi
+  * /api/v1/account/google/callback:
+  *     get:
+  *         summary: Callback for google oauth
+  *         description: After a sign up or login with google, the user is redirected to this endpoint, so that the server can generate a token for the user
+  *
+  *         tags:
+  *            - Account
+  * 
+  *         parameters:
+  *             - name: code
+  *               description: The code returned by google after the user logs in
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             304:
+  *                 description: Redirect to the frontend with a valid token
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             500:
+  *                 description: Internal server error
+  *         
+  * 
+  */
 accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     let response = await accountManager.googleSignUp(req.query.code);
     if (response.statusCode == Errors.OK) {
@@ -305,7 +363,52 @@ accountRouter.get('/google/callback',requestWrapper( async (req, res) => {
     res.redirect(process.env.AFTER_BAD_LOGIN_REDIRECT_URI+ '?response=' + JSON.stringify(response));
 }));
 
-// return the user id starting from a name
+/**
+  * @openapi
+  * /api/v1/user/id:
+  *     get:
+  *         summary: Return user ID
+  *         description: Get an user's ID starting from the unique name
+  *
+  *         tags:
+  *            - Users
+  * 
+  *         parameters:
+  *             - name: name
+  *               description: The name of the user to get
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : string
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  *         responses:
+  *             200:
+  *                 description: Successfully returns the id of the user
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: number
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  */
 userRouter.get('/id',requestWrapper( async (req, res) => {
     let response = await accountManager.getUserByName(req.query.name);
     res.status(response.statusCode)
@@ -342,7 +445,16 @@ userRouter.get('/id',requestWrapper( async (req, res) => {
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: string
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: object
+  *                                     $ref: '#/components/schemas/User'
+  * 
   *             400:
   *                 description: Bad request
   *             403:
@@ -394,11 +506,18 @@ userRouter.get('/:userId',requestWrapper( async (req, res) => {
   *                 type : string
   *         responses:
   *             200:
-  *                 description: Successfully returns the user
+  *                 description: Successfully returns the user's name
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: string
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:

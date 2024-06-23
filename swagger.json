@@ -26,7 +26,406 @@
       "description": "APIs for managing reports"
     }
   ],
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "The id of the user"
+          },
+          "userName": {
+            "type": "string",
+            "description": "The name of the user"
+          },
+          "organizations": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "The ids of the organizations that the user is in"
+          },
+          "userKind": {
+            "type": "integer",
+            "description": "The kind of the user (Custom, Google, Facebook)"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user"
+          }
+        },
+        "required": [
+          "userId",
+          "userName",
+          "organizations",
+          "userKind",
+          "email"
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "description": "The id of the task"
+          },
+          "taskFatherId": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The id of the father task"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date when the task was last updated"
+          },
+          "taskName": {
+            "type": "string",
+            "description": "The name of the task"
+          },
+          "taskDescription": {
+            "type": "string",
+            "description": "The description of the task"
+          },
+          "taskStatus": {
+            "type": "integer",
+            "description": "The status of the task"
+          },
+          "taskNotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskNote"
+            },
+            "description": "The notes of the task"
+          },
+          "taskAssignees": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "A list containing the ids of the assignees for the current task"
+          },
+          "taskManager": {
+            "type": "integer",
+            "description": "The id of the manager"
+          },
+          "taskOrganizationId": {
+            "type": "integer",
+            "description": "The id of the organization"
+          },
+          "taskReports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskReportSchedule"
+            },
+            "description": "The reports of the task"
+          },
+          "notificationEnable": {
+            "type": "boolean",
+            "description": "Whether to send notification to the manager when the status of the task changes or not"
+          },
+          "childTasks": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "The ids of the child tasks"
+          },
+          "recusivePermissionsValue": {
+            "type": "integer",
+            "description": "How far down the task tree the permissions of the task are inherited"
+          }
+        },
+        "required": [
+          "taskId",
+          "taskName",
+          "taskDescription",
+          "taskStatus",
+          "taskAssignees",
+          "taskManager",
+          "taskOrganizationId",
+          "taskNotes",
+          "taskReports",
+          "notificationEnable",
+          "childTasks",
+          "recusivePermissionsValue"
+        ]
+      },
+      "TaskReportSchedule": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "description": "The id of the task"
+          },
+          "reportScheduleId": {
+            "type": "integer",
+            "description": "The id of the report schedule"
+          },
+          "reportType": {
+            "type": "integer",
+            "description": "The type of the report"
+          },
+          "reportFrequency": {
+            "type": "integer",
+            "description": "The frequency of the report"
+          },
+          "nextReportDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date when the report begins"
+          },
+          "reportPrompt": {
+            "type": "string",
+            "description": "The prompt/question for the report"
+          }
+        },
+        "required": [
+          "taskId",
+          "reportScheduleId",
+          "reportType",
+          "reportFrequency",
+          "nextReportDate",
+          "reportPrompt"
+        ]
+      },
+      "TaskNote": {
+        "type": "object",
+        "properties": {
+          "noteId": {
+            "type": "integer",
+            "description": "The id of the note"
+          },
+          "taskId": {
+            "type": "integer",
+            "description": "The id of the task the notes are for"
+          },
+          "notes": {
+            "type": "string",
+            "description": "The note itself"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date when the note was last edited"
+          }
+        },
+        "required": [
+          "noteId",
+          "taskId",
+          "notes",
+          "date"
+        ]
+      },
+      "Organization": {
+        "type": "object",
+        "properties": {
+          "organizationId": {
+            "type": "integer",
+            "description": "The id of the organization"
+          },
+          "organizationName": {
+            "type": "string",
+            "description": "The name of the organization"
+          },
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "The ids of the users in the organization"
+          },
+          "licenseValid": {
+            "type": "boolean",
+            "description": "If the license of the organization is valid"
+          },
+          "licenseExpirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date when the license expires"
+          },
+          "ownerId": {
+            "type": "integer",
+            "description": "The id of the owner of the organization"
+          }
+        },
+        "required": [
+          "organizationId",
+          "organizationName",
+          "userIds",
+          "licenseValid",
+          "licenseExpirationDate",
+          "ownerId"
+        ]
+      },
+      "TaskTree": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "description": "The id of the task"
+          },
+          "childTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskTree"
+            },
+            "default": [],
+            "description": "The child tasks of the task"
+          },
+          "taskName": {
+            "type": "string",
+            "description": "The name of the task"
+          }
+        },
+        "required": [
+          "taskId",
+          "childTasks",
+          "taskName"
+        ]
+      }
+    }
+  },
   "paths": {
+    "/api/v1/account/oauth_info": {
+      "get": {
+        "summary": "Informations client needs to log in with google",
+        "description": "Return the informations (in particular the url) that the client needs to log in with google",
+        "tags": [
+          "Account"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns oauth informations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "properties": {
+                        "redirectUrl": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/account/google/callback": {
+      "get": {
+        "summary": "Callback for google oauth",
+        "description": "After a sign up or login with google, the user is redirected to this endpoint, so that the server can generate a token for the user",
+        "tags": [
+          "Account"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "description": "The code returned by google after the user logs in",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "304": {
+            "description": "Redirect to the frontend with a valid token"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/user/id": {
+      "get": {
+        "summary": "Return user ID",
+        "description": "Get an user's ID starting from the unique name",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The name of the user to get",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returns the id of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/v1/user/{userId}": {
       "get": {
         "summary": "return the details of an user starting from an id",
@@ -60,7 +459,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
                 }
               }
             }
@@ -109,11 +520,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully returns the user",
+            "description": "Successfully returns the user's name",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -166,57 +588,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": {
-                    "id": "number",
-                    "name": "string"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "403": {
-            "description": "Not authorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Remove an user from an organization",
-        "description": "Remove the user with the given id from the organization with the given id",
-        "tags": [
-          "Organizations"
-        ],
-        "parameters": [
-          {
-            "name": "organization_id",
-            "description": "The id of the organization",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "Token",
-            "description": "The jwt (json web token) of the user",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully removes the user from the organization"
           },
           "400": {
             "description": "Bad request"
@@ -270,26 +667,76 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully returns the users ids and names list",
+          "201": {
+            "description": "Successfully adds the user to the organization",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer"
-                      },
-                      "name": {
-                        "type": "string"
-                      }
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove an user from an organization",
+        "description": "Remove the user with the given id from the organization with the given id",
+        "tags": [
+          "Organizations"
+        ],
+        "parameters": [
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "user_id",
+            "description": "The id of the user to remove",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully removes the user from the organization"
           },
           "400": {
             "description": "Bad request"
@@ -339,7 +786,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "Organization"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Organization"
+                    }
+                  }
                 }
               }
             }
@@ -374,30 +833,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "organizationId": {
-                    "type": "integer"
-                  },
-                  "organizationName": {
-                    "type": "string"
-                  },
-                  "userIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    }
-                  },
-                  "licenseValid": {
-                    "type": "boolean"
-                  },
-                  "licenseExpirationDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "ownerId": {
-                    "type": "integer"
-                  }
-                }
+                "$ref": "#/components/schemas/Organization"
               }
             }
           }
@@ -414,8 +850,23 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully returns the users ids and names list"
+          "201": {
+            "description": "Successfully creates the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -434,8 +885,8 @@
     },
     "/api/v1/organization/{organization_id}/name": {
       "get": {
-        "summary": "Get an organization name",
-        "description": "Get an organization name with the given id",
+        "summary": "Get the name of an organization",
+        "description": "Get the name of the organization with the given id",
         "tags": [
           "Organizations"
         ],
@@ -465,7 +916,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -548,8 +1010,23 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successfully creates the task note"
+          "201": {
+            "description": "Successfully creates the task note",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -578,7 +1055,7 @@
             "name": "user_id",
             "description": "The id of the user",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "integer"
             }
@@ -608,7 +1085,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/TaskTree"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -670,7 +1162,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "Task"
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "payload": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/Task"
+                    }
+                  }
                 }
               }
             }
@@ -725,7 +1229,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "Successfully removes the task"
           },
           "400": {
@@ -790,7 +1294,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully updates the task name"
+            "description": "Successfully updates the task name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -822,8 +1341,15 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "notes": {
+                  "statusCode": {
+                    "type": "integer"
+                  },
+                  "message": {
                     "type": "string"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/TaskNote"
                   }
                 }
               }
@@ -846,7 +1372,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           },
           {
@@ -870,7 +1396,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully updates the task name"
+            "description": "Successfully updates the task notes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -913,91 +1454,29 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "childTasks": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    },
-                    "default": []
-                  },
-                  "lastUpdated": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "notificationEnable": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "recursivePermissionsValue": {
-                    "type": "integer"
-                  },
-                  "taskAssignees": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer"
-                    }
-                  },
-                  "taskDescription": {
-                    "type": "string",
-                    "default": " "
-                  },
-                  "taskFatherId": {
-                    "type": "integer",
-                    "default": null
-                  },
-                  "taskId": {
-                    "type": "integer",
-                    "default": 1
-                  },
-                  "taskManager": {
-                    "type": "integer"
-                  },
-                  "taskName": {
-                    "type": "string"
-                  },
-                  "taskNotes": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "noteId": {
-                          "type": "integer"
-                        },
-                        "taskId": {
-                          "type": "integer"
-                        },
-                        "notes": {
-                          "type": "string"
-                        },
-                        "date": {
-                          "type": "string",
-                          "format": "date-time"
-                        }
-                      }
-                    },
-                    "default": null
-                  },
-                  "taskOrganizationId": {
-                    "type": "integer"
-                  },
-                  "taskReports": {
-                    "type": "array",
-                    "items": {
-                      "type": "object"
-                    }
-                  },
-                  "taskStatus": {
-                    "type": "integer"
-                  }
-                }
+                "$ref": "#/components/schemas/Task"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Successfully creates the task"
+          "201": {
+            "description": "Successfully creates the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -1059,8 +1538,23 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Successfully creates the task note"
+          "201": {
+            "description": "Successfully creates the task note",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -1123,7 +1617,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "Successfully removes the task note"
           },
           "400": {
@@ -1187,8 +1681,23 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully assigns the user to the task"
+          "201": {
+            "description": "Successfully assigns the user to the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -1249,7 +1758,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "Successfully removes the user from the task"
           },
           "400": {
@@ -1314,7 +1823,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully updates the task status"
+            "description": "Successfully updates the task status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad request"
@@ -1331,6 +1855,5 @@
         }
       }
     }
-  },
-  "components": {}
+  }
 }

@@ -146,7 +146,22 @@ const organizationEditor = new OrganizationEditor();
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: {id: number, name: string}
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: array
+  *                                     items:
+  *                                         type: object
+  *                                         properties:
+  *                                            id: 
+  *                                                 type: number
+  *                                            name:
+  *                                                 type: string      
+  * 
   *             400:
   *                 description: Bad request
   *             403:
@@ -196,19 +211,17 @@ organizationEditorRouter.get('/:organization_id/users', requestWrapper(async (re
   *               schema:
   *                 type : string
   *         responses:
-  *             200:
-  *                 description: Successfully returns the users ids and names list
+  *             201:
+  *                 description: Successfully adds the user to the organization
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: array
-  *                             items: 
-  *                                 type: object
-  *                                 properties: 
-  *                                     id: 
-  *                                         type: integer
-  *                                     name: 
-  *                                         type: string
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -231,7 +244,7 @@ organizationEditorRouter.post('/:organization_id/user/:user_id', requestWrapper(
 
 /**
   * @openapi
-  * /api/v1/organization/{organization_id}/users:
+  * /api/v1/organization/{organization_id}/user/{user_id}:
   *     delete:
   *         summary: Remove an user from an organization
   *         description: Remove the user with the given id from the organization with the given id
@@ -246,6 +259,12 @@ organizationEditorRouter.post('/:organization_id/user/:user_id', requestWrapper(
   *               required: true
   *               schema:
   *                 type : integer
+  *             - name: user_id
+  *               description: The id of the user to remove
+  *               in: path
+  *               required: true
+  *               schema:
+  *                  type : integer
   *             - name: Token
   *               description: The jwt (json web token) of the user
   *               in: header
@@ -253,7 +272,7 @@ organizationEditorRouter.post('/:organization_id/user/:user_id', requestWrapper(
   *               schema:
   *                 type : string
   *         responses:
-  *             200:
+  *             204:
   *                 description: Successfully removes the user from the organization
   *             400:
   *                 description: Bad request
@@ -304,7 +323,15 @@ organizationEditorRouter.delete('/:organization_id/user/:user_id', requestWrappe
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: Organization
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: object
+  *                                     $ref: '#/components/schemas/Organization'
   *             400:
   *                 description: Bad request
   *             403:
@@ -339,25 +366,10 @@ organizationEditorRouter.get('/:organization_id', requestWrapper(async (req, res
   *             description: The organization data
   *             required: true
   *             content:
-  *                application/json:
-  *                   schema:      
-  *                       type: object
-  *                       properties:
-  *                         organizationId:
-  *                            type : integer
-  *                         organizationName:
-  *                           type : string
-  *                         userIds:
-  *                           type : array
-  *                           items: 
-  *                              type: integer
-  *                         licenseValid:
-  *                           type : boolean
-  *                         licenseExpirationDate:
-  *                           type : string
-  *                           format: date-time
-  *                         ownerId:
-  *                             type : integer
+  *                 application/json:   
+  *                     schema:
+  *                         type: object
+  *                         $ref: '#/components/schemas/Organization'
   *         parameters:
   *           - name: Token
   *             description: The jwt (json web token) of the user
@@ -367,8 +379,17 @@ organizationEditorRouter.get('/:organization_id', requestWrapper(async (req, res
   *               type : string
   * 
   *         responses:
-  *             200:
-  *                 description: Successfully returns the users ids and names list
+  *             201:
+  *                 description: Successfully creates the organization
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
@@ -392,8 +413,8 @@ organizationEditorRouter.post('/', requestWrapper(async (req, res) => {
   * @openapi
   * /api/v1/organization/{organization_id}/name:
   *     get:
-  *         summary: Get an organization name
-  *         description: Get an organization name with the given id
+  *         summary: Get the name of an organization
+  *         description: Get the name of the organization with the given id
   *
   *         tags:
   *            - Organizations
@@ -417,7 +438,14 @@ organizationEditorRouter.post('/', requestWrapper(async (req, res) => {
   *                 content:
   *                     application/json:   
   *                         schema:
-  *                             type: string
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *                                payload: 
+  *                                     type: string
   *             400:
   *                 description: Bad request
   *             403:
