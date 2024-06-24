@@ -1341,15 +1341,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "statusCode": {
-                    "type": "integer"
-                  },
-                  "message": {
+                  "notes": {
                     "type": "string"
-                  },
-                  "payload": {
-                    "type": "object",
-                    "$ref": "#/components/schemas/TaskNote"
                   }
                 }
               }
@@ -1824,6 +1817,92 @@
         "responses": {
           "200": {
             "description": "Successfully updates the task status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/task/{task_id}/description": {
+      "put": {
+        "summary": "Update a task description",
+        "description": "Update a task description with given id and valid organization id",
+        "tags": [
+          "Tasks"
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "description": "The id of the task",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "organization_id",
+            "description": "The id of the organization",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Token",
+            "description": "The jwt (json web token) of the user",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "the new description for the task",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updates the task description",
             "content": {
               "application/json": {
                 "schema": {
