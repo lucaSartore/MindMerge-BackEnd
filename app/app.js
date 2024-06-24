@@ -21,17 +21,12 @@ app.use(cors());
 // documentation of apis
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const {promptLlm} = require('./services/report_manager/llm_prompter.js');
 app.get('/hello', async (req, res) => {
   res.send('Hello World!');
 });
 
 app.use(adjustStatusCodeMiddleware);
 app.use(printRequestMiddleware);
-
-app.get('/hello', async (req, res) => {
-  res.send('Hello World!');
-});
 
 app.use('/api/v1/account', accountRouter);
 
