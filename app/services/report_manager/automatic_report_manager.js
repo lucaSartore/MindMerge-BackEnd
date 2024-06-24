@@ -80,8 +80,8 @@ class AutomaticReportManager extends ServicesBaseClass{
 
 The question is: ${reportPrompt}
             
-Keep in mind that your answer may be used to generate a better answer in a recursive call... therefore even if you can only give a partial answer it's totally fine!
-However it is also possible that the question dose not anything to do with the informations that you where given... in that case you should reply: "No relevant information were found".
+Keep in mind that your answer may be used to generate a better answer in a recursive call...
+Therefore you should try to answer the question no matter what, even if you don't have all the informations you need.
 
 The task in question has the name: ${task.taskName}`
         
