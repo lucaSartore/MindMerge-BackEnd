@@ -229,13 +229,8 @@ taskRouter.put("/:task_id/name/:new_name",requestWrapper( async (req,res) => {
   *                   schema:
   *                       type: object
   *                       properties:
-  *                          statusCode:
-  *                               type: integer
-  *                          message:
+  *                          notes:
   *                               type: string
-  *                          payload: 
-  *                               type: object
-  *                               $ref: '#/components/schemas/TaskNote'
   *
   *         parameters:
   *             - name: task_id
@@ -730,6 +725,79 @@ taskRouter.put("/:task_id/status/:new_status",requestWrapper( async (req,res) =>
     const newStatus = req.params.new_status * 1;
 
     let response = await taskEditor.updateTaskStatus(organizationId,taskId,newStatus,null,null);
+    res.status(response.statusCode);
+    res.json(response);
+}));
+
+/**
+  * @openapi
+  * /api/v1/task/{task_id}/description:
+  *     put:
+  *         summary: Update a task description
+  *         description: Update a task description with given id and valid organization id
+  *
+  *         tags:
+  *            - Tasks
+  * 
+  *         parameters:
+  *             - name: task_id
+  *               description: The id of the task
+  *               in: path
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: organization_id
+  *               description: The id of the organization
+  *               in: query
+  *               required: true
+  *               schema:
+  *                 type : integer
+  *             - name: Token
+  *               description: The jwt (json web token) of the user
+  *               in: header
+  *               required: true
+  *               schema:
+  *                 type : string
+  * 
+  *         requestBody:
+  *           description: the new description for the task
+  *           required: true
+  *           content:
+  *               application/json:   
+  *                   schema:
+  *                       type: object
+  *                       properties:
+  *                          description:
+  *                               type: string
+
+  *         responses:
+  *             200:
+  *                 description: Successfully updates the task description
+  *                 content:
+  *                     application/json:   
+  *                         schema:
+  *                             type: object
+  *                             properties:
+  *                                statusCode:
+  *                                     type: integer
+  *                                message:
+  *                                     type: string
+  *             400:
+  *                 description: Bad request
+  *             403:
+  *                 description: Not authorized
+  *             404:
+  *                 description: Not found
+  *             500:
+  *                 description: Internal server error
+  *         
+  * 
+  */
+taskRouter.put("/:task_id/description", requestWrapper(async (req, res) => {
+    const organizationId = req.query.organization_id * 1;
+    const taskId = req.params.task_id * 1;
+    const description = req.body.description;
+    let response = await taskEditor.updateTaskDescription(organizationId, taskId, description, null, null);
     res.status(response.statusCode);
     res.json(response);
 }));
